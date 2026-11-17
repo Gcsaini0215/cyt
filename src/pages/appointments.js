@@ -5,6 +5,8 @@ import AppointmentsContent from "../components/therapists/appointment/appointmen
 import { toast } from "react-toastify";
 import { fetchById } from "../utils/actions";
 import { getBookings } from "../utils/url";
+import { GrowthStyles, GrowthFollowups } from "../components/therapists/dashboard/grow-practice";
+import useTherapistStore from "../store/therapistStore";
 
 // In-body placeholder shaped like the real page (title, stat tiles, cards) —
 // replaces the old full-screen loader that covered the nav on every visit.
@@ -36,6 +38,7 @@ function AppointmentsSkeleton() {
 }
 
 export default function AppointmentsPage() {
+  const { therapistInfo } = useTherapistStore();
   const [data, setData] = useState([]);
   const [statusList, setDataList] = useState([]);
   // Start in the loading state so the first paint is the skeleton, not a
@@ -80,6 +83,14 @@ export default function AppointmentsPage() {
         </div>
       )
         : <AppointmentsContent appointments={data} statusList={statusList} onRefresh={getData} />}
+      {/* past clients to bring back — one tap WhatsApp / email (moved here from Home, 2026-11-18) */}
+      {!loading && (
+        <div className="apx-fu" style={{ maxWidth: 1240, margin: "8px auto 24px" }}>
+          <GrowthStyles />
+          <style dangerouslySetInnerHTML={{ __html: ".apx-fu .gp-card { border: 0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); } .apx-fu .gp-h b { font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: #1c1c1e; }" }} />
+          <GrowthFollowups therapistName={therapistInfo?.user?.name || ""} />
+        </div>
+      )}
     </MainLayout>
   );
 }

@@ -18,6 +18,10 @@ import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
 import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
 import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
+import TodayRoundedIcon from "@mui/icons-material/TodayRounded";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
+import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
+import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
 import { postData, fetchData } from "../../../utils/actions";
 import { startSessionNowUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
 import { joinSession } from "../../../utils/join-session";
@@ -381,13 +385,13 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
       <div className="apx-stats">
         {[
-          { k: "today", label: "Today", tone: "green", sub: "sessions today" },
-          { k: "upcoming", label: "Upcoming", tone: "teal", sub: "booked ahead" },
-          { k: "live", label: "In session", tone: "gold", sub: "running now" },
-          { k: "completed", label: "Completed", tone: "slate", sub: "all time" },
+          { k: "today", label: "Today", tone: "green", sub: "sessions today", Icon: TodayRoundedIcon },
+          { k: "upcoming", label: "Upcoming", tone: "teal", sub: "booked ahead", Icon: EventAvailableRoundedIcon },
+          { k: "live", label: "In session", tone: "gold", sub: "running now", Icon: PlayCircleRoundedIcon },
+          { k: "completed", label: "Completed", tone: "slate", sub: "all time", Icon: TaskAltRoundedIcon },
         ].map((s) => (
           <button key={s.k} type="button" className={`apx-stat ${s.tone}${filter === s.k ? " on" : ""}`} onClick={() => setFilter(filter === s.k ? "all" : s.k)}>
-            <span>{s.label}</span><b>{counts[s.k]}</b><small>{s.sub}</small>
+            <i className="apx-stat-ic" aria-hidden="true"><s.Icon /></i><span>{s.label}</span><b>{counts[s.k]}</b><small>{s.sub}</small>
           </button>
         ))}
       </div>
@@ -873,5 +877,125 @@ const APX_CSS = `
   .apx-acts .apx-btn.soft { flex: 1 1 auto; padding: 0 12px; white-space: nowrap; }
   .apx-acts .apx-btn.icon { flex: 0 0 32px; }
   .apx-acts > :first-child:not(.icon) { flex: 1 1 100%; justify-content: center; } /* after .soft so it wins */
+}
+
+/* ═══ Apple / iPad look (2026-11-17): same feel as the dashboard and the app-icon menu ═══ */
+.apx { --ap-ink: #1c1c1e; --ap-2: #6e6e73; --ap-3: #8e8e93; --ap-line: rgba(60,60,67,.12); --ap-green: #1e8a4f; --ap-fill: #f2f4f3; color: var(--ap-ink); }
+.apx .apx-head { align-items: center; margin-bottom: 18px; }
+.apx .apx-head h1 { font-size: clamp(26px, 2.6vw, 32px); font-weight: 800; letter-spacing: -.03em; color: var(--ap-ink); }
+.apx .apx-head p { font-size: 14.5px; color: var(--ap-2); margin-top: 4px; }
+
+/* buttons: rounded, tinted */
+.apx .apx-btn { border-radius: 12px; border: 0; font-weight: 600; }
+.apx .apx-btn.primary { background: var(--ap-green); box-shadow: 0 8px 16px -10px rgba(30,138,79,.8); }
+.apx .apx-btn.primary:hover { background: #17713f; filter: none; }
+.apx .apx-btn.danger { background: #ff3b30; } .apx .apx-btn.danger:hover { background: #e0352b; }
+.apx .apx-btn.soft { background: #e3f4e9; color: #14532d !important; border: 0; }
+.apx .apx-btn.soft:hover { background: #d2ecdb; }
+.apx .apx-btn.icon { border-radius: 50%; background: var(--ap-fill); color: var(--ap-ink) !important; }
+.apx .apx-btn.icon:hover { background: #e3f4e9; }
+.apx .apx-btn.icon.wa { color: #16a34a !important; }
+.apx .apx-seg { background: #e9ebea; border: 0; border-radius: 999px; padding: 3px; }
+.apx .apx-seg button { border-radius: 999px; color: var(--ap-2); font-weight: 600; }
+.apx .apx-seg button.on { background: #fff; color: var(--ap-ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+/* the four numbers: white cards with an app tile, like the dashboard */
+.apx .apx-stats { gap: 12px; margin-bottom: 18px; }
+.apx .apx-stat { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ic label" "num num" "sub sub"; align-items: center; column-gap: 10px; row-gap: 4px;
+  padding: 16px 18px 14px; border: 0 !important; border-radius: 20px; background: #fff !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.apx .apx-stat:hover { transform: translateY(-1px); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 16px 30px -18px rgba(15,23,42,.35); }
+.apx .apx-stat-ic { grid-area: ic; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-style: normal;
+  background: linear-gradient(160deg, var(--k1), var(--k2)); box-shadow: 0 6px 12px -7px var(--k2), inset 0 1px 0 rgba(255,255,255,.35); }
+.apx .apx-stat-ic svg { font-size: 19px; color: #fff; }
+.apx .apx-stat span { grid-area: label; font-size: 14px; font-weight: 600; color: var(--ap-ink); }
+.apx .apx-stat b { grid-area: num; font-size: clamp(26px, 2.4vw, 32px); font-weight: 800; letter-spacing: -.03em; color: var(--ap-ink) !important; margin-top: 6px; }
+.apx .apx-stat small { grid-area: sub; font-size: 12.5px; color: var(--ap-3); }
+.apx .apx-stat.green { --k1: #5ab0ff; --k2: #1d63d8; }
+.apx .apx-stat.teal { --k1: #ffc65a; --k2: #f07b12; }
+.apx .apx-stat.gold { --k1: #4fd38b; --k2: #12804a; }
+.apx .apx-stat.slate { --k1: #8f8cff; --k2: #5146d6; }
+.apx .apx-stat.on { box-shadow: 0 0 0 2px var(--ap-green), 0 10px 26px -18px rgba(15,23,42,.28); }
+
+/* filter pills + search, on the page colour */
+.apx .apx-bar { background: #f2f4f3; margin-bottom: 16px; }
+.apx .apx-filters button { border: 0; background: #fff; color: var(--ap-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.apx .apx-filters button:hover { background: #e9f5ee; }
+.apx .apx-filters button i { background: var(--ap-fill); color: var(--ap-2); font-weight: 700; }
+.apx .apx-filters button.on { background: var(--ap-ink); color: #fff; }
+.apx .apx-filters button.on i { background: rgba(255,255,255,.2); color: #fff; }
+.apx .apx-search { border: 0; border-radius: 999px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.06); color: var(--ap-3); }
+.apx .apx-search:focus-within { box-shadow: 0 0 0 3px rgba(30,138,79,.18); }
+
+/* section titles like iOS: "Upcoming 2" */
+.apx .apx-group { margin-bottom: 22px; }
+.apx .apx-group h2 { font-size: 20px; font-weight: 800; letter-spacing: -.02em; text-transform: none; color: var(--ap-ink); margin: 0 4px 12px; }
+.apx .apx-group h2 span { font-size: 13px; font-weight: 700; background: #e3e6e4; color: var(--ap-2); padding: 1px 9px; }
+.apx .apx-group h2.live { color: #c2570c; } .apx .apx-group h2.live span { background: #ffedd5; color: #c2570c; }
+.apx .apx-group.past h2 { color: var(--ap-2); }
+
+/* session cards: white and round; the time sits in its own little tile, like a calendar entry */
+.apx .apx-card { border: 0; border-radius: 20px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); padding: 10px; gap: 4px; }
+.apx .apx-card:hover { transform: translateY(-1px); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 18px 34px -20px rgba(15,23,42,.38); }
+.apx .apx-time, .apx .apx-card.live .apx-time, .apx .apx-card.done .apx-time, .apx .apx-card.cancel .apx-time {
+  width: 84px; border: 0; border-radius: 14px; background: #eef6ff; color: var(--ap-ink); padding: 10px 4px; }
+.apx .apx-card.live .apx-time { background: #fff4e5; }
+.apx .apx-card.done .apx-time { background: var(--ap-fill); }
+.apx .apx-card.cancel .apx-time { background: #fff0ef; }
+.apx .apx-time b { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+.apx .apx-time span { font-size: 11.5px; color: var(--ap-2); }
+.apx .apx-time em { background: #fff; color: #c2570c; font-weight: 700; }
+.apx .apx-main { padding: 6px 8px 4px 10px; gap: 8px; }
+.apx .apx-av { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(160deg, #4fd38b, #12804a); color: #fff; font-size: 12.5px; font-weight: 700; }
+.apx .apx-card.done .apx-av, .apx .apx-card.cancel .apx-av { background: linear-gradient(160deg, #b4bcc4, #6b7680); }
+.apx .apx-who-txt b { font-size: 15.5px; font-weight: 700; letter-spacing: -.01em; }
+.apx .apx-who-txt span { font-size: 12.5px; color: var(--ap-3); }
+.apx .apx-st { font-size: 11.5px; font-weight: 700; padding: 3px 10px; }
+.apx .apx-st.new { background: #e5f0ff; color: #0a6ae0; } .apx .apx-st.live { background: #ffedd5; color: #c2570c; }
+.apx .apx-st.done { background: #e3f4e9; color: #15803d; } .apx .apx-st.cancel { background: #ffe4e2; color: #d92d20; }
+.apx .apx-chips span { border-radius: 999px; background: var(--ap-fill); color: var(--ap-ink); font-weight: 600; padding: 3px 10px; }
+.apx .apx-chips span svg { color: #0a84ff; }
+.apx .apx-concern { border-left: 0; padding: 0; color: var(--ap-2); font-size: 13px; }
+.apx .apx-concern svg { color: #af52de; }
+.apx .apx-acts .apx-btn { height: 36px; border-radius: 12px; }
+.apx .apx-acts .apx-btn.icon { width: 36px; border-radius: 50%; }
+.apx .apx-acts .apx-btn.soft { color: #14532d !important; }
+.apx .apx-missed { border-radius: 12px; background: var(--ap-fill); color: var(--ap-2); font-weight: 600; }
+
+/* list view: a clean white table, no dark header */
+.apx .apx-table-wrap { border: 0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.apx .apx-table th { background: #fff; color: var(--ap-3); font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; border-bottom: 1px solid var(--ap-line); padding: 14px; }
+.apx .apx-table td { border-top: 0; box-shadow: inset 0 1px 0 var(--ap-line); }
+.apx .apx-table tr:first-child td { box-shadow: none; }
+.apx .apx-table tr:hover td { background: #f6faf7; }
+
+.apx .apx-empty { border: 0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+
+/* details drawer: an iPad sheet — light header, inset grouped sections */
+.apx .apx-drawer { background: #f2f4f3; }
+.apx .apx-dr-head { background: #fff; color: var(--ap-ink); border-bottom: 1px solid var(--ap-line); }
+.apx .apx-dr-head .apx-av { background: linear-gradient(160deg, #4fd38b, #12804a); color: #fff; border-radius: 50%; }
+.apx .apx-dr-who b { font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
+.apx .apx-dr-who span { color: var(--ap-2); }
+.apx .apx-x { border: 0; border-radius: 50%; background: var(--ap-fill); color: var(--ap-ink); }
+.apx .apx-dr-tabs { background: #fff; border-bottom: 1px solid var(--ap-line); }
+.apx .apx-dr-tabs button { font-weight: 600; color: var(--ap-2); }
+.apx .apx-dr-tabs button.on { color: var(--ap-ink); border-bottom-color: var(--ap-green); }
+.apx .apx-when > div, .apx .apx-sec, .apx .apx-inv { border: 0; border-radius: 16px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.apx .apx-when span { font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ap-3); }
+.apx .apx-sec h3 { font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--ap-3); }
+.apx .apx-sec dt { font-weight: 500; color: var(--ap-3); }
+.apx .apx-sec dd { font-weight: 600; }
+.apx .apx-note { border-left: 0; border-radius: 12px; background: var(--ap-fill); }
+.apx .apx-dr-foot { border-top: 1px solid var(--ap-line); }
+.apx .apx-ring { border-radius: 18px; border: 0; background: #1c1c1e; }
+
+@media (max-width: 767px) {
+  .apx .apx-head h1 { display: none; }
+  .apx .apx-stat { padding: 12px 14px 11px; border-radius: 18px; }
+  .apx .apx-stat-ic { width: 30px; height: 30px; border-radius: 9px; } .apx .apx-stat-ic svg { font-size: 17px; }
+  .apx .apx-stat b { font-size: 24px; margin-top: 2px; }
+  .apx .apx-time, .apx .apx-card.live .apx-time, .apx .apx-card.done .apx-time, .apx .apx-card.cancel .apx-time { width: 70px; }
+  .apx .apx-card { padding: 8px; }
+  .apx .apx-bar { margin: 0 -16px 14px; padding: 8px 16px; }
 }
 `;

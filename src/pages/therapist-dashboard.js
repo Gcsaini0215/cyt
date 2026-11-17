@@ -18,7 +18,7 @@ import { useTimingsTodo } from "../components/therapists/dashboard/AvailabilityN
 import { useAddonStep } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import ProfileInsights, { ProfileViewsSpot } from "../components/therapists/dashboard/profile-insights";
-import { GrowthStyles, GrowthGoal, GrowthBadge, GrowthFollowups, GrowthDemand } from "../components/therapists/dashboard/grow-practice";
+import { GrowthStyles, GrowthGoal, GrowthBadge, GrowthDemand } from "../components/therapists/dashboard/grow-practice";
 import { TodayBar, KpiCard, KpiHead, NextSessionSlider, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
@@ -212,6 +212,20 @@ const DASH_CSS = `
 /* a number card with no graph yet keeps its link at the bottom, so the card never looks half-empty */
 .ov .ov-kpi-hint { margin-top: auto; padding-top: 8px; }
 .ov .ov-kpi > :is(.ov-spark-wrap, .ov-bars-wrap, .ov-stars-wrap) ~ .ov-kpi-hint { margin-top: 0; }
+/* greeting folds away after a few seconds (TodayBar) */
+.ov .ov-today { max-height: 220px; overflow: hidden; transition: max-height .55s cubic-bezier(.4,0,.2,1), opacity .35s ease, margin .55s cubic-bezier(.4,0,.2,1); }
+.ov .ov-today.gone { max-height: 0; opacity: 0; margin-bottom: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .ov .ov-today { transition: none; } }
+/* "Your numbers  [All time | This month]" above the number cards on every size (it was phones only) */
+.ov .ov-kpi-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px -2px; }
+.ov .ov-kpi-head b { font-size: 17px; font-weight: 700; letter-spacing: -.02em; color: var(--ap-ink); }
+.ov .ov-top { grid-template-areas: "next todo" "kpihead todo" "kpis todo"; grid-template-rows: auto auto 1fr; }
+.ov .ov-top.no-next { grid-template-areas: "kpihead todo" "kpis todo"; grid-template-rows: auto 1fr; }
+@media (max-width: 899px) {
+  .ov .ov-top { grid-template-areas: "next" "kpihead" "kpis" "todo"; grid-template-rows: none; }
+  .ov .ov-top.no-next { grid-template-areas: "kpihead" "kpis" "todo"; }
+}
+
 /* main area as rows that line up; a pair is as tall as its taller card and the shorter one stays its own height */
 .ov .ov-main-grid.ov-rows { align-items: start; }
 .ov .ov-main-grid.ov-rows > div { display: block; min-width: 0; }
@@ -295,6 +309,39 @@ const DASH_CSS = `
   .ov .ov-next.hero .ov-next-btns > :first-child { height: 46px; border-radius: 14px; font-size: 14.5px; }
   .ov .ov-next.hero .ov-next-btns > :not(:first-child) { height: 40px; }
 }
+/* ── Next session in brand green with gold, so it stands out (2026-11-18) ── */
+.ov .ov-card.ov-next.hero { background: radial-gradient(120% 120% at 100% 0%, rgba(245,197,66,.22) 0%, rgba(245,197,66,0) 45%), linear-gradient(140deg, #0b3d24 0%, #14532d 45%, #1e7a4c 100%) !important;
+  box-shadow: 0 18px 36px -20px rgba(11,61,36,.75) !important; color: #fff; }
+.ov .ov-card.ov-next.hero.live { box-shadow: 0 0 0 2px #f5c542, 0 0 0 7px rgba(245,197,66,.25), 0 18px 36px -20px rgba(11,61,36,.75) !important; }
+.ov .ov-next.hero .ov-next-k { color: #fff; }
+.ov .ov-next.hero .ov-next-k span, .ov .ov-next.hero.live .ov-next-k span { background: #f5c542; color: #3d2a00; }
+.ov .ov-next.hero .ov-mode, .ov .ov-next.hero .ov-next-nav { background: rgba(255,255,255,.14); color: #fff; }
+.ov .ov-next.hero .ov-mode svg, .ov .ov-next.hero .ov-mode.ip svg { color: #f5c542; }
+.ov .ov-next.hero .ov-next-nav button, .ov .ov-next.hero .ov-next-nav b { color: #fff; }
+.ov .ov-next.hero .ov-next-nav b i { color: rgba(255,255,255,.6); }
+.ov .ov-next.hero .ov-next-nav button:hover { background: rgba(255,255,255,.16); }
+.ov .ov-next-cal { box-shadow: 0 8px 18px -10px rgba(0,0,0,.55); }
+.ov .ov-next-cal span { color: #c2410c; }
+.ov .ov-next.hero .ov-next-av { box-shadow: 0 0 0 2px #f5c542; }
+.ov .ov-next.hero .ov-next-av.ini { background: linear-gradient(160deg, #f6d27a, #c9962c); }
+.ov .ov-next.hero .ov-next-av.ini b { color: #3d2a00; }
+.ov .ov-next.hero .ov-next-name { color: #fff; }
+.ov .ov-next.hero .ov-next-sub { color: rgba(255,255,255,.75); }
+.ov .ov-next.hero .ov-next-contact a, .ov .ov-next.hero .ov-inv-link { background: rgba(255,255,255,.14); color: #fff; }
+.ov .ov-next.hero .ov-next-contact a:hover, .ov .ov-next.hero .ov-inv-link:hover { background: rgba(255,255,255,.24); color: #fff; }
+.ov .ov-next.hero .ov-next-btns > :first-child, .ov .ov-next.hero .ov-next-btns > :first-child.gold { background: #f5c542; color: #3d2a00 !important; box-shadow: 0 10px 20px -10px rgba(245,197,66,.9); }
+.ov .ov-next.hero .ov-next-btns > :first-child:hover { background: #ffd35c; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child), .ov .ov-next.hero .ov-next-rbtns .ov-btn { background: rgba(255,255,255,.14); color: #fff !important; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):hover, .ov .ov-next.hero .ov-next-rbtns .ov-btn:hover { background: rgba(255,255,255,.24); }
+.ov .ov-next.hero .ov-btn.ov-opens { background: rgba(255,255,255,.12) !important; color: rgba(255,255,255,.85) !important; }
+.ov .ov-next.hero .ov-next-right { background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.ov .ov-next.hero .ov-next-dl div + div, .ov .ov-next.hero .ov-next-notes, .ov .ov-next.hero .ov-next-right .ov-next-assess, .ov .ov-next.hero .ov-next-rbtns { box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
+.ov .ov-next.hero .ov-next-dl dt, .ov .ov-next.hero .ov-next-assess > span:first-child { color: rgba(255,255,255,.65); }
+.ov .ov-next.hero .ov-next-dl dd { color: #fff; }
+.ov .ov-next.hero .ov-next-notes { color: rgba(255,255,255,.8); }
+.ov .ov-next.hero .ov-next-notes b { color: #f5c542; }
+.ov .ov-next-dots button.on { background: #c9962c; }
+
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
@@ -1378,7 +1425,7 @@ export default function TherapistDashboard() {
 
           <div className="ov-main-grid ov-rows">
             {/* rows that line up side by side (2026-11-17): the week | reviews, upcoming | invoices,
-                your clients | when clients look for therapy — so neither side leaves a big empty gap */}
+                so neither side leaves a big empty gap */}
             <div className="ov-c-week"><WeekStrip sessions={upcomingSessions} now={clockTime} /></div>
             <div className="ov-c-rev">
               {/* latest two reviews */}
@@ -1429,9 +1476,7 @@ export default function TherapistDashboard() {
                 )}
               </DashCard>
             </div>
-            {/* past clients to bring back — one tap WhatsApp / email */}
-            <div className="ov-c-fu"><GrowthFollowups therapistName={therapistInfo?.user?.name || ""} /></div>
-            <div className="ov-c-dem"><GrowthDemand /></div>
+            {/* "Your clients" (follow-ups) now lives at the bottom of Appointments (2026-11-18) */}
           </div>
 
           {/* ── insights: how the profile and the practice are doing ── */}
@@ -1448,6 +1493,7 @@ export default function TherapistDashboard() {
                 <Box sx={{ p: 2 }}><Skeleton variant="rounded" height={220} /></Box>
               )}
             </DashCard>
+            <GrowthDemand />
           </div>
         </div>
       </Box>

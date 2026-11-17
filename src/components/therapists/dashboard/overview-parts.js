@@ -38,8 +38,11 @@ function greeting(now) {
 
 /* ── 1. slim today bar ── */
 export function TodayBar({ firstName, now, todaySessions, nextSession, loading, refreshing, lastRefreshed, onRefresh, since, savingSince, onChangeSince, listing }) {
+  // the greeting says hello, then folds away after a few seconds so the cards below move up (2026-11-18)
+  const [gone, setGone] = React.useState(false);
+  React.useEffect(() => { if (loading) return undefined; const t = setTimeout(() => setGone(true), 6000); return () => clearTimeout(t); }, [loading]);
   return (
-    <div className="ov-today">
+    <div className={`ov-today${gone ? " gone" : ""}`} aria-hidden={gone || undefined}>
       <div className="ov-today-main">
         <div className="ov-hello-row">
           <div className="ov-hello">{greeting(now)}, <span className="ov-hello-name">{firstName}</span></div>
