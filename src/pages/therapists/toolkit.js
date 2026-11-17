@@ -26,7 +26,7 @@ export default function ToolkitPage() {
   const router = useRouter();
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
-  const [panel, setPanel] = useState(null); // { kind: "share" | "send" | "upgrade", tool } — worksheets themselves open as pages
+  const [panel, setPanel] = useState(null); // { kind: "share" | "send" | "upgrade" | "why", tool } — worksheets themselves open as pages
   const load = useCallback(() => fetchById(`${apiUrl}/therapist/worksheets`).then((r) => (r?.status ? setD(r.data) : setErr(r?.message || "Couldn't load"))).catch(() => setErr("Couldn't load your toolkit")), []);
   useEffect(() => { load(); }, [load]);
   // worksheets clients send show up without a reload: refresh every 30 s while the page is open, and on return
@@ -106,7 +106,7 @@ export default function ToolkitPage() {
                     <button type="button" className={`tk-btn line${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "send", tool: w.key } : { kind: "upgrade", tool: w.key, why: "send" })}>{yearly ? "" : "🔒 "}Send to a client</button>
                     <button type="button" className="tk-btn ghost" disabled={starting === w.key} onClick={() => openForMe(w.key)}>{starting === w.key ? "Opening…" : `${selfOk(w.key) ? "" : "🔒 "}Use it for myself`}</button>
                   </div>
-                  <WhyCard tool={w.key} open={false} compact />
+                  <WhyCard tool={w.key} compact onOpen={() => setPanel({ kind: "why", tool: w.key })} />
                 </>
               )}
             </article>
@@ -180,6 +180,11 @@ export default function ToolkitPage() {
         </div>
       </div>
 
+      {panel?.kind === "why" && (
+        <Sheet title={toolOf(panel.tool).name} wide onClose={() => setPanel(null)}>
+          <WhyCard tool={panel.tool} fixed />
+        </Sheet>
+      )}
       {panel?.kind === "upgrade" && <UpgradePanel tool={panel.tool} why={panel.why} access={d?.access} onClose={() => setPanel(null)} />}
       {panel?.kind === "share" && <SharePanel tool={panel.tool} onClose={() => setPanel(null)} onMade={load} />}
       {panel?.kind === "send" && <SendPanel tool={panel.tool} clients={d?.clients || []} onClose={() => setPanel(null)} onMade={load} />}
@@ -343,10 +348,12 @@ const CSS = `
 .tk-h p { margin: 4px 0 0; font-size: 14.5px; color: #475569; max-width: 680px; }
 .tk-alert { border: 0; border-radius: 999px; padding: 10px 16px; background: #fee2e2; color: #b91c1c; font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; }
 .tk-box { background: #fff; border: 1px solid #e3e9e5; border-radius: 16px; padding: 18px; margin-bottom: 14px; color: #64748b; }
-.tk-lib { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; align-items: start; }
+.tk-lib { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; align-items: stretch; /* cards in a row are the same height */ }
 .tk-w { grid-column: span 3; background: #fff; border: 1px solid #e3e9e5; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px; opacity: .72; }
 .tk-w.ready { opacity: 1; grid-column: span 4; border: 1.5px solid #bfe0cb; background: linear-gradient(135deg, #ffffff 55%, #eef8f2); box-shadow: 0 16px 34px -26px rgba(20,83,45,.6); padding: 20px; }
 .tk-w .wr-why { margin: 12px 0 0; }
+.tk-w.ready > .wr-why { margin-top: auto; } /* the Why button lines up at the bottom of every card */
+.tk-w.ready > .tk-acts { margin-bottom: 12px; }
 .tk-w-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tk-w-top em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #15803d; background: #e9f8ef; border-radius: 999px; padding: 3px 10px; }
 .tk-abcd { display: flex; gap: 6px; }

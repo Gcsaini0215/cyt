@@ -83,17 +83,23 @@ export function Tiles({ tool, size = 38 }) {
 }
 
 /* "Why this helps" — the importance of the sheet, its benefits, who it's for and how long it takes */
-export function WhyCard({ tool, open: startOpen = true, compact = false }) {
+// onOpen: the header opens the details elsewhere (a popup) instead of growing the card — used on the
+// Toolkit library cards, where one tall card left empty space beside its neighbours.
+// fixed: always open, no collapse button (inside that popup).
+export function WhyCard({ tool, open: startOpen = true, compact = false, onOpen = null, fixed = false }) {
   const w = toolOf(tool);
-  const [open, setOpen] = useState(startOpen);
+  const [openState, setOpen] = useState(startOpen);
+  const open = fixed || (!onOpen && openState);
   return (
-    <section className={`wr-why${compact ? " compact" : ""}`}>
+    <section className={`wr-why${compact ? " compact" : ""}${fixed ? " fixed" : ""}`}>
       <style>{WR_CSS}</style>
-      <button type="button" className="wr-why-h" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span className="wr-why-ic" aria-hidden="true">💡</span>
-        <span><b>Why this worksheet helps</b><small>{w.time}</small></span>
-        <i aria-hidden="true">{open ? "−" : "+"}</i>
-      </button>
+      {!fixed && (
+        <button type="button" className="wr-why-h" onClick={() => (onOpen ? onOpen() : setOpen((o) => !o))} aria-expanded={onOpen ? undefined : open} aria-haspopup={onOpen ? "dialog" : undefined}>
+          <span className="wr-why-ic" aria-hidden="true">💡</span>
+          <span><b>Why this worksheet helps</b><small>{w.time}</small></span>
+          <i aria-hidden="true">{onOpen ? "›" : open ? "−" : "+"}</i>
+        </button>
+      )}
       {open && (
         <div className="wr-why-b">
           <p className="wr-why-p">{w.why}</p>
@@ -126,6 +132,8 @@ export const WR_CSS = `
 .wr-why-h small { font-size: 12.5px; color: #8a6a2a; }
 .wr-why-h > i { font-style: normal; font-size: 22px; font-weight: 700; color: #b8860b; }
 .wr-why-b { padding: 0 16px 16px; }
+.wr-why.fixed { margin: 0; }
+.wr-why.fixed .wr-why-b { padding-top: 16px; }
 .wr-why-p { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: #3f3420; }
 .wr-why-g { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
 .wr-why h4 { margin: 0 0 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #8a6a2a; }
