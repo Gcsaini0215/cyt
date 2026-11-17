@@ -237,6 +237,19 @@ const DASH_CSS = `
   .ov .ov-main-grid.ov-rows { display: flex; flex-direction: column; }
   .ov .ov-c-week { order: 1; } .ov .ov-c-up { order: 2; } .ov .ov-c-fu { order: 3; } .ov .ov-c-rev { order: 4; } .ov .ov-c-inv { order: 5; } .ov .ov-c-dem { order: 6; }
 }
+/* goal / badge / profile views row: with only two cards they share the full width (no empty third slot) */
+.ov .ov-motivate:not(:has(> :nth-child(3))) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 899px) { .ov .ov-motivate:not(:has(> :nth-child(3))) > :last-child { grid-column: auto; } }
+@media (max-width: 640px) { .ov .ov-motivate:not(:has(> :nth-child(3))) { grid-template-columns: 1fr; } }
+/* main area: two columns that end level */
+.ov .ov-main-grid.ov-cols { align-items: stretch; }
+.ov .ov-main-grid.ov-cols > .ov-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ov .ov-main-grid.ov-cols > .ov-col > * { margin: 0; flex: none; }
+.ov .ov-main-grid.ov-cols > .ov-col > :last-child { flex: 1 1 auto; }
+@media (max-width: 899px) {
+  .ov .ov-main-grid.ov-cols { display: flex; flex-direction: column; gap: 12px; }
+  .ov .ov-main-grid.ov-cols > .ov-col > :last-child { flex: none; }
+}
 /* To-do never makes the left side taller: on wide screens it is as tall as the cards beside it and scrolls inside */
 @media (min-width: 900px) {
   .ov .ov-top > .ov-todo { height: 0; min-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
@@ -1423,17 +1436,11 @@ export default function TherapistDashboard() {
             <GrowthBadge />
           </div>
 
-          <div className="ov-main-grid ov-rows">
-            {/* rows that line up side by side (2026-11-17): the week | reviews, upcoming | invoices,
-                so neither side leaves a big empty gap */}
-            <div className="ov-c-week"><WeekStrip sessions={upcomingSessions} now={clockTime} /></div>
-            <div className="ov-c-rev">
-              {/* latest two reviews */}
-              <DashCard icon={StarRateRoundedIcon} tone="orange" title="Client reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
-                <ReviewsBlock reviews={myReviews} />
-              </DashCard>
-            </div>
-            <div className="ov-c-up">
+          <div className="ov-main-grid ov-cols">
+            {/* two columns (2026-11-18): the week + upcoming | reviews + invoices. Each column's last card takes the
+                little height that's left, so no gap opens between cards; one column on iPad portrait and phones */}
+            <div className="ov-col">
+              <WeekStrip sessions={upcomingSessions} now={clockTime} />
               <DashCard icon={EventAvailableRoundedIcon} tone="blue" title="Upcoming sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={44} sx={{ mb: 1 }} />)}</Box>
@@ -1447,7 +1454,11 @@ export default function TherapistDashboard() {
                 )}
               </DashCard>
             </div>
-            <div className="ov-c-inv">
+            <div className="ov-col">
+              {/* latest two reviews */}
+              <DashCard icon={StarRateRoundedIcon} tone="orange" title="Client reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
+                <ReviewsBlock reviews={myReviews} />
+              </DashCard>
               <DashCard icon={PaymentsRoundedIcon} tone="green" title="Recent invoices" sub="Your share of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
@@ -1476,7 +1487,6 @@ export default function TherapistDashboard() {
                 )}
               </DashCard>
             </div>
-            {/* "Your clients" (follow-ups) now lives at the bottom of Appointments (2026-11-18) */}
           </div>
 
           {/* ── insights: how the profile and the practice are doing ── */}
