@@ -64,6 +64,31 @@ export const CHECK_NAV = [
   { to: "/client/check-ins", label: "My check-ins", Icon: InsightsRoundedIcon },
   { to: "/self-assessment", label: "Book an assessment", Icon: PsychologyAltRoundedIcon, ext: true },
 ];
+/* desktop rail: each page its own colourful app tile (2026-11-18), like the therapist portal */
+const TG = (a, b, sh) => ({ "--tile": `linear-gradient(160deg, ${a}, ${b})`, "--tile-sh": sh });
+const CLS_TILES = {
+  "/my-dashboard": TG("#5ab0ff", "#1d63d8", "rgba(29,99,216,.55)"),
+  "/client/free-session": TG("#ff8aa6", "#e0335e", "rgba(224,51,94,.5)"),
+  "/client/cycle": TG("#ff9ec7", "#d63f86", "rgba(214,63,134,.5)"),
+  "/client/worksheets": TG("#ff9b6b", "#e5532a", "rgba(229,83,42,.5)"),
+  "/client/my-bookings": TG("#ffc65a", "#f07b12", "rgba(240,123,18,.5)"),
+  "/client/find": TG("#4fd6d6", "#0e8a9a", "rgba(14,138,154,.5)"),
+  "/client/favrioute-therapits": TG("#ff7a8a", "#d92d4b", "rgba(217,45,75,.5)"),
+  "/client/ask": TG("#5ad1ff", "#0b84c6", "rgba(11,132,198,.5)"),
+  "/my-settings": TG("#b98cff", "#6a3fd6", "rgba(106,63,214,.5)"),
+  "/client/check-ins": TG("#7f9cff", "#3b4fd1", "rgba(59,79,209,.5)"),
+  "/self-assessment": TG("#4fc3d6", "#0e7490", "rgba(14,116,144,.5)"),
+  "/therapy-for/relationships": TG("#ff8ac2", "#d6338a", "rgba(214,51,138,.5)"),
+  "/therapy-for/parenting": TG("#ffd66b", "#e09a12", "rgba(224,154,18,.5)"),
+  "/noida-appointment": TG("#4fd38b", "#12804a", "rgba(18,128,74,.5)"),
+  "/blogs": TG("#ffb36b", "#d9661c", "rgba(217,102,28,.5)"),
+  checks: TG("#c58cff", "#8a3fd6", "rgba(138,63,214,.5)"),
+  links: TG("#8e9aa6", "#4b5662", "rgba(75,86,98,.5)"),
+  talk: TG("#4fd38b", "#16924f", "rgba(22,146,79,.5)"),
+  out: TG("#ff7a7a", "#dc2626", "rgba(220,38,38,.5)"),
+};
+const tileOf = (k) => CLS_TILES[k] || TG("#4fd38b", "#12804a", "rgba(18,128,74,.5)");
+
 const CYCLE_ITEM = { to: "/client/cycle", label: "Cycle & Mood", Icon: SpaRoundedIcon };
 // worksheets from my therapist (pages/client/worksheets)
 const WORKSHEET_ITEM = { to: "/client/worksheets", label: "Worksheets", Icon: AssignmentRoundedIcon };
@@ -284,18 +309,18 @@ export default function ClientShell({ title, children }) {
       <nav className="cls-rail" aria-label="My account">
         {[...CLIENT_NAV.slice(0, 2), CYCLE_ITEM, WORKSHEET_ITEM, ...CLIENT_NAV.slice(2)].map(({ to, label, Icon }) => (
           <Link key={to} href={to} className={`cls-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}>
-            <Icon /><span>{label}</span>
+            <span className="cls-tic" style={tileOf(to)}><Icon /></span><span>{label}</span>
           </Link>
         ))}
         <div className={`cls-dd-group${checksOpen ? " open" : ""}`}>
           <button type="button" className={`cls-item${onChecks && !checksOpen ? " on" : ""}`} onClick={() => setChecksOpen((o) => !o)} aria-expanded={checksOpen} title="How am I doing?">
-            <PsychologyAltRoundedIcon /><span>How am I doing?</span><KeyboardArrowDownRoundedIcon className="cls-chev" />
+            <span className="cls-tic" style={tileOf("checks")}><PsychologyAltRoundedIcon /></span><span>How am I doing?</span><KeyboardArrowDownRoundedIcon className="cls-chev" />
           </button>
           {checksOpen && (
             <div className="cls-dd-kids">
               {CHECK_NAV.map(({ to, label, Icon, ext }) => (
                 <Link key={to} href={to} className={`cls-item kid${active(to) ? " on" : ""}`} title={label} aria-current={active(to) ? "page" : undefined}>
-                  <Icon /><span>{label}</span>{ext && <NorthEastRoundedIcon className="cls-ext" />}
+                  <span className="cls-tic" style={tileOf(to)}><Icon /></span><span>{label}</span>{ext && <NorthEastRoundedIcon className="cls-ext" />}
                 </Link>
               ))}
             </div>
@@ -304,13 +329,13 @@ export default function ClientShell({ title, children }) {
         <div className="cls-rail-group">
           <div className={`cls-dd-group${linksOpen ? " open" : ""}`}>
             <button type="button" className="cls-item" onClick={() => setLinksOpen((o) => !o)} aria-expanded={linksOpen} title="See Links">
-              <LinkRoundedIcon /><span>See Links</span><KeyboardArrowDownRoundedIcon className="cls-chev" />
+              <span className="cls-tic" style={tileOf("links")}><LinkRoundedIcon /></span><span>See Links</span><KeyboardArrowDownRoundedIcon className="cls-chev" />
             </button>
             {linksOpen && (
               <div className="cls-dd-kids">
                 {HELP_NAV.map(({ to, label, Icon }) => (
                   <Link key={to} href={to} className="cls-item kid" title={label}>
-                    <Icon /><span>{label}</span><NorthEastRoundedIcon className="cls-ext" />
+                    <span className="cls-tic" style={tileOf(to)}><Icon /></span><span>{label}</span><NorthEastRoundedIcon className="cls-ext" />
                   </Link>
                 ))}
               </div>
@@ -318,8 +343,8 @@ export default function ClientShell({ title, children }) {
           </div>
         </div>
         <div className="cls-rail-foot">
-          <a href={WA_HELP} target="_blank" rel="noopener noreferrer" className="cls-item"><SupportAgentRoundedIcon /><span>Talk to us</span></a>
-          <button type="button" className="cls-item out" onClick={logout}><LogoutRoundedIcon /><span>Log out</span></button>
+          <a href={WA_HELP} target="_blank" rel="noopener noreferrer" className="cls-item"><span className="cls-tic" style={tileOf("talk")}><SupportAgentRoundedIcon /></span><span>Talk to us</span></a>
+          <button type="button" className="cls-item out" onClick={logout}><span className="cls-tic" style={tileOf("out")}><LogoutRoundedIcon /></span><span>Log out</span></button>
         </div>
       </nav>
 
@@ -674,4 +699,68 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   html:has(.cls), body:has(.cls) { overscroll-behavior-y: none; }
   .cls-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 120px; background: #fff; pointer-events: none; }
 }
+
+/* the tile around a rail icon: hidden as a box on phones/iPad (no rail there anyway) */
+.cls-tic { display: inline-grid; place-items: center; flex: none; }
+/* ═══ Desktop (mouse / trackpad screens): app look like the therapist portal (2026-11-18) ═══ */
+@media (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 1401px) {
+  /* top bar: white, the page's name big, round buttons, profile on the right */
+  .cls-bar { background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(14px); backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid rgba(15,23,42,.07); box-shadow: 0 6px 20px -16px rgba(4,30,16,.35); }
+  .cls-burger { background: #f0f3f1; color: #1c1c1e; border-radius: 50%; margin-left: -4px; }
+  .cls-burger:hover { background: #e3f4e9; }
+  .cls-logo img { border-radius: 50%; box-shadow: 0 0 0 1px #e4ece7; }
+  .cls-brand { display: none; }
+  .cls-app-title { display: block !important; margin-left: 2px; font-size: 23px; font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; white-space: nowrap; }
+  .cls-app-site { display: inline-flex !important; margin-top: 4px; color: #1e8a4f !important; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-decoration: none !important; white-space: nowrap; }
+  .cls-right { gap: 8px; }
+  .cls-clock { display: inline-flex !important; align-items: baseline; gap: 1px; padding: 6px 12px; border-radius: 999px; background: #f0f3f1;
+    font-family: "SF Pro Rounded", ui-rounded, Inter, -apple-system, sans-serif; font-variant-numeric: tabular-nums; line-height: 1; }
+  .cls-clock b { font-size: 20px; font-weight: 900; letter-spacing: -.02em; }
+  .cls-clock .h { color: #1c1c1e; } .cls-clock .m { color: #1e8a4f; }
+  .cls-clock i { font-style: normal; font-size: 19px; font-weight: 900; color: #e3a83a; margin: 0 1px; animation: clsBlinkD 1s steps(1) infinite; }
+  .cls-clock small { font-size: 10.5px; font-weight: 800; color: #6e6e73; margin-left: 4px; }
+  @keyframes clsBlinkD { 50% { opacity: .25; } }
+  .cls-refresh { display: grid !important; border: 0; cursor: pointer; }
+  .cls-refresh.spin svg { animation: clsSpinD .7s linear infinite; }
+  @keyframes clsSpinD { to { transform: rotate(360deg); } }
+  .cls-right .cls-ic, .cls-right > :not(.cls-me):not(.cls-clock) > button { width: 40px; height: 40px; border-radius: 50%; background: #f0f3f1; color: #1c1c1e !important; display: grid; place-items: center; border: 0; }
+  .cls-right .cls-ic:hover, .cls-right > :not(.cls-me):not(.cls-clock) > button:hover { background: #e3f4e9; color: #14532d !important; }
+  .cls-me { margin-left: 4px; padding-left: 12px; border-left: 1px solid #edf1ee; }
+  .cls-me-btn { color: #1c1c1e; border-radius: 999px; padding: 0 10px 0 4px; }
+  .cls-me-btn:hover { background: #f4f6f5; }
+  .cls-me-btn svg { color: #8e8e93; }
+  .cls-av { border-radius: 50%; background: linear-gradient(160deg, #4fd38b, #12804a); color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5fd08f; }
+
+  /* rail: white, each page a colourful app tile */
+  .cls-rail { border-right: 1px solid rgba(15,23,42,.07); gap: 4px; }
+  .cls-tic { width: 34px; height: 34px; border-radius: 10px; background: var(--tile); box-shadow: 0 6px 12px -7px var(--tile-sh), inset 0 1px 0 rgba(255,255,255,.35); transition: transform .15s ease; }
+  .cls-tic svg { font-size: 19px; color: #fff !important; }
+  .cls-item { height: 46px; padding: 0 8px; color: #1f2937 !important; font-size: 14px; font-weight: 600; border-radius: 14px; }
+  .cls-item:hover { background: #f3f6f4; color: #0b1712 !important; }
+  .cls-item:hover .cls-tic { transform: translateY(-1px) scale(1.05); }
+  .cls-item.on { background: #e9f5ee; color: #14532d !important; font-weight: 800; }
+  .cls-item.on > span { padding-bottom: 0; border-bottom: 0; }
+  .cls-item.on .cls-tic { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(20,83,45,.38); transform: none; }
+  .cls-item.on::before { content: ""; position: absolute; left: -12px; top: 11px; bottom: 11px; width: 4px; border-radius: 0 4px 4px 0; background: #e3a83a; }
+  .cls-item.on::after { display: none !important; }
+  .cls-item.out { color: #dc2626 !important; }
+  .cls-item.kid { height: 40px; }
+  .cls-item.kid .cls-tic { width: 28px; height: 28px; border-radius: 9px; }
+  .cls-item.kid .cls-tic svg { font-size: 16px; }
+  .cls-dd-kids { border-left-color: #eef1ef; }
+  .cls-rail-group, .cls-rail-foot { border-top-color: #eef1ef; }
+}
+/* icon-only rail (small desktop windows, or ☰): keep the tiles centred, the gold mark at the edge */
+@media (min-width: 768px) and (max-width: 1023px) and (hover: hover), (min-width: 768px) and (max-width: 1023px) and (pointer: fine) {
+  .cls-item { padding: 0; }
+  .cls-item.on::before { left: -10px; }
+  .cls-app-site { display: none !important; }
+  .cls-clock { display: none !important; }
+}
+@media (min-width: 1024px) {
+  html.cls-mini .cls .cls-item { padding: 0; }
+  html.cls-mini .cls .cls-item.on::before { left: -10px; }
+}
+@media (prefers-reduced-motion: reduce) { .cls-clock i { animation: none; } .cls-tic { transition: none; } }
 `;
