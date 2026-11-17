@@ -35,10 +35,17 @@ const TURN_MS = 5000;
 // same event the "Chat with CYT" lead form listens for (components/global/booking-popup.js)
 const OPEN_CHAT_EVENT = "cyt:open-chat";
 
-function shuffled(arr) {
+// Shuffled the same way for everyone on the same day (India date): phone and desktop show the same
+// therapists in the same order, and the order still changes every day so no one is always first.
+function dayRandom() {
+  let x = Number(new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10).replace(/-/g, "")) | 0;
+  return () => { x = (x + 0x6d2b79f5) | 0; let t = Math.imul(x ^ (x >>> 15), 1 | x); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+function shuffled(arr, rnd) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rnd() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
@@ -108,12 +115,13 @@ function TherapistCard({ t, onBroken, copy = false, spot = false }) {
 export default function Banner({ topTherapists = [], stats = null }) {
   const ps = usePublicStats();
   // Server order first (so server and browser HTML match), re-ordered after mount —
-  // same top-rated pool, different order each visit.
+  // same top-rated pool, a new order each day (the same on every device that day).
   const [ranked, setRanked] = useState(topTherapists);
   useEffect(() => {
     // strongest first: photo + reviews, then photo only, then the rest — shuffled within each group
     const tier = (t) => (photo(t) ? 2 : 0) + (rating(t) ? 1 : 0);
-    const groups = [3, 2, 1, 0].map((k) => shuffled(topTherapists.filter((t) => tier(t) === k)));
+    const rnd = dayRandom();
+    const groups = [3, 2, 1, 0].map((k) => shuffled([...topTherapists].sort((a, b) => String(a._id).localeCompare(String(b._id))).filter((t) => tier(t) === k), rnd));
     setRanked(groups.flat());
   }, [topTherapists]);
 
@@ -138,7 +146,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
   const stripRef = React.useRef(null);
   const slideAt = React.useRef(0);
   const touchedAt = React.useRef(0);
-  const base = people.slice(0, 8);
+  const base = people; // every banner therapist, same as the desktop card (it used to stop at 8)
   const stripList = base.length > 1 ? [...base, ...base] : base;
   useEffect(() => {
     const el = stripRef.current;
