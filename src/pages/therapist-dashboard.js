@@ -128,6 +128,85 @@ const DASH_CSS = `
   .ov-main-grid > div > :last-child { flex: none; }
 }
 @media (max-width: 640px) { .ov-motivate { grid-template-columns: 1fr; } }
+
+/* ═══ Apple look (2026-11-17): matches the app-icon menu — big clean titles, white cards, colourful app tiles,
+   iOS-style lists, the calendar's "today" circle. Only looks change; nothing moves or does anything new. ═══ */
+.ov { --ap-ink: #1c1c1e; --ap-2: #6e6e73; --ap-3: #8e8e93; --ap-line: rgba(60,60,67,.12); --ap-green: #1e8a4f; --ap-fill: #f2f4f3; }
+/* greeting: a large title, like iOS */
+.ov .ov-hello { font-size: clamp(24px, 2.6vw, 32px); font-weight: 800; letter-spacing: -.03em; color: var(--ap-ink); }
+.ov .ov-hello-name { color: var(--ap-green); }
+.ov .ov-today-line { font-size: 14.5px; color: var(--ap-2); margin-top: 4px; }
+.ov .ov-today-line b { color: var(--ap-ink); }
+.ov .ov-refresh { height: 32px; padding: 0 12px; border-radius: 999px; background: #fff; color: var(--ap-2); font-size: 12.5px; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.ov .ov-refresh:hover { color: var(--ap-green); }
+.ov .ov-since { font-size: 12.5px; color: var(--ap-3); }
+.ov .ov-since button { color: var(--ap-green); text-decoration: none; font-weight: 700; }
+.ov .ov-listing { height: 30px; padding: 0 12px; border: 0; font-weight: 700; }
+
+/* every card: white, round, a soft shadow — no coloured edges */
+.ov :is(.ov-card, .ov-kpi, .ov-dc, .gp-card, .pi, .pvs) { border-radius: 22px !important; }
+.ov .ov-card-h { margin-bottom: 14px; }
+.ov .ov-card-h b, .ov-dc-t h3 { font-size: 17px; font-weight: 700; letter-spacing: -.02em; color: var(--ap-ink); }
+.ov .ov-card-h a { font-size: 13.5px; font-weight: 600; color: var(--ap-green); }
+.ov-dc-t small { font-size: 12.5px; color: var(--ap-3); }
+.ov-dc-h > a > div { font-size: 13.5px !important; font-weight: 600 !important; color: var(--ap-green) !important; }
+.ov-dc-ic { width: 36px; height: 36px; border-radius: 11px; }
+.ov .ov-sec-h { font-size: 22px; font-weight: 800; letter-spacing: -.03em; color: var(--ap-ink); margin: 22px 4px 12px; }
+
+/* numbers: each card gets its app tile — Earnings green (Payouts), Sessions orange (Appointments),
+   New clients purple, Rating yellow (Reviews) — and a big, plain number */
+.ov .ov-kpis .ov-kpi::before { display: none; }
+.ov .ov-kpis .ov-kpi { padding: 18px 20px 14px; gap: 6px; background: #fff; }
+.ov .ov-kpi-ic { width: 36px; height: 36px; border-radius: 11px; color: #fff !important; background: linear-gradient(160deg, var(--k1), var(--k2)) !important;
+  box-shadow: 0 6px 12px -7px var(--k2), inset 0 1px 0 rgba(255,255,255,.35); }
+.ov .ov-kpi-ic svg { font-size: 20px; color: #fff; }
+.ov .ov-kpi.green { --k1: #4fd38b; --k2: #12804a; --kc: #15803d; --kc-b: #c6ead3; }
+.ov .ov-kpi.teal { --k1: #ffc65a; --k2: #f07b12; --kc: #c2570c; --kc-b: #f6d8b8; }
+.ov .ov-kpi.gold { --k1: #c58cff; --k2: #8a3fd6; --kc: #7c3aed; --kc-b: #e2d2fb; }
+.ov .ov-kpi.amber { --k1: #ffd66b; --k2: #e09a12; --kc: #b7791f; --kc-b: #f3e0b0; } /* phones/iPad colour the title: same colour as the tile */
+.ov .ov-kpis .ov-kpi-label { font-size: 14px; font-weight: 600; color: var(--ap-ink); letter-spacing: -.01em; }
+.ov .ov-kpis .ov-kpi-val { font-size: clamp(26px, 2.6vw, 34px); font-weight: 800; letter-spacing: -.035em; color: var(--ap-ink); }
+.ov .ov-top.no-next .ov-kpi-val { font-size: clamp(28px, 2.8vw, 36px); }
+.ov .ov-kpi-cap, .ov .ov-top.no-next .ov-kpi-cap { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 500; color: var(--ap-3); }
+.ov .ov-kpi-hint { font-size: 13px; font-weight: 600; color: var(--ap-green); }
+.ov .ov-trend { font-weight: 700; }
+
+/* To-do: an iOS list — hairline rows, a small status dot, the action as a soft pill */
+.ov .ov-todo ul { gap: 0; }
+.ov .ov-todo li { position: relative; justify-content: flex-start; padding: 12px 2px 12px 18px; border: 0; border-radius: 0; background: none !important; font-size: 14px; color: var(--ap-ink); }
+.ov .ov-todo li + li { box-shadow: inset 0 1px 0 var(--ap-line); }
+.ov .ov-todo li::before { content: ""; position: absolute; left: 2px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: #c7c7cc; }
+.ov .ov-todo li.warn::before { background: #ff9f0a; }
+.ov .ov-todo li.bad::before { background: #ff3b30; }
+.ov .ov-todo li.done::before { display: none; }
+.ov .ov-todo li.done { padding-left: 2px; color: var(--ap-green); }
+.ov .ov-todo li > :first-child { flex: 1; min-width: 0; }
+.ov .ov-todo li a, .ov .ov-todo-acts { margin-left: auto; }
+.ov .ov-todo li a { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: #e9f5ee; color: #14532d; font-size: 12.5px; font-weight: 700; }
+.ov .ov-todo li a:hover { background: #d7efe0; }
+.ov .ov-todo-acts button { border: 0; border-radius: 999px; background: #e9f5ee; height: 28px; padding: 0 12px; font-weight: 700; }
+.ov .ov-pct { font-size: 13px; font-weight: 700; color: var(--ap-green); }
+.ov .ov-bar { height: 6px; background: #e5e5ea; margin: -6px 0 6px; }
+.ov .ov-bar i { background: linear-gradient(90deg, #34c759, #1e8a4f); }
+
+/* the week: soft day tiles, and today's date in a green circle like the iOS calendar */
+.ov .ov-week-row { gap: 10px; }
+.ov .ov-day { gap: 4px; padding: 12px 4px 10px; border: 0; border-radius: 16px; background: var(--ap-fill); color: var(--ap-2); transition: background .15s; }
+.ov a.ov-day:hover { background: #e9f5ee; }
+.ov .ov-day span { font-size: 12px; font-weight: 600; color: var(--ap-3); }
+.ov .ov-day b { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 19px; font-weight: 700; color: var(--ap-ink); }
+.ov .ov-day em { font-size: 11.5px; color: #aeaeb2; }
+.ov .ov-day.has { background: #e9f5ee; } .ov .ov-day.has em { color: var(--ap-green); font-weight: 700; }
+.ov .ov-day.today { border: 0; box-shadow: none; background: #fff; box-shadow: inset 0 0 0 1.5px #cfe8d9; }
+.ov .ov-day.today span { color: var(--ap-green); font-weight: 800; }
+.ov .ov-day.today b { background: var(--ap-green); color: #fff; }
+
+/* controls: iOS segmented switch and rounded buttons */
+.ov .ov-seg { background: #e9ebea; }
+.ov .ov-seg button.on { color: var(--ap-ink); box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.04); }
+.ov .ov-btn { border-radius: 12px; }
+.ov .ov-card.ov-next.hero { border-radius: 22px !important; }
+@media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
 const UI = {

@@ -26,7 +26,7 @@ const ShellContext = React.createContext(false);
 // already has the right padding — no jump after hydration. 960px is where
 // the top nav turns into a bottom nav and the side nav hides.
 const shellStyles = `
-  .ts-area { background: linear-gradient(180deg, #e9f3ec 0, #f1f6f2 320px, #f3f6f4 100%); min-height: 100vh; padding-top: var(--tn-h, 56px); padding-left: 76px; }
+  .ts-area { background: #f2f4f3; min-height: 100vh; padding-top: var(--tn-h, 56px); padding-left: 76px; }
   html.tsn-anim .ts-area { transition: padding-left .22s cubic-bezier(.2,.8,.2,1); } /* only while the menu button is pressed */
   html[data-tsn-wide] .ts-area { padding-left: 248px; }
   .ts-main { padding: 28px 40px; }
