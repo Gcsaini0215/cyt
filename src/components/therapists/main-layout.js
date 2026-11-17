@@ -26,9 +26,9 @@ const ShellContext = React.createContext(false);
 // already has the right padding — no jump after hydration. 960px is where
 // the top nav turns into a bottom nav and the side nav hides.
 const shellStyles = `
-  .ts-area { background: linear-gradient(180deg, #e9f3ec 0, #f1f6f2 320px, #f3f6f4 100%); min-height: 100vh; padding-top: var(--tn-h, 56px); padding-left: 68px; }
+  .ts-area { background: linear-gradient(180deg, #e9f3ec 0, #f1f6f2 320px, #f3f6f4 100%); min-height: 100vh; padding-top: var(--tn-h, 56px); padding-left: 76px; }
   html.tsn-anim .ts-area { transition: padding-left .22s cubic-bezier(.2,.8,.2,1); } /* only while the menu button is pressed */
-  html[data-tsn-wide] .ts-area { padding-left: 232px; }
+  html[data-tsn-wide] .ts-area { padding-left: 248px; }
   .ts-main { padding: 28px 40px; }
   .ts-inner { max-width: 1500px; margin: 0 auto; transition: opacity .18s ease; }
   .ts-inner:has(.ov) { max-width: none; }
@@ -39,7 +39,7 @@ const shellStyles = `
      the screen */
   .ts-page { animation: tsIn .2s ease; }
   @keyframes tsIn { from { opacity: 0; } to { opacity: 1; } }
-  @media (max-width: 1023px) { html[data-tsn-wide] .ts-area { padding-left: 68px; } .ts-main { padding: 22px 24px; } }
+  @media (max-width: 1023px) { html[data-tsn-wide] .ts-area { padding-left: 76px; } .ts-main { padding: 22px 24px; } }
   @media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { .ts-area, html[data-tsn-wide] .ts-area { padding-left: 0; padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); } }
   @media (max-width: 599px) { .ts-main { padding: 14px 12px; } }
   @media (prefers-reduced-motion: reduce) { .ts-page { animation: none; } .ts-inner { transition: none; } }

@@ -119,6 +119,32 @@ const withShortcuts = (groups) => groups.map((g) => {
 });
 export const DRAWER_GROUPS = withShortcuts(NAV_GROUPS);
 export const drawerGroupsFor = (owned) => withShortcuts(groupsFor(owned));
+/* Desktop rail: every page has its own colourful app icon, the same colours as the phone / iPad bottom bar
+   (Home blue, Appointments orange, Schedule teal, Settings purple). Upgrade items are gold. */
+const G = (a, b, sh) => ({ "--tile": `linear-gradient(160deg, ${a}, ${b})`, "--tile-sh": sh });
+export const TILES = {
+  "/therapist-dashboard": G("#5ab0ff", "#1d63d8", "rgba(29,99,216,.6)"),
+  "/appointments": G("#ffc65a", "#f07b12", "rgba(240,123,18,.55)"),
+  "/my-schedule": G("#4fd6d6", "#0e8a9a", "rgba(14,138,154,.55)"),
+  "/therapists/toolkit": G("#ff9b6b", "#e5532a", "rgba(229,83,42,.55)"),
+  "/therapists/notifications": G("#ff8aa6", "#e0335e", "rgba(224,51,94,.55)"),
+  "/therapists/reviews": G("#ffd66b", "#e09a12", "rgba(224,154,18,.55)"),
+  "/therapists/my-link": G("#7f9cff", "#3b4fd1", "rgba(59,79,209,.55)"),
+  "/therapists/social-posts": G("#c58cff", "#8a3fd6", "rgba(138,63,214,.55)"),
+  "/therapists/questions": G("#5ad1ff", "#0b84c6", "rgba(11,132,198,.55)"),
+  "/therapists/google-listing": G("#5fdc8f", "#16924f", "rgba(22,146,79,.55)"),
+  "/therapists/achievements": G("#ffb36b", "#d9661c", "rgba(217,102,28,.55)"),
+  "/therapists/payouts": G("#4fd38b", "#12804a", "rgba(18,128,74,.55)"),
+  "/my-plans": G("#8f8cff", "#5146d6", "rgba(81,70,214,.55)"),
+  "/therapist-questionnaires": G("#4fc3d6", "#0e7490", "rgba(14,116,144,.55)"),
+  "/coupons": G("#ff8ac2", "#d6338a", "rgba(214,51,138,.55)"),
+  "/therapists/cycle": G("#ff9ec7", "#d63f86", "rgba(214,63,134,.55)"),
+  "/settings": G("#b98cff", "#6a3fd6", "rgba(106,63,214,.55)"),
+  "/therapists/help": G("#8e9aa6", "#4b5662", "rgba(75,86,98,.55)"),
+};
+const GOLD = G("#f6d27a", "#c9962c", "rgba(201,150,44,.6)");
+export const tileOf = (item, up = false) => (up ? GOLD : TILES[item.to] || G("#4fd38b", "#12804a", "rgba(18,128,74,.55)"));
+
 export const isActive = (item, pathname) => (item.match || [item.to]).some((m) => pathname === m || pathname.startsWith(m.endsWith("/") ? m : `${m}/`));
 
 /* Desktop / iPad rail: icons only by default, or icons + labels when widened from the
@@ -156,7 +182,7 @@ export default function TherapistSideNav() {
                 <Link key={item.to} href={item.to} aria-label={item.label}
                   aria-current={active ? "page" : undefined} className={`tsn-item${active ? " active" : ""}`}
                   onMouseEnter={(e) => showTip(e, item.label)} onMouseLeave={hideTip} onFocus={(e) => showTip(e, item.label)} onBlur={hideTip}>
-                  <item.Icon />
+                  <span className="tsn-ic" style={tileOf(item, g.upgrade)}><item.Icon /></span>
                   <span className="tsn-label">{item.label}<NavTag item={item} upgrade={upgrade} /></span>
                   <NavBadge value={badges[item.badgeKey]} className="tsn-badge" />
                 </Link>
@@ -171,47 +197,47 @@ export default function TherapistSideNav() {
 }
 
 const RAIL_CSS = `
+/* Desktop rail, app style (2026-11-17): white, each page a colourful app icon. Icons only by default;
+   icons + labels when widened from the top bar's menu button. */
 .tsn-rail {
   position: fixed; left: 0; top: var(--tn-h, 56px); bottom: 0; z-index: 1100;
-  width: 68px; background: #fff; border-right: 1px solid #e4ece7;
-  display: flex; flex-direction: column; align-items: stretch; padding: 12px 10px; gap: 2px;
+  width: 76px; background: #fff; border-right: 1px solid rgba(15,23,42,.07);
+  display: flex; flex-direction: column; align-items: stretch; padding: 14px 12px 18px; gap: 4px;
   overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
 }
 .tsn-rail::-webkit-scrollbar { display: none; }
 /* width animates only while the menu button is pressed (html.tsn-anim, set in top-nav.js) */
 html.tsn-anim .tsn-rail { transition: width .22s cubic-bezier(.2,.8,.2,1); }
-@keyframes tsnFade { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
-.tsn-group { display: flex; flex-direction: column; gap: 2px; }
-.tsn-sep { display: block; height: 1px; background: #eef2f0; margin: 8px 6px; flex-shrink: 0; }
-.tsn-gtitle { display: none; font-size: 10.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #94a3b8; padding: 8px 12px 4px; white-space: nowrap; }
+.tsn-group { display: flex; flex-direction: column; gap: 4px; }
+.tsn-sep { display: block; height: 1px; background: #eef2f0; margin: 8px; flex-shrink: 0; }
+.tsn-gtitle { display: none; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a94a0; padding: 10px 10px 4px; white-space: nowrap; }
 .tsn-item {
-  position: relative; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 12px;
-  border-radius: 12px; color: #64748b; text-decoration: none !important; padding: 0 12px; outline: none;
-  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+  position: relative; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 12px;
+  border-radius: 14px; color: #1f2937; text-decoration: none !important; padding: 0 6px; outline: none;
+  transition: background .15s ease, color .15s ease;
 }
-.tsn-item svg { font-size: 21px; flex-shrink: 0; transition: transform .15s ease; }
-.tsn-item:hover { background: #f3faf5; color: #14532d; }
-.tsn-item:hover svg { transform: scale(1.08); }
+.tsn-ic { position: relative; flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+  background: var(--tile, linear-gradient(160deg, #4fd38b, #12804a)); box-shadow: 0 6px 12px -7px var(--tile-sh, rgba(18,128,74,.55)), inset 0 1px 0 rgba(255,255,255,.35);
+  transition: transform .15s ease, box-shadow .15s ease; }
+.tsn-ic svg { font-size: 20px; color: #fff; }
+.tsn-item:hover { background: #f3f6f4; color: #0b1712; }
+.tsn-item:hover .tsn-ic { transform: translateY(-1px) scale(1.05); }
 .tsn-item:focus-visible { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #16a34a; }
-/* the current page: no background box — green text/icon with a gold underline; hovering it doesn't change it */
-.tsn-item.active, .tsn-item.active:hover { background: none; color: #15803d; box-shadow: none; }
-.tsn-item.active svg { color: #15803d; }
-.tsn-item.active:hover svg { transform: none; }
-.tsn-item.active::before { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #e3a83a; }
+/* the current page: a soft green pill, a ring round its icon and a gold mark on the rail edge */
+.tsn-item.active, .tsn-item.active:hover { background: #e9f5ee; color: #14532d; }
+.tsn-item.active .tsn-ic { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(20,83,45,.38); transform: none; }
+.tsn-item.active::before { content: ""; position: absolute; left: -12px; top: 11px; bottom: 11px; width: 4px; border-radius: 0 4px 4px 0; background: #e3a83a; }
+.tsn-label { display: none; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; white-space: nowrap; min-width: 0; }
 .tsn-item.active .tsn-label { font-weight: 800; }
-.tsn-label { display: none; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; white-space: nowrap; min-width: 0; }
-.tsn-item .tsn-badge.nx-badge { position: absolute; top: 3px; right: 4px; min-width: 17px; height: 17px; padding: 0 4px; font-size: 9.5px; border: 1.5px solid #fff; }
-.tsn-item .tsn-badge.nx-dot { position: absolute; top: 9px; right: 11px; }
+.tsn-item .tsn-badge.nx-badge { position: absolute; top: 1px; right: 2px; min-width: 18px; height: 18px; padding: 0 4px; font-size: 10px; border: 2px solid #fff; z-index: 2; }
+.tsn-item .tsn-badge.nx-dot { position: absolute; top: 6px; right: 9px; z-index: 2; }
 
-/* Upgrade group: paid add-ons + growth tools, in gold */
+/* Upgrade group: paid add-ons, gold */
 .tsn-group.up .tsn-sep { background: linear-gradient(90deg, transparent, #e6cf8f, transparent); }
 .tsn-group.up .tsn-gtitle { color: #a37a16; display: none; }
 .tsn-group.up .tsn-gtitle i { font-style: normal; margin-right: 5px; color: #d4a12f; }
-.tsn-group.up .tsn-item:not(.active) { color: #a37a16; }
-.tsn-group.up .tsn-item:not(.active):hover { background: #fdf6e3; color: #7a5a10; }
-.tsn-group.up .tsn-item.active, .tsn-group.up .tsn-item.active:hover { background: none; color: #15803d; box-shadow: none; }
-.tsn-group.up .tsn-item.active svg { color: #15803d; }
-
+.tsn-group.up .tsn-item:not(.active) { color: #7a5a10; }
+.tsn-group.up .tsn-item:not(.active):hover { background: #fdf6e3; }
 
 /* icon-only rail: tooltip outside the rail */
 .tsn-tip { position: fixed; z-index: 1200; transform: translateY(-50%); background: #0f172a; color: #fff; font-size: 12.5px; font-weight: 600;
@@ -220,27 +246,25 @@ html.tsn-anim .tsn-rail { transition: width .22s cubic-bezier(.2,.8,.2,1); }
 @keyframes tsnTip { from { opacity: 0; margin-left: -4px; } to { opacity: 1; margin-left: 0; } }
 
 /* widened rail: labels + group titles */
-html[data-tsn-wide] .tsn-rail { width: 232px; }
-html[data-tsn-wide] .tsn-item { justify-content: flex-start; }
+html[data-tsn-wide] .tsn-rail { width: 248px; }
+html[data-tsn-wide] .tsn-item { justify-content: flex-start; padding: 0 8px; }
 html[data-tsn-wide] .tsn-label { display: inline-flex; }
-html[data-tsn-wide] .tsn-item.active::before { display: none; }
-html[data-tsn-wide] .tsn-item.active .tsn-label { padding-bottom: 3px; border-bottom: 2.5px solid #e3a83a; }
 html[data-tsn-wide] .tsn-gtitle, html[data-tsn-wide] .tsn-group.up .tsn-gtitle { display: block; }
 html[data-tsn-wide] .tsn-sep { display: none; }
-html[data-tsn-wide] .tsn-group.up { margin: 6px 0 2px; padding: 4px 6px 6px; border-radius: 14px; background: linear-gradient(160deg, #fffaf0, #fdf3dc); border: 1px solid #f0e2b8; }
+html[data-tsn-wide] .tsn-group.up { margin: 8px 0 2px; padding: 4px 6px 6px; border-radius: 16px; background: linear-gradient(160deg, #fffaf0, #fdf3dc); border: 1px solid #f0e2b8; }
 html[data-tsn-wide] .tsn-group.up .tsn-gtitle { padding-left: 6px; }
-html[data-tsn-wide] .tsn-item .tsn-badge.nx-badge, html[data-tsn-wide] .tsn-item .tsn-badge.nx-dot { position: static; margin-left: auto; }
+html[data-tsn-wide] .tsn-group.up .tsn-item.active::before { left: -18px; }
+html[data-tsn-wide] .tsn-item .tsn-badge.nx-badge, html[data-tsn-wide] .tsn-item .tsn-badge.nx-dot { position: static; margin-left: auto; border-color: transparent; }
 
 @media (max-width: 1023px) {
-  /* iPad: the rail is always icon-only (main-layout keeps 68px), even if it was left wide on a desktop */
-  html[data-tsn-wide] .tsn-rail { width: 68px; }
-  html[data-tsn-wide] .tsn-item { justify-content: center; }
-  html[data-tsn-wide] .tsn-item.active::before { display: block; }
+  /* small desktop windows: the rail is always icon-only (main-layout keeps 76px), even if it was left wide */
+  html[data-tsn-wide] .tsn-rail { width: 76px; }
+  html[data-tsn-wide] .tsn-item { justify-content: center; padding: 0 6px; }
   html[data-tsn-wide] .tsn-label, html[data-tsn-wide] .tsn-gtitle, html[data-tsn-wide] .tsn-group.up .tsn-gtitle { display: none; }
   html[data-tsn-wide] .tsn-sep { display: block; }
   html[data-tsn-wide] .tsn-group.up { margin: 0; padding: 0; background: none; border: 0; }
-  html[data-tsn-wide] .tsn-item .tsn-badge.nx-badge { position: absolute; }
+  html[data-tsn-wide] .tsn-item .tsn-badge.nx-badge, html[data-tsn-wide] .tsn-item .tsn-badge.nx-dot { position: absolute; }
 }
 @media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { .tsn-rail, .tsn-tip { display: none; } }
-@media (prefers-reduced-motion: reduce) { html.tsn-anim .tsn-rail { transition: none; } .tsn-tip { animation: none; } }
+@media (prefers-reduced-motion: reduce) { html.tsn-anim .tsn-rail { transition: none; } .tsn-tip { animation: none; } .tsn-ic { transition: none; } }
 `;

@@ -827,4 +827,63 @@ a[href="/therapists/cycle"]::before { content: "FREE"; position: absolute; top: 
      scroll-up. The bar is solid white here anyway — no blur, and a white shadow upwards that nothing clips */
   .tn-bar.tn-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: #fff; box-shadow: 0 -160px 0 0 #fff; }
 }
+
+/* ═══ Desktop (mouse / trackpad screens): the same app look as the iPad (2026-11-17) ═══
+   white bar, the page's name big on the left, a round search pill, the clock, round buttons, and the
+   profile on the right. Phones and touch tablets keep their own rules above. */
+@media (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 1401px) {
+  :root { --tn-h: 64px; }
+  .tn-bar.tn-bar { height: 64px; gap: 10px; padding: 0 18px; background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(14px); backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid rgba(15,23,42,.07); box-shadow: 0 6px 20px -16px rgba(4,30,16,.35); }
+  .tn-bar .tn-menu-btn { order: 0; width: 40px; height: 40px; border-radius: 50%; background: #f0f3f1; border-color: transparent; color: #1c1c1e; }
+  .tn-bar .tn-menu-btn:hover { background: #e3f4e9; color: #14532d; border-color: transparent; }
+  .tn-app-title { display: block !important; order: 1; flex: 0 1 auto; min-width: 0; margin-left: 4px; font-size: 23px; font-weight: 800; letter-spacing: -.03em; color: #1c1c1e;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tn-app-site { display: inline-flex !important; order: 2; margin-top: 4px; color: #1e8a4f !important; font-size: 11.5px; font-weight: 800; letter-spacing: .08em;
+    text-decoration: none !important; white-space: nowrap; }
+  .tn-app-site:hover { color: #14532d !important; }
+
+  .tn-bar .tn-search { order: 3; margin-left: auto; flex: 0 1 340px; height: 40px; border-radius: 999px; background: #f0f3f1; border-color: transparent; box-shadow: none; color: #6b7280; }
+  .tn-bar .tn-search:focus-within { background: #fff; border-color: #a7d7b8; box-shadow: 0 0 0 3px rgba(22,101,52,.1); }
+  .tn-bar .tn-search kbd { background: #fff; border-color: #e3e8e5; }
+
+  .tn-bar .tn-right { order: 4; margin-left: 0; gap: 8px; }
+  .tn-clock { display: inline-flex !important; align-items: baseline; gap: 1px; padding: 6px 12px; border-radius: 999px; background: #f0f3f1;
+    font-family: "SF Pro Rounded", ui-rounded, Inter, -apple-system, sans-serif; font-variant-numeric: tabular-nums; line-height: 1; }
+  .tn-clock b { font-size: 20px; font-weight: 900; letter-spacing: -.02em; }
+  .tn-clock .h { color: #1c1c1e; } .tn-clock .m { color: #1e8a4f; }
+  .tn-clock i { font-style: normal; font-size: 19px; font-weight: 900; color: #e3a83a; margin: 0 1px; animation: tnBlinkD 1s steps(1) infinite; }
+  .tn-clock small { font-size: 10.5px; font-weight: 800; color: #6e6e73; margin-left: 4px; letter-spacing: .04em; }
+  @keyframes tnBlinkD { 50% { opacity: .25; } }
+  .tn-refresh { display: grid !important; }
+  .tn-refresh.spin svg { animation: tnSpinD .7s linear infinite; }
+  @keyframes tnSpinD { to { transform: rotate(360deg); } }
+  .tn-bar .tn-icon-btn { width: 40px; height: 40px; border-radius: 50%; background: #f0f3f1; color: #1c1c1e; }
+  .tn-bar .tn-icon-btn:hover { background: #e3f4e9; color: #14532d; }
+  .tn-bar .tn-notif-dot { border-color: #fff; }
+
+  /* who's signed in: on the right, after the buttons */
+  .tn-bar .tn-prof { order: 10; flex: 0 1 auto; margin-left: 4px; padding-left: 12px; border-left: 1px solid #edf1ee; }
+  .tn-bar .tn-who { max-width: 250px; padding: 4px 8px 4px 4px; border-radius: 999px; }
+  .tn-bar .tn-who:hover, .tn-bar .tn-who[aria-expanded="true"] { background: #f4f6f5; }
+  .tn-bar .tn-who-av { width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5fd08f; }
+  .tn-bar .tn-who-txt > b { color: #1c1c1e; font-size: 13.5px; }
+  .tn-bar .tn-who-tick { color: #16a34a; }
+  .tn-bar .tn-who-type { color: #64748b; }
+  .tn-bar .tn-who-type + .tn-who-st::before { color: #cbd5e1; }
+  .tn-bar .tn-who-st.ok { color: #15803d; } .tn-bar .tn-who-st.warn { color: #b45309; } .tn-bar .tn-who-st.off { color: #b91c1c; }
+  .tn-bar .tn-who-brand { display: none; }
+  .tn-prof-dd { left: auto; right: 0; }
+}
+/* narrower desktop windows: drop the extras first so nothing squeezes */
+@media (min-width: 768px) and (max-width: 1279px) and (hover: hover), (min-width: 768px) and (max-width: 1279px) and (pointer: fine) {
+  .tn-app-site { display: none !important; }
+  .tn-bar .tn-search { flex-basis: 240px; }
+}
+@media (min-width: 768px) and (max-width: 1099px) and (hover: hover), (min-width: 768px) and (max-width: 1099px) and (pointer: fine) {
+  .tn-clock { display: none !important; }
+  .tn-bar .tn-who-txt { display: none; }
+  .tn-bar .tn-who { padding: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { .tn-clock i { animation: none; } }
 `;
