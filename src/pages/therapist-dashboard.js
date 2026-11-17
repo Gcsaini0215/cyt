@@ -212,6 +212,17 @@ const DASH_CSS = `
 /* a number card with no graph yet keeps its link at the bottom, so the card never looks half-empty */
 .ov .ov-kpi-hint { margin-top: auto; padding-top: 8px; }
 .ov .ov-kpi > :is(.ov-spark-wrap, .ov-bars-wrap, .ov-stars-wrap) ~ .ov-kpi-hint { margin-top: 0; }
+/* main area as rows that line up; a pair is as tall as its taller card and the shorter one stays its own height */
+.ov .ov-main-grid.ov-rows { align-items: start; }
+.ov .ov-main-grid.ov-rows > div { display: block; min-width: 0; }
+.ov .ov-main-grid.ov-rows > div:empty { display: none; }
+.ov .ov-main-grid.ov-rows > div > * { margin: 0; }
+.ov .ov-rows .gp-dm { height: auto; }
+@media (max-width: 899px) {
+  /* phones / iPad portrait: one column, in the old order */
+  .ov .ov-main-grid.ov-rows { display: flex; flex-direction: column; }
+  .ov .ov-c-week { order: 1; } .ov .ov-c-up { order: 2; } .ov .ov-c-fu { order: 3; } .ov .ov-c-rev { order: 4; } .ov .ov-c-inv { order: 5; } .ov .ov-c-dem { order: 6; }
+}
 /* To-do never makes the left side taller: on wide screens it is as tall as the cards beside it and scrolls inside */
 @media (min-width: 900px) {
   .ov .ov-top > .ov-todo { height: 0; min-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
@@ -976,7 +987,7 @@ export default function TherapistDashboard() {
   const [invoices, setInvoices] = React.useState([]);
   const [myReviews, setMyReviews] = React.useState([]);
   const upPg = usePager(upcomingSessions, 5);
-  const invPg = usePager(invoices, 5); // 5 like Upcoming, so the two columns end close together
+  const invPg = usePager(invoices, 3); // the latest 3 on Home (View all has the rest), so the row with Upcoming stays level
   // Overview "start fresh" date (server-side, per therapist); null = all-time.
   const [since, setSince] = React.useState(null);
   const [savingSince, setSavingSince] = React.useState(false);
@@ -1365,11 +1376,17 @@ export default function TherapistDashboard() {
             <GrowthBadge />
           </div>
 
-          <div className="ov-main-grid">
-            <div>
-              {/* 4 — the week ahead */}
-              <WeekStrip sessions={upcomingSessions} now={clockTime} />
-
+          <div className="ov-main-grid ov-rows">
+            {/* rows that line up side by side (2026-11-17): the week | reviews, upcoming | invoices,
+                your clients | when clients look for therapy — so neither side leaves a big empty gap */}
+            <div className="ov-c-week"><WeekStrip sessions={upcomingSessions} now={clockTime} /></div>
+            <div className="ov-c-rev">
+              {/* latest two reviews */}
+              <DashCard icon={StarRateRoundedIcon} tone="orange" title="Client reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
+                <ReviewsBlock reviews={myReviews} />
+              </DashCard>
+            </div>
+            <div className="ov-c-up">
               <DashCard icon={EventAvailableRoundedIcon} tone="blue" title="Upcoming sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={44} sx={{ mb: 1 }} />)}</Box>
@@ -1382,17 +1399,8 @@ export default function TherapistDashboard() {
                   <EmptyState icon={EventAvailableRoundedIcon} text="No upcoming sessions" />
                 )}
               </DashCard>
-
-              {/* past clients to bring back — one tap WhatsApp / email */}
-              <GrowthFollowups therapistName={therapistInfo?.user?.name || ""} />
             </div>
-
-            <div>
-              {/* 7 — latest two reviews, pending payments first */}
-              <DashCard icon={StarRateRoundedIcon} tone="orange" title="Client reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
-                <ReviewsBlock reviews={myReviews} />
-              </DashCard>
-
+            <div className="ov-c-inv">
               <DashCard icon={PaymentsRoundedIcon} tone="green" title="Recent invoices" sub="Your share of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
@@ -1421,6 +1429,9 @@ export default function TherapistDashboard() {
                 )}
               </DashCard>
             </div>
+            {/* past clients to bring back — one tap WhatsApp / email */}
+            <div className="ov-c-fu"><GrowthFollowups therapistName={therapistInfo?.user?.name || ""} /></div>
+            <div className="ov-c-dem"><GrowthDemand /></div>
           </div>
 
           {/* ── insights: how the profile and the practice are doing ── */}
@@ -1437,7 +1448,6 @@ export default function TherapistDashboard() {
                 <Box sx={{ p: 2 }}><Skeleton variant="rounded" height={220} /></Box>
               )}
             </DashCard>
-            <GrowthDemand />
           </div>
         </div>
       </Box>
