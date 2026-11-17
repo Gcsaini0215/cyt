@@ -13,6 +13,15 @@ import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
+import CallRoundedIcon from "@mui/icons-material/CallRounded";
+import NotesRoundedIcon from "@mui/icons-material/NotesRounded";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import { earningOf } from "../../../utils/earning";
 
 /* Pieces of the therapist dashboard Overview (2026-10 redesign): a slim "today" bar, KPI cards
@@ -219,16 +228,28 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
     setEnding(false);
   };
   const report = assess.find((x) => x.reportId);
+  // when the booking was made: the first 8 hex digits of a Mongo id are its creation time (Booking has no createdAt)
+  const bookedAt = /^[0-9a-f]{24}$/i.test(String(b._id || "")) ? new Date(parseInt(String(b._id).slice(0, 8), 16) * 1000) : null;
+  const bookedAgo = bookedAt ? Math.max(0, Math.round((Date.now() - bookedAt.getTime()) / 3600000)) : null;
+  const isNew = bookedAgo !== null && bookedAgo < 48; // booked in the last two days
+  const bookedText = bookedAgo === null ? "" : bookedAgo < 1 ? "Just now" : bookedAgo < 24 ? `${bookedAgo} h ago` : `${Math.round(bookedAgo / 24)} day${Math.round(bookedAgo / 24) === 1 ? "" : "s"} ago`;
+  const payName = String(b.transaction?.status?.name || b.payment_status || "");
+  const payOk = !payName || /success|paid|complete/i.test(payName);
+  // each detail as an iPad-style tile: [label, value, icon, tile colours]
+  const mode = modeLabel(b);
   const details = [
-    ["Service", clean(b.service) || "Session"],
-    ["Mode", modeLabel(b)],
-    paid ? ["You earn", `${inr(earningOf(b))} · client paid ${inr(paid)}`] : null,
-    forOther ? ["Session for", forOther] : about ? ["Client", about] : null,
+    ["Age", about || "Not shared", PersonRoundedIcon, "#c58cff", "#8a3fd6"],
+    forOther ? ["Session for", forOther, FamilyRestroomRoundedIcon, "#ff8ac2", "#d6338a"] : null,
+    ["Service", [clean(b.service) || "Session", clean(b.format)].filter(Boolean).join(" · "), SpaRoundedIcon, "#ffc65a", "#f07b12"],
+    ["Mode", mode, mode === "In-person" ? PlaceRoundedIcon : mode === "Voice call" ? CallRoundedIcon : VideocamRoundedIcon, mode === "In-person" ? "#ff9b6b" : "#5ab0ff", mode === "In-person" ? "#e5532a" : "#1d63d8"],
+    // payment sits in this tile label (no extra tiles, so the card stays short); when it was booked shows in the header
+    paid ? [payOk ? "You earn · Paid ✓" : `You earn · ${payName || "payment pending"}`, `${inr(earningOf(b))} of ${inr(paid)}`, CurrencyRupeeRoundedIcon, payOk ? "#4fd38b" : "#ffb36b", payOk ? "#12804a" : "#d9661c"] : null,
   ].filter(Boolean);
   return (
     <div className={`ov-next ov-card hero ${live || started ? "live" : ""}`}>
       <div className="ov-next-top">
-        <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : upcoming ? "Upcoming session" : "Next session"} <span>{started ? "started" : when}</span></div>
+        <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : upcoming ? "Upcoming session" : "Next session"} <span>{started ? "started" : when}</span>{isNew && !started && <em className="ov-new-tag">New booking{bookedText ? ` · ${bookedText.toLowerCase()}` : ""}</em>}
+          {b._id && <button type="button" className="ov-inv-btn" onClick={() => setReceipt(true)} title="Open the invoice"><ReceiptLongRoundedIcon aria-hidden="true" />Invoice<span aria-hidden="true">›</span></button>}</div>
         <span className="ov-next-tr">
           <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? <><PlaceRoundedIcon aria-hidden="true" /> In person</> : <><VideocamRoundedIcon aria-hidden="true" /> Video session</>}</span>
           {nav}
@@ -242,15 +263,13 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
               <span>{new Date(s.date).toLocaleDateString("en-IN", { weekday: "short", timeZone: IST })}</span>
               <b>{new Date(s.date).toLocaleDateString("en-IN", { day: "numeric", timeZone: IST })}</b>
             </div>
-            <div className={`ov-next-av${s.imgSrc ? "" : " ini"}`}>{s.imgSrc ? <img src={s.imgSrc} alt="" /> : <b>{String(s.name || "Client").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</b>}</div>
             <div className="ov-next-info">
               <div className="ov-next-name">{s.name}</div>
               <div className="ov-next-sub">{fmtDay(s.date)} · {fmtTime(s.date)}</div>
-              {(phone || b._id) && (
+              {phone && (
                 <div className="ov-next-contact">
-                  {phone && <a href={`tel:${phone}`}>Call</a>}
-                  {phone && <a href={`https://wa.me/${phone.length === 10 ? "91" + phone : phone}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
-                  {b._id && <button type="button" className="ov-inv-link" onClick={() => setReceipt(true)}>Invoice</button>}
+                  {phone && <a href={`tel:${phone}`} className="ov-pill call"><i aria-hidden="true"><CallRoundedIcon /></i>Call</a>}
+                  {phone && <a href={`https://wa.me/${phone.length === 10 ? "91" + phone : phone}`} target="_blank" rel="noopener noreferrer" className="ov-pill wa"><i aria-hidden="true"><WhatsAppIcon /></i>WhatsApp</a>}
                 </div>
               )}
             </div>
@@ -280,10 +299,20 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
         </div>
 
         <div className="ov-next-right">
-          <dl className="ov-next-dl">
-            {details.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-          </dl>
-          {notes && <p className="ov-next-notes" title={notes}><b>Client&apos;s note:</b> {notes}</p>}
+          <div className="ov-nd-grid">
+            {details.map(([k, v, Icon, c1, c2]) => (
+              <div key={k} className="ov-nd">
+                <i className="ov-nd-ic" style={{ background: `linear-gradient(160deg, ${c1}, ${c2})`, boxShadow: `0 6px 12px -7px ${c2}` }} aria-hidden="true"><Icon /></i>
+                <span><small>{k}</small><b title={v}>{v}</b></span>
+              </div>
+            ))}
+            {notes && (
+              <div className="ov-nd note" title={notes}>
+                <i className="ov-nd-ic" style={{ background: "linear-gradient(160deg, #7f9cff, #3b4fd1)", boxShadow: "0 6px 12px -7px #3b4fd1" }} aria-hidden="true"><NotesRoundedIcon /></i>
+                <span><small>Client&apos;s note</small><b>{notes}</b></span>
+              </div>
+            )}
+          </div>
           {assess.length > 0 && (
             <div className="ov-next-assess">
               <span>Clinical assessment</span>
@@ -304,12 +333,13 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
 export function NextSessionSlider({ sessions = [], loading, max = 8, ...rest }) {
   const list = sessions.slice(0, max);
   const [i, setI] = React.useState(0);
+  const [dir, setDir] = React.useState(0); // 1 = next, -1 = previous; 0 on first show (no animation)
   const touch = React.useRef(null);
   const first = list[0]?.id;
   React.useEffect(() => { setI(0); }, [first]);
   if (loading || list.length <= 1) return <NextSessionCard s={list[0] || null} loading={loading} {...rest} />;
   const at = Math.min(i, list.length - 1);
-  const go = (d) => setI((x) => (x + d + list.length) % list.length);
+  const go = (d) => { setDir(d); setI((x) => (x + d + list.length) % list.length); };
   const nav = (
     <span className="ov-next-nav" role="group" aria-label="Upcoming sessions">
       <button type="button" onClick={() => go(-1)} aria-label="Previous session">‹</button>
@@ -318,12 +348,12 @@ export function NextSessionSlider({ sessions = [], loading, max = 8, ...rest }) 
     </span>
   );
   return (
-    <div className="ov-next-slider"
+    <div className="ov-next-slider" data-dir={dir}
       onTouchStart={(e) => { touch.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { const dx = e.changedTouches[0].clientX - (touch.current ?? 0); if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); touch.current = null; }}>
       <NextSessionCard key={list[at].id} s={list[at]} loading={false} nav={nav} upcoming={at > 0} {...rest} />
       <div className="ov-next-dots">
-        {list.map((x, k) => <button key={x.id} type="button" className={k === at ? "on" : ""} onClick={() => setI(k)} aria-label={`Session ${k + 1}: ${x.name}`} />)}
+        {list.map((x, k) => <button key={x.id} type="button" className={k === at ? "on" : ""} onClick={() => { setDir(k > at ? 1 : -1); setI(k); }} aria-label={`Session ${k + 1}: ${x.name}`} />)}
       </div>
     </div>
   );

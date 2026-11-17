@@ -19,7 +19,7 @@ import { useAddonStep } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import ProfileInsights, { ProfileViewsSpot } from "../components/therapists/dashboard/profile-insights";
 import { GrowthStyles, GrowthGoal, GrowthBadge, GrowthDemand } from "../components/therapists/dashboard/grow-practice";
-import { TodayBar, KpiCard, KpiHead, NextSessionSlider, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
+import { TodayBar, KpiCard, KpiHead, NextSessionSlider, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
 import { joinSession } from "../utils/join-session";
@@ -241,6 +241,14 @@ const DASH_CSS = `
 .ov .ov-motivate:not(:has(> :nth-child(3))) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 899px) { .ov .ov-motivate:not(:has(> :nth-child(3))) > :last-child { grid-column: auto; } }
 @media (max-width: 640px) { .ov .ov-motivate:not(:has(> :nth-child(3))) { grid-template-columns: 1fr; } }
+/* main area (no week strip): Upcoming full width, then reviews | invoices of equal height */
+.ov .ov-main-grid.ov-stack { display: flex; flex-direction: column; align-items: stretch; gap: 12px; } /* full width, never shrink to content */
+/* narrower screens (iPad Pro portrait, small laptops): the Next session details go under the client, not beside */
+@media (max-width: 1199px) { .ov .ov-next.hero .ov-next-grid { grid-template-columns: minmax(0, 1fr); } }
+.ov .ov-main-grid.ov-stack > * { margin: 0; }
+.ov .ov-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.ov .ov-pair > * { margin: 0; min-width: 0; }
+@media (max-width: 760px) { .ov .ov-pair { grid-template-columns: minmax(0, 1fr); } }
 /* main area: two columns that end level */
 .ov .ov-main-grid.ov-cols { align-items: stretch; }
 .ov .ov-main-grid.ov-cols > .ov-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
@@ -355,6 +363,105 @@ const DASH_CSS = `
 .ov .ov-next.hero .ov-next-notes b { color: #f5c542; }
 .ov .ov-next-dots button.on { background: #c9962c; }
 
+/* ── Next session v3 (2026-11-18): richer green, clear details, "New booking", a visible slide ── */
+.ov .ov-card.ov-next.hero { background: radial-gradient(120% 120% at 100% 0%, rgba(245,197,66,.26) 0%, rgba(245,197,66,0) 42%), linear-gradient(140deg, #08341f 0%, #11532f 40%, #1b7a47 100%) !important; }
+.ov .ov-next-cal { width: 64px; height: 68px; }
+.ov .ov-next-cal b { font-size: 30px; }
+.ov .ov-next.hero .ov-next-name { font-size: 22px; }
+.ov .ov-next.hero .ov-next-sub { color: rgba(255,255,255,.9); font-size: 14px; font-weight: 600; }
+.ov-new-tag { font-style: normal; font-size: 11.5px; font-weight: 800; letter-spacing: .02em; padding: 3px 9px; border-radius: 999px; background: #fff; color: #b45309; box-shadow: 0 0 0 0 rgba(255,255,255,.6); animation: ovNewPulse 1.8s ease-out 2; }
+@keyframes ovNewPulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.55); } 100% { box-shadow: 0 0 0 10px rgba(255,255,255,0); } }
+/* details: brighter labels, white values, a clear list */
+.ov .ov-next.hero .ov-next-right { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); padding: 2px 16px; }
+.ov .ov-next.hero .ov-next-dl div { padding: 8px 0; }
+.ov .ov-next.hero .ov-next-dl dt { color: #cfe9da; font-size: 13px; font-weight: 600; }
+.ov .ov-next.hero .ov-next-dl dd { color: #fff; font-size: 14px; font-weight: 700; }
+.ov .ov-next.hero .ov-next-notes { color: #fff; font-size: 13.5px; padding: 9px 0 10px; }
+/* moving between sessions: the new card slides in from that side and the counter pops */
+.ov .ov-next-slider[data-dir="1"] > .ov-next { animation: ovSlideNext .42s cubic-bezier(.2,.9,.3,1); }
+.ov .ov-next-slider[data-dir="-1"] > .ov-next { animation: ovSlidePrev .42s cubic-bezier(.2,.9,.3,1); }
+@keyframes ovSlideNext { from { opacity: 0; transform: translateX(48px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes ovSlidePrev { from { opacity: 0; transform: translateX(-48px) scale(.985); } to { opacity: 1; transform: none; } }
+.ov .ov-next-slider:not([data-dir="0"]) .ov-next-nav b { display: inline-block; animation: ovPop .45s cubic-bezier(.34,1.56,.64,1); }
+@keyframes ovPop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+.ov .ov-next-dots { gap: 6px; padding-top: 10px; }
+.ov .ov-next-dots button { width: 8px; height: 8px; }
+.ov .ov-next-dots button.on { width: 22px; background: #c9962c; }
+/* richer emerald with depth: gold glow top-right, soft light bottom-left */
+.ov .ov-card.ov-next.hero { background:
+    radial-gradient(90% 120% at 100% 0%, rgba(246,201,86,.30) 0%, rgba(246,201,86,0) 45%),
+    radial-gradient(70% 90% at 0% 100%, rgba(110,231,183,.22) 0%, rgba(110,231,183,0) 55%),
+    linear-gradient(135deg, #04301c 0%, #0a5232 38%, #0f7343 72%, #179a58 100%) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 22px 40px -22px rgba(4,48,28,.85) !important; }
+/* buttons with feel: the main one in shiny gold, the others glassy; they lift on hover and press in on click */
+.ov .ov-next.hero .ov-btn { transition: transform .15s ease, box-shadow .15s ease, background .15s ease, filter .15s ease; }
+.ov .ov-next.hero .ov-next-btns > :first-child, .ov .ov-next.hero .ov-next-btns > :first-child.gold {
+  background: linear-gradient(180deg, #ffe28a 0%, #f5c542 45%, #e0a92a 100%); color: #3a2600 !important; font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -2px 0 rgba(150,95,0,.25), 0 10px 22px -10px rgba(245,197,66,.95), 0 2px 4px rgba(0,0,0,.18); }
+.ov .ov-next.hero .ov-next-btns > :first-child:hover { background: linear-gradient(180deg, #ffe9a3 0%, #f8cf55 45%, #e8b232 100%); transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -2px 0 rgba(150,95,0,.25), 0 14px 26px -10px rgba(245,197,66,1), 0 3px 6px rgba(0,0,0,.2); }
+.ov .ov-next.hero .ov-next-btns > :first-child:active { transform: translateY(1px) scale(.98); box-shadow: inset 0 2px 4px rgba(150,95,0,.35), 0 4px 10px -6px rgba(245,197,66,.9); }
+.ov .ov-next.hero .ov-next-btns > :first-child svg { color: #3a2600; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child), .ov .ov-next.hero .ov-next-rbtns .ov-btn {
+  background: rgba(255,255,255,.12); color: #fff !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 1px 0 rgba(255,255,255,.18); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):hover, .ov .ov-next.hero .ov-next-rbtns .ov-btn:hover { background: rgba(255,255,255,.22); transform: translateY(-1px); }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):active, .ov .ov-next.hero .ov-next-rbtns .ov-btn:active { transform: translateY(1px) scale(.98); background: rgba(255,255,255,.1); }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child) svg { color: #f5c542; }
+.ov .ov-next.hero .ov-next-contact a, .ov .ov-next.hero .ov-inv-link { box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); transition: background .15s ease, transform .15s ease; }
+.ov .ov-next.hero .ov-next-contact a:active, .ov .ov-next.hero .ov-inv-link:active { transform: scale(.96); }
+@media (prefers-reduced-motion: reduce) { .ov .ov-next.hero .ov-btn { transition: none; } .ov .ov-next.hero .ov-btn:hover, .ov .ov-next.hero .ov-btn:active { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ov .ov-next-slider > .ov-next, .ov-new-tag, .ov .ov-next-nav b { animation: none !important; } }
+/* details as iPad tiles: white cards with colourful app icons, so the card isn't green on green */
+.ov .ov-next.hero .ov-next-right { background: none !important; box-shadow: none !important; padding: 0 !important; border: 0 !important; gap: 8px; }
+.ov-nd-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.ov-nd { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 9px 11px; border-radius: 14px; background: rgba(255,255,255,.97);
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 18px -12px rgba(0,0,0,.45); }
+.ov-nd.note { grid-column: 1 / -1; align-items: flex-start; }
+.ov-nd-ic { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-style: normal; }
+.ov-nd-ic svg { font-size: 18px; color: #fff; }
+.ov-nd > span { display: flex; flex-direction: column; min-width: 0; }
+.ov-nd small { font-size: 11.5px; font-weight: 600; color: #8e8e93; line-height: 1.2; }
+.ov-nd b { font-size: 13.5px; font-weight: 700; color: #1c1c1e; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-nd.note b { white-space: normal; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ov .ov-next.hero .ov-next-right .ov-next-assess, .ov .ov-next.hero .ov-next-rbtns { box-shadow: none; padding: 2px 0 0; }
+@media (max-width: 520px) { .ov-nd-grid { grid-template-columns: minmax(0, 1fr); } }
+/* longer values (e.g. "Individual Therapy · In-Person") wrap to two lines instead of being cut */
+.ov-nd b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+/* "Start from …" (in person, before the start window) / "Join opens at …": a gold-outlined pill, not a dull grey box */
+.ov .ov-next.hero .ov-btn.ov-opens { background: rgba(245,197,66,.14) !important; color: #ffeaa8 !important; font-weight: 600;
+  box-shadow: inset 0 0 0 1.5px rgba(245,197,66,.6) !important; transform: none !important; cursor: default; }
+.ov .ov-next.hero .ov-btn.ov-opens svg { color: #f5c542 !important; }
+.ov .ov-next.hero .ov-btn.ov-opens b { color: #fff; font-weight: 800; }
+/* Reschedule: a clean white button with green text and a gold icon */
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens) { background: #fff; color: #0b5232 !important; font-weight: 800;
+  box-shadow: inset 0 -2px 0 rgba(11,82,50,.12), 0 8px 16px -10px rgba(0,0,0,.55); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens):hover { background: #f1fbf5; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens) svg { color: #c9962c; }
+/* Call / WhatsApp / Invoice: white pills, each with its own coloured icon */
+.ov .ov-next.hero .ov-next-contact { gap: 8px; margin-top: 10px; }
+.ov .ov-next.hero .ov-pill { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px 0 4px; border: 0; border-radius: 999px; background: #fff !important;
+  color: #1c1c1e !important; font-size: 12.5px; font-weight: 700; text-decoration: none !important; cursor: pointer; font-family: inherit;
+  box-shadow: 0 6px 14px -8px rgba(0,0,0,.55) !important; transition: transform .15s ease, box-shadow .15s ease; }
+.ov .ov-next.hero .ov-pill:hover { transform: translateY(-1px); box-shadow: 0 10px 18px -8px rgba(0,0,0,.6) !important; background: #fff !important; color: #1c1c1e !important; }
+.ov .ov-next.hero .ov-pill:active { transform: scale(.96); }
+.ov .ov-next.hero .ov-pill i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-style: normal; }
+.ov .ov-next.hero .ov-pill i svg { font-size: 14px; color: #fff; }
+.ov .ov-next.hero .ov-pill.call i { background: linear-gradient(160deg, #5ab0ff, #1d63d8); }
+.ov .ov-next.hero .ov-pill.wa i { background: linear-gradient(160deg, #4ee07a, #1faa4f); }
+.ov .ov-next.hero .ov-pill.inv i { background: linear-gradient(160deg, #ffc65a, #f07b12); }
+@media (prefers-reduced-motion: reduce) { .ov .ov-next.hero .ov-pill { transition: none; } }
+/* Invoice: up in the header, and clearly a button */
+.ov .ov-next.hero .ov-next-k { flex-wrap: wrap; row-gap: 6px; }
+.ov .ov-inv-btn { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 8px 0 7px; border: 0; border-radius: 999px; background: #fff; color: #1c1c1e;
+  font: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0; text-transform: none; cursor: pointer; box-shadow: 0 4px 10px -6px rgba(0,0,0,.6), inset 0 -1.5px 0 rgba(0,0,0,.08);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.ov .ov-inv-btn svg { font-size: 15px; color: #f07b12; }
+.ov .ov-inv-btn span { font-size: 15px; line-height: 1; color: #8e8e93; margin-left: 1px; transition: transform .15s ease; }
+.ov .ov-inv-btn:hover { background: #fff7ec; transform: translateY(-1px); box-shadow: 0 8px 14px -6px rgba(0,0,0,.6); }
+.ov .ov-inv-btn:hover span { transform: translateX(2px); color: #f07b12; }
+.ov .ov-inv-btn:active { transform: scale(.96); }
+.ov .ov-inv-btn:focus-visible { outline: 2px solid #f5c542; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ov .ov-inv-btn, .ov .ov-inv-btn span { transition: none; } }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
@@ -1046,7 +1153,7 @@ export default function TherapistDashboard() {
   const [nextSession, setNextSession] = React.useState(null);
   const [invoices, setInvoices] = React.useState([]);
   const [myReviews, setMyReviews] = React.useState([]);
-  const upPg = usePager(upcomingSessions, 5);
+  const upPg = usePager(upcomingSessions, 4); // 4 on Home, the rest on Appointments (View all)
   const invPg = usePager(invoices, 3); // the latest 3 on Home (View all has the rest), so the row with Upcoming stays level
   // Overview "start fresh" date (server-side, per therapist); null = all-time.
   const [since, setSince] = React.useState(null);
@@ -1436,12 +1543,10 @@ export default function TherapistDashboard() {
             <GrowthBadge />
           </div>
 
-          <div className="ov-main-grid ov-cols">
-            {/* two columns (2026-11-18): the week + upcoming | reviews + invoices. Each column's last card takes the
-                little height that's left, so no gap opens between cards; one column on iPad portrait and phones */}
-            <div className="ov-col">
-              <WeekStrip sessions={upcomingSessions} now={clockTime} />
-              <DashCard icon={EventAvailableRoundedIcon} tone="blue" title="Upcoming sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
+          <div className="ov-main-grid ov-stack">
+            {/* 2026-11-18: no "Next 7 days" strip. Upcoming sessions on its own full row (nothing beside it to
+                leave empty), then reviews | invoices side by side, as tall as each other */}
+            <DashCard icon={EventAvailableRoundedIcon} tone="blue" title="Upcoming sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={44} sx={{ mb: 1 }} />)}</Box>
                 ) : upcomingSessions.length ? (
@@ -1453,9 +1558,7 @@ export default function TherapistDashboard() {
                   <EmptyState icon={EventAvailableRoundedIcon} text="No upcoming sessions" />
                 )}
               </DashCard>
-            </div>
-            <div className="ov-col">
-              {/* latest two reviews */}
+            <div className="ov-pair">
               <DashCard icon={StarRateRoundedIcon} tone="orange" title="Client reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
                 <ReviewsBlock reviews={myReviews} />
               </DashCard>
