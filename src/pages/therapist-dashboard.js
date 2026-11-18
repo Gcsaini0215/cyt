@@ -606,6 +606,23 @@ const DASH_CSS = `
 .ov .ov-next.hero .ov-btn.ov-opens { background: #fff !important; color: #128c4b !important; font-weight: 800;
   box-shadow: inset 0 0 0 1.5px #1fb855, inset 0 -2px 0 rgba(18,140,75,.12), 0 6px 14px -8px rgba(0,0,0,.35) !important; }
 .ov .ov-next.hero .ov-btn.ov-opens svg { color: #1fb855 !important; } .ov .ov-next.hero .ov-btn.ov-opens b { color: #0b5a2f; }
+/* gold start (2026-11-18): "Start from / Join opens" has a gold outline; once the session can start, the button is solid gold */
+.ov .ov-next.hero .ov-btn.ov-opens { color: #8a5d06 !important; box-shadow: inset 0 0 0 1.5px #e0a92a, inset 0 -2px 0 rgba(138,93,6,.12), 0 6px 14px -8px rgba(0,0,0,.3) !important; }
+.ov .ov-next.hero .ov-btn.ov-opens svg { color: #e0a92a !important; } .ov .ov-next.hero .ov-btn.ov-opens b { color: #6b4708; }
+.ov .ov-next.hero .ov-next-btns > :first-child:not(.ov-opens), .ov .ov-next.hero .ov-next-btns > :first-child.gold:not(.ov-opens) {
+  background: linear-gradient(180deg, #ffe28a, #f5c542 45%, #e0a92a) !important; color: #3a2600 !important; font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(150,95,0,.25), 0 10px 20px -10px rgba(224,169,42,.95) !important; }
+.ov .ov-next.hero .ov-next-btns > :first-child:not(.ov-opens):hover { background: linear-gradient(180deg, #ffe9a3, #f8cf55 45%, #e8b232) !important; }
+.ov .ov-next.hero .ov-next-btns > :first-child:not(.ov-opens) svg { color: #3a2600 !important; }
+.ov-count { font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+/* chips on the green strip: white glass with white text; "New booking" in soft gold so it stands out */
+.ov .ov-next.hero .ov-next-k > span, .ov .ov-next.hero.live .ov-next-k > span { background: rgba(255,255,255,.22); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+.ov .ov-next.hero .ov-new-tag { background: #ffe08a; color: #5b3a00; }
+.ov .ov-next.hero .ov-inv-btn { background: rgba(255,255,255,.22); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+.ov .ov-next.hero .ov-inv-btn svg { color: #ffe08a; }
+.ov .ov-next.hero .ov-inv-btn span { color: rgba(255,255,255,.85) !important; }
+.ov .ov-next.hero .ov-inv-btn:hover { background: rgba(255,255,255,.32); }
+.ov .ov-next.hero .ov-inv-btn:hover span { color: #ffe08a !important; }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 

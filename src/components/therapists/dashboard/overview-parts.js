@@ -190,7 +190,21 @@ const modeLabel = (b) => {
 const clean = (v) => (v && v !== "null" && v !== "undefined" ? String(v).trim() : "");
 const digits = (p) => String(p || "").replace(/\D/g, "");
 
+/* a live countdown to a time (e.g. when a session can be started); onDone fires once when it reaches zero */
+function Countdown({ at, onDone }) {
+  const [now, setNow] = React.useState(() => Date.now());
+  React.useEffect(() => {
+    const t = setInterval(() => { const n = Date.now(); setNow(n); if (n >= at) { clearInterval(t); if (onDone) onDone(); } }, 1000);
+    return () => clearInterval(t);
+  }, [at]); // eslint-disable-line react-hooks/exhaustive-deps
+  const left = Math.max(0, Math.floor((at - now) / 1000));
+  const d = Math.floor(left / 86400), h = Math.floor((left % 86400) / 3600), m = Math.floor((left % 3600) / 60), sec = left % 60;
+  const p = (n) => String(n).padStart(2, "0");
+  return <span className="ov-count">{d > 0 ? `${d}d ` : ""}{p(h)}:{p(m)}:{p(sec)}</span>;
+}
+
 export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, onChanged, nav = null, upcoming = false }) {
+  const [, setTick] = React.useState(0); // re-checks the start window when a countdown ends
   const [receipt, setReceipt] = React.useState(false);
   const [moreOpen, setMoreOpen] = React.useState(false); // phones / iPad: the details stay folded until asked for
   const [starting, setStarting] = React.useState(false);
@@ -278,12 +292,12 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
             {inPerson ? (started
               ? <button type="button" className="ov-btn gold" onClick={endSession} disabled={ending}><StopRoundedIcon />{ending ? "Ending…" : "End session"}</button>
               : Date.now() < canStartAt
-                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}><ScheduleRoundedIcon />Start from&nbsp;<b>{opensAtText(canStartAt)}</b></span>
+                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}><ScheduleRoundedIcon />Starts in&nbsp;<b title={`Start from ${opensAtText(canStartAt)}`}><Countdown at={canStartAt} onDone={() => setTick((x) => x + 1)} /></b></span>
                 : <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => setStarting(true)}><PlayArrowRoundedIcon />Start session</button>)
             : s.meet && onJoin && joinWin.open
               ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}><VideocamRoundedIcon />{live ? "Join Meet now" : "Join Meet"}</button>
               : s.meet && joinWin.before
-                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}><ScheduleRoundedIcon />Join opens at&nbsp;<b>{opensAtText(joinWin.opens)}</b></span>
+                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}><ScheduleRoundedIcon />Join opens in&nbsp;<b title={`Join opens at ${opensAtText(joinWin.opens)}`}><Countdown at={joinWin.opens} onDone={() => setTick((x) => x + 1)} /></b></span>
                 : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
             {onReschedule && s.status !== "Started"
               ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}><EventRepeatRoundedIcon />Reschedule</button>
