@@ -270,7 +270,7 @@ export default function ClientShell({ title, children }) {
   return (
     <div className={`cls${flip ? " flip" : ""}`}>
       <script dangerouslySetInnerHTML={{ __html: RAIL_SCRIPT }} />
-      <Head><title>{title ? `${title} | Choose Your Therapist` : "My account | Choose Your Therapist"}</title></Head>
+      <Head><title>{title ? `${title} | Choose Your Therapist` : "My account | Choose Your Therapist"}</title><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" /></Head>
       <style dangerouslySetInnerHTML={{ __html: CLS_CSS + PTR_CSS }} />
       <WhatsNew portal="client" home="/my-dashboard" />
       <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
@@ -799,4 +799,15 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
 html:has(.cls), body:has(.cls) { overscroll-behavior-y: none; }
 html:has(.cls) { background: #fff; }
 body:has(.cls)::before { content: ""; position: fixed; left: 0; right: 0; bottom: 100%; height: 400px; background: #fff; z-index: 1200; pointer-events: none; }
+
+/* 2026-11-19 installed app: the bar grows up under the status bar (white there) and the page moves down with
+   --cls-h, so nothing shows through above the bar. env() is 0 in a browser tab. Needs viewport-fit=cover (above). */
+@media (display-mode: standalone) {
+  :root { --cls-sat: env(safe-area-inset-top, 0px); --cls-h: calc(60px + var(--cls-sat)); }
+  .cls-bar { box-sizing: border-box; padding-top: var(--cls-sat) !important; }
+}
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .cls-bar { border-left: env(safe-area-inset-left, 0px) solid #fff; border-right: env(safe-area-inset-right, 0px) solid #fff; box-sizing: border-box; }
+  .cls-main { margin-left: env(safe-area-inset-left, 0px); margin-right: env(safe-area-inset-right, 0px); }
+}
 `;

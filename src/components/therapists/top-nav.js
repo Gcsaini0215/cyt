@@ -893,4 +893,20 @@ a[href="/therapists/cycle"]::before { content: "FREE"; position: absolute; top: 
 html:has(.ts-area), body:has(.ts-area) { overscroll-behavior-y: none; }
 html:has(.ts-area) { background: #fff; }
 body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bottom: 100%; height: 400px; background: #fff; z-index: 1200; pointer-events: none; }
+
+/* 2026-11-19 installed app (home screen): newer iOS draws the page under the status bar (clock / battery), so the
+   page showed through above the bar. In the app the bar now grows up under the status bar (white there) and
+   everything placed under the bar (page, sticky tabs, popups, rail) moves down with --tn-h. env() is 0 in a normal
+   browser tab, so nothing changes there. Needs viewport-fit=cover (main-layout.js). */
+@media (display-mode: standalone) {
+  :root { --tn-sat: env(safe-area-inset-top, 0px); --tn-h: calc(56px + var(--tn-sat)); }
+  .tn-bar.tn-bar { box-sizing: border-box; height: var(--tn-h); padding-top: var(--tn-sat); }
+}
+@media (display-mode: standalone) and (max-width: 767px), (display-mode: standalone) and (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { :root { --tn-h: calc(60px + var(--tn-sat)); } }
+@media (display-mode: standalone) and (min-width: 768px) and (hover: hover), (display-mode: standalone) and (min-width: 768px) and (pointer: fine), (display-mode: standalone) and (min-width: 1401px) { :root { --tn-h: calc(64px + var(--tn-sat)); } }
+/* iPhone turned sideways (viewport-fit=cover): keep the bar and the page clear of the notch */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .tn-bar.tn-bar { border-left: env(safe-area-inset-left, 0px) solid #fff; border-right: env(safe-area-inset-right, 0px) solid #fff; box-sizing: border-box; }
+  .ts-area { margin-left: env(safe-area-inset-left, 0px); margin-right: env(safe-area-inset-right, 0px); }
+}
 `;

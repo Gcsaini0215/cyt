@@ -1,4 +1,5 @@
 import React from "react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import useTherapistStore from "../../store/therapistStore";
 import DashboardTopNav from "./top-nav";
@@ -113,6 +114,8 @@ export function TherapistShell({ children }) {
 
   return (
     <ShellContext.Provider value={true}>
+      {/* viewport-fit=cover: in the installed app the top bar reaches under the status bar (see top-nav.js) */}
+      <Head><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" /></Head>
       <style dangerouslySetInnerHTML={{ __html: shellStyles + PTR_CSS }} />
       <WhatsNew portal="therapist" home="/therapist-dashboard" />
       <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
