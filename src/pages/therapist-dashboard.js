@@ -623,6 +623,19 @@ const DASH_CSS = `
 .ov .ov-next.hero .ov-inv-btn span { color: rgba(255,255,255,.85) !important; }
 .ov .ov-next.hero .ov-inv-btn:hover { background: rgba(255,255,255,.32); }
 .ov .ov-next.hero .ov-inv-btn:hover span { color: #ffe08a !important; }
+/* strip chips in the same colours as the live card (owner, 2026-11-18): light blue date, peach New booking,
+   white Invoice / mode / counter with coloured icons */
+.ov .ov-next.hero .ov-next-k > span, .ov .ov-next.hero.live .ov-next-k > span { background: #e5f0ff; color: #0a5bd3; box-shadow: none; }
+.ov .ov-next.hero .ov-new-tag { background: #fff1e0; color: #b45309; }
+.ov .ov-next.hero .ov-inv-btn { background: #fff; color: #1c1c1e; box-shadow: 0 3px 8px -5px rgba(0,0,0,.35); }
+.ov .ov-next.hero .ov-inv-btn svg { color: #f07b12; }
+.ov .ov-next.hero .ov-inv-btn span { color: #8e8e93 !important; }
+.ov .ov-next.hero .ov-inv-btn:hover { background: #fff7ec; } .ov .ov-next.hero .ov-inv-btn:hover span { color: #f07b12 !important; }
+.ov .ov-next.hero .ov-next-top .ov-mode, .ov .ov-next.hero .ov-next-top .ov-next-nav { background: #fff; color: #1c1c1e; }
+.ov .ov-next.hero .ov-next-top .ov-mode svg { color: #0a84ff !important; } .ov .ov-next.hero .ov-next-top .ov-mode.ip svg { color: #e5532a !important; }
+.ov .ov-next.hero .ov-next-top .ov-next-nav button, .ov .ov-next.hero .ov-next-top .ov-next-nav b { color: #1c1c1e; }
+.ov .ov-next.hero .ov-next-top .ov-next-nav b i { color: #8e8e93; }
+.ov .ov-next.hero .ov-next-top .ov-next-nav button:hover { background: #f2f4f3; }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
