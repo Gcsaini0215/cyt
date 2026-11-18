@@ -398,17 +398,17 @@ export function WeekStrip({ sessions = [], now }) {
 const QUICK = [
   ["/therapists/my-link", "Share booking link", "Your link + QR", "feather-share-2", "#5ab0ff", "#1d63d8"],
   ["/therapists/social-posts", "Social post", "Post in one tap", "feather-send", "#c58cff", "#8a3fd6"],
-  ["/therapists/toolkit", "Toolkit", "Worksheets for clients", "feather-tool", "#ff9b6b", "#e5532a"],
+  ["/therapists/toolkit", "Toolkit", "Worksheets for clients", "feather-clipboard", "#ff9b6b", "#e5532a"],
   ["/my-schedule?tab=availability", "Weekly hours", "Open more slots", "feather-clock", "#4fd6d6", "#0e8a9a"],
   ["/therapists/questions", "Client questions", "Answer and get found", "feather-message-circle", "#5ad1ff", "#0b84c6"],
   ["/therapists/achievements", "Achievements", "Your certificates", "feather-award", "#ffc65a", "#f07b12"],
 ];
-export function QuickActions({ pct }) {
+export function QuickActions() {
   return (
     <div className="ov-card ov-todo ov-quick">
       <div className="ov-card-h">
         <b>Quick actions</b>
-        <span className="ov-pct" title="Profile strength">{typeof pct === "number" ? `All set · ${pct}%` : "All set"}</span>
+        <span className="ov-pct">All set ✓</span>
       </div>
       <div className="ov-quick-grid">
         {QUICK.map(([href, label, sub, icon, c1, c2]) => (
@@ -426,7 +426,7 @@ export function TodoCard({ items: allItems = [], pct }) {
   // only what still needs doing — done items ("Google Calendar connected ✓") no longer fill the card
   const items = allItems.filter((t) => t.tone !== "done");
   const [all, setAll] = React.useState(false); // phones show the first 3
-  if (!items.length) return <QuickActions pct={pct} />;
+  if (!items.length) return <QuickActions />;
   return (
     <div className="ov-card ov-todo">
       <div className="ov-card-h">
