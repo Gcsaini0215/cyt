@@ -218,4 +218,13 @@ const CSS = `
 .aq-ans-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 @media (max-width: 900px) { .aq-grid { grid-template-columns: 1fr; } }
 @media (max-width: 575px) { .aq-card { padding: 16px 14px; } .aq-two { grid-template-columns: 1fr; } }
+
+/* Apple look (2026-11-18) */
+.aq-head h1 { font-size: clamp(26px, 2.6vw, 32px); letter-spacing: -.03em; color: #1c1c1e; }
+.aq-card { border: 0 !important; border-radius: 22px !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.aq-b { border-radius: 12px; border: 0; }
+.aq-b:not(.line) { background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); color: #fff !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 16px -10px rgba(23,118,63,.8); }
+.aq-b.line { background: #e3f4e9; color: #14532d !important; }
+.aq-pill { border: 0; background: #f2f4f3; }
+.aq-err { border: 0; border-radius: 12px; }
 `;

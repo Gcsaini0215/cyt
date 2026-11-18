@@ -167,4 +167,10 @@ const TI_CSS = `
 .tis-kicker { font-size: 11.5px; font-weight: 700; color: #64748b; display: flex; align-items: center; gap: 6px; }
 .tis-kicker em { font-style: normal; font-size: 10.5px; font-weight: 800; color: #fff; background: #16a34a; border-radius: 999px; padding: 0 7px; line-height: 17px; }
 @media (max-width: 767px) { .tib { padding: 12px 40px 12px 12px; } .tib-ic { width: 34px; height: 34px; } }
+
+/* Apple look (2026-11-18) */
+.tis { border: 0; border-radius: 22px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.tib { border-radius: 20px; }
+.tib-ic { background: linear-gradient(160deg, #4fd38b, #12804a); border-radius: 12px; box-shadow: 0 6px 12px -7px #12804a; }
+.tib-btn { border-radius: 12px; }
 `;

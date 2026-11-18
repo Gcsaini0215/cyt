@@ -736,4 +736,10 @@ const CY_CSS = `
   .cy-danger { flex-direction: column; align-items: stretch; }
   .cy-acts .cy-btn { flex: 1 1 auto; }
 }
+
+/* Apple look (2026-11-18): keeps its own rose colours, rounder borderless cards */
+.cy-card { border: 0; border-radius: 22px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.cy-alert, .cy-sup { border: 0; border-radius: 18px; }
+.cy-note { border-radius: 14px; }
+.cy-btn { border-radius: 12px; }
 `;

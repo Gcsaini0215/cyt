@@ -519,4 +519,17 @@ const CSS = `
 .tk-sheet .tk-btn.big:disabled { background: #d1d1d6; color: #fff; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .tk-sheet { animation: none; } }
 
+
+/* ═══ Toolkit main page, Apple look (2026-11-18) ═══ */
+.tk-h h1 { font-size: clamp(26px, 2.6vw, 32px); font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; }
+.tk-h p { color: #6e6e73; font-size: 14.5px; }
+.tk-card, .tk-box { border: 0 !important; border-radius: 22px !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.tk-w.ready { border: 0 !important; border-radius: 22px !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28) !important; }
+.tk-btn { border-radius: 12px !important; border: 0 !important; }
+.tk-w .tk-btn:not(.line):not(.ghost), .tk-card .tk-btn:not(.line):not(.ghost) { background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); color: #fff !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 16px -10px rgba(23,118,63,.8); }
+.tk-btn.line { background: #e3f4e9 !important; color: #14532d !important; }
+.tk-btn.ghost { background: none !important; color: #1e8a4f !important; }
+.tk-alert { border: 0; border-radius: 999px; background: #fff1e0; color: #b45309; }
+.tk-freeplan { border: 0; border-radius: 18px; }
+@media (max-width: 767px) { .tk-h h1 { font-size: 24px; } }
 `;

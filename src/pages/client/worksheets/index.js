@@ -79,4 +79,10 @@ const CSS = `
 .wk-st.sent { background: #eaf1ff; color: #1d4ed8; } .wk-st.done { background: #e9f8ef; color: #15803d; }
 .wk-book { display: block; padding: 10px 14px; border-top: 1px solid #eef2f0; background: #f6fbf8; font-size: 13.5px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
 @media (max-width: 560px) { .wk-r small { display: none; } .wk-st { font-size: 10.5px; padding: 2px 8px; } .wk-ic { width: 46px; } }
+
+/* Apple look (2026-11-18) */
+.wk-h h1 { font-size: clamp(26px, 2.6vw, 32px); letter-spacing: -.03em; color: #1c1c1e; }
+.wk-empty { border: 0 !important; border-radius: 22px !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.wk-btn { border-radius: 12px; border: 0; background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); color: #fff !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 16px -10px rgba(23,118,63,.8); }
+.wk-book { border-radius: 12px; }
 `;
