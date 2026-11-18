@@ -301,6 +301,17 @@ function SendPanel({ tool, clients, onClose, onMade }) {
   const [res, setRes] = useState(null);
   const [busy, setBusy] = useState(false);
   const shown = clients.filter((c) => !q || c.name.toLowerCase().includes(q.toLowerCase()));
+  const mineShown = shown.filter((c) => !c.signup);
+  const newShown = shown.filter((c) => c.signup);
+  const joined = (d) => { const n = Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 86400000)); return n === 0 ? "Joined today" : n === 1 ? "Joined yesterday" : `Joined ${n} days ago`; };
+  const Row = ({ c }) => (
+    <label className={pick === c.id ? "on" : ""}>
+      <input type="radio" name="cl" checked={pick === c.id} onChange={() => setPick(c.id)} />
+      {photoOf(c.photo) ? <img src={photoOf(c.photo)} alt="" /> : <span className="tk-av">{c.name.slice(0, 1)}</span>}
+      <span className="tk-pick-t"><b>{c.name}</b>{c.signup && <small>{joined(c.joinedAt)}</small>}</span>
+      <i className="tk-pick-tick" aria-hidden="true" />
+    </label>
+  );
   const chosen = clients.find((c) => c.id === pick);
   const send = async () => {
     if (!pick) return;
@@ -320,16 +331,12 @@ function SendPanel({ tool, clients, onClose, onMade }) {
         <p className="tk-mut">Clients appear here after their first paid session with you. For anyone else, use <b>Share link</b>.</p>
       ) : (
         <>
-          <input className="tk-in" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search your clients" />
-          <div className="tk-pick">
-            {shown.map((c) => (
-              <label key={c.id} className={pick === c.id ? "on" : ""}>
-                <input type="radio" name="cl" checked={pick === c.id} onChange={() => setPick(c.id)} />
-                {photoOf(c.photo) ? <img src={photoOf(c.photo)} alt="" /> : <span className="tk-av">{c.name.slice(0, 1)}</span>}
-                <b>{c.name}</b>
-              </label>
-            ))}
-          </div>
+          <input className="tk-in tk-search-in" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name" aria-label="Search clients" />
+          {mineShown.length > 0 && <p className="tk-pick-h">Your clients</p>}
+          {mineShown.length > 0 && <div className="tk-pick">{mineShown.map((c) => <Row key={c.id} c={c} />)}</div>}
+          {newShown.length > 0 && <p className="tk-pick-h">New sign-ups</p>}
+          {newShown.length > 0 && <div className="tk-pick">{newShown.map((c) => <Row key={c.id} c={c} />)}</div>}
+          {!shown.length && <p className="tk-mut">No one by that name.</p>}
           <label className="tk-lbl">Note for {chosen ? chosen.name.split(" ")[0] : "them"} (optional)
             <input maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Fill this the next time you feel anxious at work" />
           </label>
@@ -478,4 +485,38 @@ const CSS = `
   .tk-sheet { max-width: none !important; border-radius: 22px 22px 0 0; max-height: calc(100dvh - 24px); }
   .tk-nums { display: none; }
 }
+/* ═══ iOS sheets (2026-11-18): every Toolkit pop-up opens in the centre of the screen, phones included ═══ */
+.tk-scrim { align-items: center !important; justify-content: center; padding: 16px !important; background: rgba(0,0,0,.4); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.tk-sheet { max-width: 520px; border-radius: 22px !important; max-height: calc(100dvh - 48px) !important; background: #f2f2f7; box-shadow: 0 30px 80px -24px rgba(0,0,0,.55); animation: tkPop .22s cubic-bezier(.2,.9,.3,1); }
+.tk-sheet.wide { max-width: 900px !important; }
+@keyframes tkPop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+.tk-sheet-h { position: relative; justify-content: center; padding: 16px 52px; background: #f2f2f7; border-bottom: 0; }
+.tk-sheet-h h3 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; text-align: center; color: #1c1c1e; }
+.tk-sheet-h button { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: #e3e3e8; color: #6e6e73; font-size: 13px; font-weight: 700; }
+.tk-sheet-h button:hover { background: #d8d8de; }
+.tk-sheet-b { padding: 4px 16px 18px; }
+.tk-in, .tk-lbl input, .tk-lbl textarea { border: 0 !important; background: #e3e3e8; border-radius: 12px; padding: 11px 14px; color: #1c1c1e; }
+.tk-in:focus, .tk-lbl input:focus, .tk-lbl textarea:focus { outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(52,199,89,.35); }
+.tk-search-in { width: 100% !important; max-width: none !important; padding-left: 38px !important; background: #e3e3e8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 13px center !important; }
+.tk-pick-h { margin: 16px 6px 6px; font-size: 13px; font-weight: 600; color: #6e6e73; }
+.tk-pick { max-height: 240px; margin-top: 0; background: #fff; border: 0; border-radius: 14px; }
+.tk-pick label { gap: 12px; padding: 9px 14px; border-bottom: 0; }
+.tk-pick label + label { box-shadow: inset 60px 0 0 #fff, inset 0 1px 0 rgba(60,60,67,.12); }
+.tk-pick label.on { background: #fff; }
+.tk-pick input { position: absolute; opacity: 0; pointer-events: none; }
+.tk-pick img, .tk-pick .tk-av { width: 36px; height: 36px; border-radius: 50%; }
+.tk-pick .tk-av { display: grid; place-items: center; background: linear-gradient(160deg, #4fd38b, #12804a); color: #fff; font-weight: 700; }
+.tk-pick-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tk-pick-t b { font-size: 15px; font-weight: 600; color: #1c1c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tk-pick-t small { font-size: 12px; color: #8e8e93; }
+.tk-pick-tick { flex: none; width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #c7c7cc; }
+.tk-pick label.on .tk-pick-tick { background: #34c759 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 10 17 19 7'/%3E%3C/svg%3E") no-repeat center; box-shadow: none; }
+.tk-pick label:focus-within { box-shadow: inset 0 0 0 2px rgba(52,199,89,.5); }
+.tk-lbl { margin-top: 16px; font-size: 13px; font-weight: 600; color: #6e6e73; padding: 0 6px; }
+.tk-lbl input, .tk-lbl textarea { margin-left: -6px; width: calc(100% + 12px); background: #fff; }
+.tk-sheet .tk-btn.big { width: 100%; height: 50px; margin-top: 16px; border: 0; border-radius: 14px; font-size: 16px; font-weight: 700; color: #fff;
+  background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 10px 20px -10px rgba(23,118,63,.8); }
+.tk-sheet .tk-btn.big:disabled { background: #d1d1d6; color: #fff; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .tk-sheet { animation: none; } }
+
 `;
