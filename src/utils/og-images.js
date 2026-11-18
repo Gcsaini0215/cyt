@@ -299,35 +299,7 @@ export async function renewCard(t, { state = "ended", days = 0 } = {}) {
   return sharp(await canvas()).composite(layers).png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
 }
 
-// "Scan to book" poster for a therapist's clinic / desk (A4 portrait, 1240x1754 = 150 dpi):
-// green top band with the logo; the photo in a gold-framed arch with a gold "Verified" seal on its corner;
-// name, role, city · rating; a big QR in a white card with their CYT ID written up one side and the
-// site down the other; the short link; a green footer. qr = PNG of their /t/<name>?src=my-qr link.
-const archPath = (w, h, r = 22) => `M0 ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w} ${w / 2} V ${h - r} Q ${w} ${h} ${w - r} ${h} H ${r} Q 0 ${h} 0 ${h - r} Z`;
-
-// gold scalloped seal with a green centre, a tick and "VERIFIED"
-async function verifiedSeal(size) {
-  const c = size / 2, n = 28, ro = c, ri = c * 0.9;
-  const pts = Array.from({ length: n * 2 }, (_, i) => {
-    const a = (Math.PI * i) / n - Math.PI / 2, r = i % 2 ? ri : ro;
-    return `${(c + r * Math.cos(a)).toFixed(1)},${(c + r * Math.sin(a)).toFixed(1)}`;
-  }).join(" ");
-  const base = Buffer.from(`<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset=".55" stop-color="#e0ab45"/><stop offset="1" stop-color="#b8821f"/></linearGradient></defs>
-    <polygon points="${pts}" fill="url(#gd)"/>
-    <circle cx="${c}" cy="${c}" r="${c * 0.76}" fill="#ffffff"/>
-    <circle cx="${c}" cy="${c}" r="${c * 0.68}" fill="#135c37"/>
-    <circle cx="${c}" cy="${c}" r="${c * 0.62}" fill="none" stroke="#f2c94c" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 5"/>
-    <path d="M ${c - size * 0.13} ${c - size * 0.06} l ${size * 0.09} ${size * 0.09} l ${size * 0.17} -${size * 0.18}" fill="none" stroke="#f6d58a" stroke-width="${size * 0.05}" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>`);
-  const word = await text("<b>VERIFIED</b>", { size: Math.round(size * 0.1), color: "#ffffff", width: size, align: "centre" });
-  const cyt = await text("<b>CYT</b>", { size: Math.round(size * 0.075), color: "#f6d58a", width: size, align: "centre" });
-  return sharp(base).composite([
-    { input: word.data, left: Math.round(c - word.info.width / 2), top: Math.round(c + size * 0.1) },
-    { input: cyt.data, left: Math.round(c - cyt.info.width / 2), top: Math.round(c - size * 0.29) },
-  ]).png().toBuffer();
-}
-
+// "Scan to book" poster for a therapist's clinic / desk (A4 portrait, 1240x1754 = 150 dpi). qr = PNG of their /t/<name>?src=my-qr link.
 // a line of text turned to read upwards (left side) or downwards (right side)
 async function vertical(markup, { size, color, angle }) {
   const tx = await text(markup, { size, color, width: 1200 });
@@ -351,50 +323,39 @@ async function pillRow(layers, items, { cx, y, size = 25, color = "#24412f", fil
 }
 
 export async function posterPng(t, { qr, link }) {
-  const PW = 1240, PH = 1754, cx = PW / 2, FOOT = 170;
+  // no photo (2026-11-18, owner's request): a clean clinic poster — name, role and a verified badge on the green
+  // band, then what they help with, a big QR to scan, the short link and the CYT footer
+  const PW = 1240, PH = 1754, cx = PW / 2, FOOT = 170, BAND = 500;
   const layers = [];
   layers.push({ input: Buffer.from(`<svg width="${PW}" height="${PH}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <radialGradient id="g" cx="100%" cy="0%" r="110%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".55" stop-color="#135c37"/><stop offset="1" stop-color="#0b3f26"/></radialGradient>
-      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".4"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".38"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
     </defs>
     <rect width="100%" height="100%" fill="#fbf8f0"/>
-    <path d="M0 0 H${PW} V330 Q${cx} 450 0 330 Z" fill="url(#g)"/>
-    <circle cx="${PW - 90}" cy="40" r="300" fill="url(#glow)"/>
-    <circle cx="80" cy="270" r="110" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
-    <circle cx="80" cy="270" r="72" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
+    <path d="M0 0 H${PW} V${BAND} Q${cx} ${BAND + 110} 0 ${BAND} Z" fill="url(#g)"/>
+    <circle cx="${PW - 90}" cy="40" r="320" fill="url(#glow)"/>
+    <circle cx="90" cy="${BAND - 70}" r="120" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
+    <circle cx="90" cy="${BAND - 70}" r="80" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
     <rect x="0" y="${PH - FOOT}" width="${PW}" height="${FOOT}" fill="#0b3f26"/>
     <rect x="0" y="${PH - FOOT - 6}" width="${PW}" height="6" fill="${GOLD}"/>
   </svg>`), left: 0, top: 0 });
 
-  // eyebrow on the green band
-  const eb = await text("<b>VERIFIED THERAPIST  ·  CHOOSE YOUR THERAPIST</b>", { size: 22, color: "#f6d58a", width: PW - 160, align: "centre" });
-  layers.push({ input: eb.data, left: Math.round(cx - eb.info.width / 2), top: 42 });
-
-  // photo in a gold-framed arch
-  const AW = 300, AH = 360, F = 12, top = 100;
-  const FW = AW + F * 2, FH = AH + F * 2;
-  layers.push({ input: Buffer.from(`<svg width="${FW + 24}" height="${FH + 24}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient>
-    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#062a18" flood-opacity=".35"/></filter></defs>
-    <g transform="translate(12 8)" filter="url(#sh)"><path d="${archPath(FW, FH, 28)}" fill="url(#fg)"/></g>
-  </svg>`), left: Math.round(cx - FW / 2 - 12), top: top - F - 8 });
-  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
-  const mask = Buffer.from(`<svg width="${AW}" height="${AH}"><path d="${archPath(AW, AH, 18)}"/></svg>`);
-  const photo = buf
-    ? await sharp(await sharp(buf).rotate().resize(AW, AH, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer()
-    : await sharp({ create: { width: AW, height: AH, channels: 4, background: "#dcebe1" } }).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
-  layers.push({ input: photo, left: Math.round(cx - AW / 2), top });
-  const S = 150;
-  layers.push({ input: await verifiedSeal(S), left: Math.round(cx + AW / 2 - S * 0.55), top: top + AH - S * 0.7 });
-
-  let y = top + AH + F + 30;
-  const name = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 66, color: "#0b1712", width: PW - 160, align: "centre", lines: 1 });
+  // eyebrow, then the therapist's name, role and a verified badge on the green band
+  const eb = await text("<b>CHOOSE YOUR THERAPIST  ·  BOOK A SESSION</b>", { size: 22, color: "#f6d58a", width: PW - 160, align: "centre" });
+  layers.push({ input: eb.data, left: Math.round(cx - eb.info.width / 2), top: 54 });
+  let y = 132;
+  const name = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 84, color: "#ffffff", width: PW - 140, align: "centre", lines: 1 });
   layers.push({ input: name.data, left: Math.round(cx - name.info.width / 2), top: y });
-  y += name.info.height + 4;
-  const role = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 34, color: "#1e7a4c", width: PW - 160, align: "centre", lines: 1 });
+  y += name.info.height + 8;
+  const role = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 40, color: "#f6d58a", width: PW - 160, align: "centre", lines: 1 });
   layers.push({ input: role.data, left: Math.round(cx - role.info.width / 2), top: y });
-  y += role.info.height + 20;
+  y += role.info.height + 30;
+  const chip = await text("<b>✓  CYT VERIFIED THERAPIST</b>", { size: 24, color: "#0b3f26", width: 700 });
+  const chipW = chip.info.width + 48, chipH = 54;
+  layers.push({ input: rect(chipW, chipH, "#f2c94c", chipH / 2), left: Math.round(cx - chipW / 2), top: y });
+  layers.push({ input: chip.data, left: Math.round(cx - chip.info.width / 2), top: y + Math.round((chipH - chip.info.height) / 2) });
+  y = Math.max(y + chipH + 70, BAND + 90);
 
   // city · rating · languages
   const r = ratingOf(t);
@@ -417,11 +378,11 @@ export async function posterPng(t, { qr, link }) {
 
   // booking panel: QR card on the left, headline + steps + fee + ID on the right
   const PANEL_W = 1060, PX = Math.round(cx - PANEL_W / 2), PAD = 36;
-  const Q = 420, CARD = Q + 48;
+  const Q = 500, CARD = Q + 48; // bigger QR now that there's no photo
   const RX = PX + PAD + CARD + 44, RW = PX + PANEL_W - PAD - RX;
   const right = [];
   let ry = 0;
-  const head = await text("<b>Scan to book\na session</b>", { size: 50, color: "#0b3f26", width: RW });
+  const head = await text("<b>Scan to book\na session</b>", { size: 54, color: "#0b3f26", width: RW });
   right.push({ input: head.data, left: 0, top: ry });
   ry += head.info.height + 22;
   const steps = ["Scan the QR with your phone camera", "Pick a day and time that suits you", "Talk online or meet in person"];

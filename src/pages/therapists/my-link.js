@@ -146,7 +146,7 @@ export default function MyLink() {
 
               <section className="pt-card ml-card ml-qr">
                 <h2><QrCode2RoundedIcon /> QR code &amp; poster</h2>
-                <p className="ml-sub">Put the poster at your clinic desk or door — clients scan it to book.</p>
+                <p className="ml-sub">A clean A4 poster for your clinic wall, door or reception — clients scan it to book.</p>
                 <div className="ml-qr-body">
                   <a href={`/api/my-poster/${h}.png`} target="_blank" rel="noopener noreferrer" className="ml-poster" title="Open the poster">
                     <img src={`/api/my-poster/${h}.png`} alt="Your Scan to book poster" width="248" height="351" loading="lazy" />
@@ -163,7 +163,7 @@ export default function MyLink() {
 
             <section className="pt-card ml-card ml-qr" style={{ marginBottom: 14 }}>
               <h2><PrintRoundedIcon /> Desk card (table tent)</h2>
-              <p className="ml-sub">A stand-up card for your clinic desk or reception: your photo on the front, the QR on the back.</p>
+              <p className="ml-sub">A stand-up card for your clinic desk or reception: your name on the front, the QR on the back.</p>
               <div className="ml-qr-body">
                 <a href={`/api/my-tent/${h}.png`} target="_blank" rel="noopener noreferrer" className="ml-poster" title="Open the desk card">
                   <img src={`/api/my-tent/${h}.png`} alt="Your desk card to print, cut and fold" width="248" height="351" loading="lazy" />
@@ -265,4 +265,45 @@ const ML_CSS = `
   .ml-qr-img { align-self: center; }
   .ml-stats b { font-size: 22px; }
 }
+
+/* ═══ Apple look (2026-11-18): white link card, app-tile rows, bigger poster and desk-card previews ═══ */
+.ml-hero { background: #fff; color: #1c1c1e; border-radius: 22px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); margin-bottom: 16px; }
+.ml-hero::after { display: none; }
+.ml-hero-ic { width: 54px; height: 54px; border-radius: 16px; border: 0; color: #fff; background: linear-gradient(160deg, #7f9cff, #3b4fd1); box-shadow: 0 8px 16px -9px #3b4fd1; }
+.ml-hero-t em { color: #8e8e93; letter-spacing: 0; text-transform: none; font-size: 13.5px; font-weight: 600; }
+.ml-url { color: #1c1c1e !important; font-size: clamp(20px, 2.4vw, 28px); letter-spacing: -.02em; }
+.ml-b { border-radius: 12px; font-weight: 700; transition: transform .15s ease, background .15s ease; }
+.ml-b:hover { transform: translateY(-1px); } .ml-b:active { transform: translateY(1px) scale(.98); }
+.ml-b.gold { background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); color: #fff !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 16px -10px rgba(23,118,63,.8); }
+.ml-b.ghost { background: #f2f4f3; border: 0; color: #1c1c1e !important; }
+.ml-b.line { background: #e3f4e9; border: 0; color: #14532d !important; }
+.ml-b.line:hover { background: #d2ecdb; }
+.ml-b.wa { background: linear-gradient(180deg, #4ee07a, #1faa4f); }
+.ml-grid { gap: 16px; margin-bottom: 16px; }
+.ml-card { padding: 20px 22px; }
+.ml-card h2 { font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: #1c1c1e; }
+.ml-card h2 svg { color: #1e8a4f; }
+.ml-sub { font-size: 13.5px; color: #6e6e73; }
+.ml-row { border-top: 0; box-shadow: inset 52px 1px 0 #fff, inset 0 1px 0 rgba(60,60,67,.1); }
+.ml-row:first-of-type { box-shadow: none; }
+.ml-row-ic { color: #fff !important; }
+.ml-p-ig .ml-row-ic { background: linear-gradient(160deg, #feda75, #d62976 55%, #962fbf); box-shadow: 0 6px 12px -7px #d62976; }
+.ml-p-wa .ml-row-ic { background: linear-gradient(160deg, #4ee07a, #1faa4f); box-shadow: 0 6px 12px -7px #1faa4f; }
+.ml-p-card .ml-row-ic { background: linear-gradient(160deg, #ffc65a, #f07b12); box-shadow: 0 6px 12px -7px #f07b12; }
+.ml-row-t b { font-size: 15px; font-weight: 600; color: #1c1c1e; }
+.ml-row-t span { color: #8e8e93; }
+.ml-row-t code { color: #1e8a4f; background: #f2f4f3; border-radius: 8px; padding: 3px 8px; }
+/* the poster and the desk card: bigger previews, like a print on a table */
+.ml-qr-body { gap: 22px; align-items: center; }
+.ml-poster { border: 0; border-radius: 14px; box-shadow: 0 2px 4px rgba(0,0,0,.06), 0 22px 40px -22px rgba(15,23,42,.55); transition: transform .2s ease; }
+.ml-poster:hover { transform: translateY(-2px) rotate(-.4deg); }
+.ml-poster img { width: 260px; }
+.ml-qr-img { width: 132px; height: 132px; border: 0; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.ml-steps { color: #3c3c43; }
+.ml-stats div { background: #f2f4f3; border-radius: 16px; }
+.ml-stats b { color: #1c1c1e; letter-spacing: -.03em; }
+.ml-tip { background: #fff1e0; border: 0; color: #7c3d06; border-radius: 14px; }
+@media (min-width: 1200px) { .ml-qr .ml-poster img { width: 300px; } }
+@media (prefers-reduced-motion: reduce) { .ml-b, .ml-poster { transition: none; } .ml-b:hover, .ml-b:active, .ml-poster:hover { transform: none; } }
+@media (max-width: 575px) { .ml-poster img { width: 240px; } }
 `;
