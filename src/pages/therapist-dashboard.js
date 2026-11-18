@@ -462,6 +462,63 @@ const DASH_CSS = `
 .ov .ov-inv-btn:active { transform: scale(.96); }
 .ov .ov-inv-btn:focus-visible { outline: 2px solid #f5c542; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .ov .ov-inv-btn, .ov .ov-inv-btn span { transition: none; } }
+/* ═══ Next session: "Clinic Blue & Green" (owner's pick, 2026-11-18) — white card, calm blue, green Start ═══ */
+.ov .ov-card.ov-next.hero { background: #fff !important; color: #1c1c1e; border: 1px solid rgba(60,60,67,.12) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 38px -26px rgba(16,40,28,.45) !important; padding: 18px 20px; }
+.ov .ov-card.ov-next.hero.live { box-shadow: 0 0 0 2px #34c759, 0 0 0 7px rgba(52,199,89,.16), 0 18px 38px -26px rgba(16,40,28,.45) !important; }
+.ov .ov-next.hero .ov-next-k { color: #1c1c1e; }
+.ov .ov-next.hero .ov-next-k > span { background: #e5f0ff; color: #0a5bd3; border: 0; }
+.ov .ov-next.hero.live .ov-next-k > span { background: #34c759; color: #fff; }
+.ov .ov-next.hero .ov-new-tag { background: #fff1e0; color: #b45309; box-shadow: none; animation: none; }
+.ov .ov-inv-btn { border: 1px solid rgba(60,60,67,.14); box-shadow: 0 3px 8px -5px rgba(0,0,0,.3); }
+.ov .ov-inv-btn span { background: none !important; padding: 0 !important; border-radius: 0 !important; color: #8e8e93; }
+.ov .ov-next.hero .ov-mode, .ov .ov-next.hero .ov-next-nav { background: #f2f4f3; color: #1c1c1e; box-shadow: none; }
+.ov .ov-next.hero .ov-mode svg { color: #0a84ff; } .ov .ov-next.hero .ov-mode.ip svg { color: #e5532a; }
+.ov .ov-next.hero .ov-next-nav button, .ov .ov-next.hero .ov-next-nav b { color: #1c1c1e; }
+.ov .ov-next.hero .ov-next-nav b i { color: #8e8e93; }
+.ov .ov-next.hero .ov-next-nav button:hover { background: #fff; }
+.ov .ov-next-cal { box-shadow: 0 0 0 1px rgba(60,60,67,.12), 0 8px 16px -10px rgba(0,0,0,.35); }
+.ov .ov-next-cal span { color: #0a84ff; }
+.ov .ov-next.hero .ov-next-name { color: #1c1c1e; }
+.ov .ov-next.hero .ov-next-sub { color: #6e6e73; }
+.ov .ov-next.hero .ov-pill { background: #f2f4f3 !important; box-shadow: 0 0 0 1px rgba(60,60,67,.1) !important; }
+.ov .ov-next.hero .ov-pill:hover { background: #e9eef3 !important; box-shadow: 0 0 0 1px rgba(60,60,67,.14) !important; }
+/* buttons: green Start / Join, calm blue Reschedule and "Start from / Join opens" */
+.ov .ov-next.hero .ov-next-btns > :first-child, .ov .ov-next.hero .ov-next-btns > :first-child.gold {
+  background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); color: #fff !important; text-shadow: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 10px 20px -11px rgba(23,118,63,.8); }
+.ov .ov-next.hero .ov-next-btns > :first-child:hover { background: linear-gradient(180deg, #34c172, #1f9455 55%, #17763f); }
+.ov .ov-next.hero .ov-next-btns > :first-child svg { color: #fff; }
+.ov .ov-next.hero.live .ov-next-btns > :first-child { background: linear-gradient(180deg, #3ddc84, #22b562 55%, #17963f); }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens), .ov .ov-next.hero .ov-next-rbtns .ov-btn { background: #eef5ff; color: #0a5bd3 !important; box-shadow: none; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens):hover { background: #e1edff; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens) svg { color: #0a5bd3; }
+.ov .ov-next.hero .ov-btn.ov-opens { background: #eef5ff !important; color: #0a5bd3 !important; box-shadow: inset 0 0 0 1.5px rgba(10,91,211,.3) !important; }
+.ov .ov-next.hero .ov-btn.ov-opens svg { color: #0a84ff !important; } .ov .ov-next.hero .ov-btn.ov-opens b { color: #0a5bd3; }
+/* details tiles: light blue-grey, no shadow */
+.ov-nd { background: #f5f8fc; box-shadow: none; }
+.ov-nd small { color: #8e8e93; } .ov-nd b { color: #1c1c1e; }
+.ov .ov-next-dots button { background: #d6dcd8; } .ov .ov-next-dots button.on { background: #1e8a4f; }
+/* "Session details": only on phones and iPad, where the details are folded */
+.ov-more { display: none; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: 40px; padding: 0 14px; border: 0; border-radius: 13px;
+  background: #f2f4f3; color: #1c1c1e; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+.ov-more svg { width: 18px; height: 18px; fill: currentColor; transition: transform .2s ease; }
+.ov-next.more-open .ov-more svg { transform: rotate(180deg); }
+.ov-more:focus-visible { outline: 2px solid #1e8a4f; outline-offset: 2px; }
+@media (max-width: 900px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .ov .ov-next.hero .ov-next-grid { grid-template-columns: minmax(0, 1fr); }
+  .ov-more { display: inline-flex; }
+  .ov .ov-next.hero:not(.more-open) .ov-next-right { display: none !important; }
+  .ov .ov-next.hero.more-open .ov-next-right { display: flex !important; }
+}
+/* iPad width: client on the left, buttons on the right, details bar below */
+@media (min-width: 600px) and (max-width: 1400px) and (hover: none) and (pointer: coarse), (min-width: 600px) and (max-width: 900px) {
+  .ov .ov-next.hero .ov-next-left { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .ov .ov-next.hero .ov-next-left > .ov-next-row { flex: 1 1 320px; }
+  .ov .ov-next.hero .ov-next-left > .ov-next-btns { flex: 0 0 auto; display: flex; }
+  .ov .ov-next.hero .ov-next-left > .ov-more, .ov .ov-next.hero .ov-next-left > .ov-next-assess { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .ov-more svg { transition: none; } }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 

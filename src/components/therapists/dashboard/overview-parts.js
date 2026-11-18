@@ -192,6 +192,7 @@ const digits = (p) => String(p || "").replace(/\D/g, "");
 
 export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, onChanged, nav = null, upcoming = false }) {
   const [receipt, setReceipt] = React.useState(false);
+  const [moreOpen, setMoreOpen] = React.useState(false); // phones / iPad: the details stay folded until asked for
   const [starting, setStarting] = React.useState(false);
   const [ending, setEnding] = React.useState(false);
   const amap = useAssessmentMap();
@@ -246,7 +247,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
     paid ? [payOk ? "You earn · Paid ✓" : `You earn · ${payName || "payment pending"}`, `${inr(earningOf(b))} of ${inr(paid)}`, CurrencyRupeeRoundedIcon, payOk ? "#4fd38b" : "#ffb36b", payOk ? "#12804a" : "#d9661c"] : null,
   ].filter(Boolean);
   return (
-    <div className={`ov-next ov-card hero ${live || started ? "live" : ""}`}>
+    <div className={`ov-next ov-card hero ${live || started ? "live" : ""}${moreOpen ? " more-open" : ""}`}>
       <div className="ov-next-top">
         <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : upcoming ? "Upcoming session" : "Next session"} <span>{started ? "started" : when}</span>{isNew && !started && <em className="ov-new-tag">New booking{bookedText ? ` · ${bookedText.toLowerCase()}` : ""}</em>}
           {b._id && <button type="button" className="ov-inv-btn" onClick={() => setReceipt(true)} title="Open the invoice"><ReceiptLongRoundedIcon aria-hidden="true" />Invoice<span aria-hidden="true">›</span></button>}</div>
@@ -290,6 +291,9 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
               : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
             {report && <Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost ov-assess-btn ov-only-phone"><AssignmentRoundedIcon />{report.short} report{report.flag ? " ⚠" : ""}</Link>}
           </div>
+          <button type="button" className="ov-more" aria-expanded={moreOpen} onClick={() => setMoreOpen((o) => !o)}>
+            Session details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z" /></svg>
+          </button>
           {assess.length > 0 && (
             <div className="ov-next-assess ov-phone-block">
               <span>Clinical assessment</span>
