@@ -763,4 +763,33 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   html.cls-mini .cls .cls-item.on::before { left: -10px; }
 }
 @media (prefers-reduced-motion: reduce) { .cls-clock i { animation: none; } .cls-tic { transition: none; } }
+
+/* ═══ Client pages, Apple / iPhone look (2026-11-18): large titles, white rounded cards, iOS tabs, filled fields ═══ */
+.cls .cls-main h1 { font-size: clamp(26px, 2.6vw, 32px); font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; }
+.cls .cls-main h1 + p, .cls .cls-main .ms-head p { color: #6e6e73; font-size: 14.5px; }
+.cls .ch-card, .cls .ci-card, .cls .ci-list, .cls .ck-card, .cls .cp-card, .cls .csc, .cls .dc-review, .cls .dw-card, .cls .dw-stat, .cls .fs-card, .cls .mm, .cls .sv-card, .cls .wk-empty { border: 0 !important; border-radius: 22px !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+/* session cards: the coloured left edge goes; the status badge already says it */
+.cls .csc.live { box-shadow: 0 0 0 2px #ff9f0a, 0 10px 26px -18px rgba(15,23,42,.28); }
+/* My Sessions tabs: an iOS segmented control */
+.cls .ms-tabs { background: #f1f3f5; }
+.cls .ms-tabs { width: max-content; max-width: 100%; gap: 2px; padding: 3px; margin: 6px 0 12px; background: #e5e7e6; border-radius: 12px; position: sticky; }
+.cls .ms-tabs button { height: 34px; border: 0; border-radius: 10px; background: none; color: #3c3c43; font-weight: 600; }
+.cls .ms-tabs button i { background: rgba(60,60,67,.1); color: #3c3c43; }
+.cls .ms-tabs button.on { background: #fff; color: #1c1c1e; box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.04); }
+.cls .ms-tabs button.on i { background: #e3f4e9; color: #15803d; }
+/* main buttons: the same green as the therapist portal */
+.cls .cp-btn.primary, .cls .ci-btn.primary, .cls .sv-btn.primary, .cls .dc-btn.primary, .cls .fs-btn.primary, .cls .ms-head a, .cls .fs-btn { background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f) !important; color: #fff !important; border: 0 !important; border-radius: 12px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 16px -10px rgba(23,118,63,.8); }
+/* form fields: filled like iOS */
+.cls .cls-main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]), .cls .cls-main select, .cls .cls-main textarea {
+  background-color: #f2f4f3; border: 1px solid transparent !important; border-radius: 12px !important; color: #1c1c1e; }
+.cls .cls-main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):focus, .cls .cls-main select:focus, .cls .cls-main textarea:focus {
+  outline: none; background-color: #fff; border-color: #34c759 !important; box-shadow: 0 0 0 4px rgba(52,199,89,.18) !important; }
+.cls .cls-main input[readonly] { background-color: #f7f8f8; color: #8e8e93; }
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .cls .cls-main h1 { font-size: 24px; }
+  .cls .ch-card, .cls .ci-card, .cls .ci-list, .cls .ck-card, .cls .cp-card, .cls .csc, .cls .dc-review, .cls .dw-card, .cls .dw-stat, .cls .fs-card, .cls .mm, .cls .sv-card, .cls .wk-empty { border-radius: 20px !important; }
+  .cls .ms-tabs { width: 100%; } .cls .ms-tabs button { flex: 1 1 0; justify-content: center; padding: 0 6px; }
+  .cls .cls-main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]), .cls .cls-main select, .cls .cls-main textarea { font-size: 16px; }
+}
 `;
