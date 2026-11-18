@@ -60,10 +60,6 @@ const clientPhoto = (c) => {
   if (!p || /^(null|undefined)$/i.test(p)) return "";
   return /^(https?:|data:)/.test(p) ? p : `${imagePath}/${p}`;
 };
-const initialsOf = (name) => {
-  const w = String(name || "").replace(/[^\p{L}\s]/gu, "").trim().split(/\s+/).filter(Boolean);
-  return ((w[0]?.[0] || "C") + (w[1]?.[0] || "")).toUpperCase();
-};
 
 const DASH_CSS = `
 /* ═══ iPhone-widget look for the whole home (same feel as the app-icon bottom bar) ═══ */
@@ -925,7 +921,40 @@ function StatCard({ icon: Icon, label, value, isCurrency, accent = UI.green.main
 }
 
 /** One session row — used for the upcoming list. */
+// iPhone-contact style avatar for clients without a photo: a colourful little person, female (peach-pink, long hair),
+// male (sky blue, short hair) or neutral (grey) from the client's gender. Drawn on the Avatar's gradient background.
+const AV_LOOK = {
+  f: { bg: "linear-gradient(160deg, #ffd6e2, #f58fb1)", shirt: "#e0457f", hair: "#4a2a1c" },
+  m: { bg: "linear-gradient(160deg, #cfe6ff, #5b9ff0)", shirt: "#2563c9", hair: "#3a2619" },
+  n: { bg: "linear-gradient(160deg, #eceef1, #a7adb7)", shirt: "#6b7280", hair: "#5b4636" },
+};
+function genderKey(g) {
+  const v = String(g || "").trim().toLowerCase();
+  if (/^(f|female|woman|girl|lady)/.test(v)) return "f";
+  if (/^(m|male|man|boy)$/.test(v) || v === "male") return "m";
+  return "n";
+}
+function PersonGlyph({ k }) {
+  const L = AV_LOOK[k], skin = "#f6c9a3";
+  return (
+    <svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true" style={{ display: "block" }}>
+      {k === "f" && <path d="M17 31C16 13 48 13 47 31L48 48C42 51 22 51 16 48Z" fill={L.hair} />}
+      <path d="M9 66C11 51 21 46 32 46S53 51 55 66Z" fill={L.shirt} />
+      <rect x="27.5" y="37" width="9" height="11" rx="4" fill="#e9b58d" />
+      {k !== "f" && <><circle cx="20.6" cy="30" r="2.6" fill={skin} /><circle cx="43.4" cy="30" r="2.6" fill={skin} /></>}
+      <ellipse cx="32" cy="29" rx="11.5" ry="12.5" fill={skin} />
+      {k === "f"
+        ? <path d="M20.5 28C20 16 44 14 43.5 28C39 21 30 19.5 20.5 28Z" fill={L.hair} />
+        : <path d="M20.6 27C19.5 14 45 13.5 43.4 27C41 21 36 19.6 32 20.2C27 20.8 23 22 20.6 27Z" fill={L.hair} />}
+      <circle cx="27.6" cy="30" r="1.35" fill="#3b2a20" /><circle cx="36.4" cy="30" r="1.35" fill="#3b2a20" />
+      <path d="M28.6 35.2Q32 37.6 35.4 35.2" stroke="#b5654a" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      <circle cx="25" cy="33.6" r="2" fill="#ff8a8a" opacity=".3" /><circle cx="39" cy="33.6" r="2" fill="#ff8a8a" opacity=".3" />
+    </svg>
+  );
+}
+
 function SessionRow({ s, last }) {
+  const gk = genderKey(s.raw?.client?.gender || s.raw?.gender);
   const until = timeUntil(s.date);
   const soon = until && until !== "Now" && /^\d+m$/.test(until);
   return (
@@ -954,9 +983,10 @@ function SessionRow({ s, last }) {
       <Avatar
         src={s.imgSrc || undefined}
         alt={s.name}
-        sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, borderRadius: "9px", flexShrink: 0, background: UI.green.bg, color: UI.green.main, fontSize: "13px", fontWeight: 800 }}
+        sx={{ width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 }, borderRadius: "50%", flexShrink: 0, background: AV_LOOK[gk].bg, overflow: "hidden",
+          boxShadow: "inset 0 0 0 1px rgba(255,255,255,.5), 0 2px 6px -3px rgba(15,23,42,.35)" }}
       >
-        {initialsOf(s.name)}
+        <PersonGlyph k={gk} />
       </Avatar>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
