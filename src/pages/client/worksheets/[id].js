@@ -130,6 +130,7 @@ export default function WorksheetPage() {
             {w.note && <div className="ws-note"><b>{th ? `${th.name.split(" ")[0]} says:` : "Note:"}</b> {w.note}</div>}
             {w.status === "reviewed" && w.feedback && <div className="ws-fb"><b>{th?.name || "Your therapist"} reviewed it:</b><p>{w.feedback}</p></div>}
             <WhyCard tool={w.tool} open={!sent && w.status !== "draft"} />
+            <HistoryCard tool={w.tool} history={w.history} current={data} therapistName={th?.name || ""} onSend={th ? send : null} sending={busy} />
             {(() => { const finish = (
                 <div className="ws-send">
                   {w.status === "reviewed" && w.feedback ? <div className="ws-fb"><b>{th?.name || "Your therapist"}&apos;s feedback:</b><p>{w.feedback}</p></div> : null}
@@ -151,7 +152,6 @@ export default function WorksheetPage() {
                     canAdd={!th || !!w.ongoing}
                     lockCta={th?.live ? <Link href={bookPath(th)} className="ab-btn ws-lockbtn">Book a session with {th.name}</Link> : <Link href="/client/find" className="ab-btn ws-lockbtn">Find a therapist</Link>} />;
             })()}
-            <HistoryCard tool={w.tool} history={w.history} therapistName={th?.name || ""} onSend={th ? send : null} sending={busy} />
           </>
         )}
       </div>

@@ -81,10 +81,10 @@ function Mine({ id }) {
         <div><h1>{w.name}</h1><p>Just for you — it saves as you type. {saved && <b className="tw-saved">{saved}</b>}</p></div>
       </header>
       <WhyCard tool={tool} open={false} />
+      <HistoryCard tool={tool} history={hist} current={data} />
       {isPack(tool) ? <PackForm tool={tool} value={data} onChange={onChange} finish={finish} /> : tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} /> : tool === "activity"
         ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
         : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />}
-      <HistoryCard tool={tool} history={hist} />
     </>
   );
 }
@@ -126,7 +126,7 @@ function Review({ id }) {
           <section className="tw-card">
             {e.flag && <div className="tw-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
             {isPack(e.tool) ? <PackForm tool={e.tool} value={e.data} readOnly /> : e.tool === "activity" ? <ActivityView data={e.data} /> : e.tool === "whatif" ? <WhatIfView data={e.data} /> : <AbcdLogsView data={e.data} />}
-            {e.history?.length > 1 && <HistoryCard tool={e.tool} history={e.history} forTherapist clientName={e.client.name} />}
+            {e.history?.length > 0 && <HistoryCard tool={e.tool} history={e.history} forTherapist clientName={e.client.name} />}
           </section>
           <aside className="tw-card tw-fb">
             <h2>Your feedback to {e.client.name.split(" ")[0]}</h2>

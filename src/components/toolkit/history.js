@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AbcdLogsView } from "./abcd";
 import { ActivityView } from "./activity";
 import { WhatIfView } from "./whatif";
-import { PackForm, isPack } from "./rp-pack";
+import { PackForm, isPack, packCompletion } from "./rp-pack";
 
 /* Progress over time (2026-11-19): the server keeps one snapshot per day a worksheet was saved, with a few
    numbers (answers, scores, before/after ratings). The client sees all of them; the therapist only the ones
@@ -56,13 +56,35 @@ function Chart({ history }) {
   );
 }
 
+// one day so far: the latest scores as bars (before / after side by side)
+function Bars({ metrics }) {
+  const scored = (metrics || []).filter((m) => m.max);
+  if (!scored.length) return null;
+  return (
+    <div className="hx-bars">
+      {scored.map((m, i) => (
+        <div key={m.k} className="hx-b">
+          <span>{m.label}</span>
+          <div className="hx-bar"><i style={{ width: `${Math.max(2, Math.round((m.v / m.max) * 100))}%`, background: COLORS[i % COLORS.length] }} /></div>
+          <b>{fmt(m)}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // history: oldest first (as the server keeps it). forTherapist: wording for the therapist's review page.
 // onSend: the client's "Send my progress" (same as Send to therapist) — shown when there's something unsent.
-export function HistoryCard({ tool, history, forTherapist = false, clientName = "", therapistName = "", onSend = null, sending = false }) {
+// current: the answers on screen right now (live completion bar for pack worksheets)
+export function HistoryCard({ tool, history, current = null, forTherapist = false, clientName = "", therapistName = "", onSend = null, sending = false }) {
   const [open, setOpen] = useState(null);
+  const [showDays, setShowDays] = useState(forTherapist);
   const list = Array.isArray(history) ? history : [];
-  if (!list.length) return null;
+  const comp = current && isPack(tool) ? packCompletion(tool, current) : null;
+  if (!list.length && !(comp && comp.done)) return null;
   const unsent = !forTherapist && list.some((h) => !h.sent);
+  const pct = comp && comp.total ? Math.round((comp.done / comp.total) * 100) : 0;
+  const hasLine = series(list).length > 0;
   return (
     <section className="hx">
       <style>{HX_CSS}</style>
@@ -70,11 +92,23 @@ export function HistoryCard({ tool, history, forTherapist = false, clientName = 
         <span className="hx-ic" aria-hidden="true">📈</span>
         <div>
           <h3>{forTherapist ? `${clientName ? `${clientName.split(" ")[0]}'s` : "Their"} progress` : "Your progress"}</h3>
-          <p>{forTherapist ? `${list.length} sent version${list.length === 1 ? "" : "s"} — how the answers changed over time` : `Saved on ${list.length} day${list.length === 1 ? "" : "s"} — each day's answers are kept, so you can see how things change`}</p>
+          <p>{forTherapist ? `${list.length} sent version${list.length === 1 ? "" : "s"} — how the answers changed over time` : list.length ? `Saved on ${list.length} day${list.length === 1 ? "" : "s"} — each day's answers are kept, so you can see how things change` : "Your answers save as you type"}</p>
         </div>
       </div>
-      <Chart history={list} />
-      <ul className="hx-list">
+      {comp && comp.total > 0 && (
+        <div className="hx-comp">
+          <div className="hx-comp-t"><b>{comp.done} of {comp.total}</b> answered <span>{pct}%</span></div>
+          <div className="hx-bar"><i style={{ width: `${pct}%` }} /></div>
+        </div>
+      )}
+      {hasLine ? <Chart history={list} /> : list.length > 0 && <Bars metrics={list[list.length - 1].metrics} />}
+      {!forTherapist && list.length === 1 && <p className="hx-tip">Come back and save it on another day — your progress line starts from here.</p>}
+      {list.length > 0 && (
+        <button type="button" className="hx-days" onClick={() => setShowDays((s) => !s)} aria-expanded={showDays}>
+          {showDays ? "Hide saved days" : `Saved days (${list.length})`} <i aria-hidden="true">{showDays ? "−" : "+"}</i>
+        </button>
+      )}
+      {showDays && <ul className="hx-list">
         {[...list].reverse().map((h, ri) => {
           const i = list.length - 1 - ri;
           return (
@@ -89,7 +123,7 @@ export function HistoryCard({ tool, history, forTherapist = false, clientName = 
             </li>
           );
         })}
-      </ul>
+      </ul>}
       {unsent && onSend && therapistName && (
         <div className="hx-send">
           <p>Your latest answers aren&apos;t sent yet — {therapistName.split(" ")[0]} only sees what you send.</p>
@@ -106,6 +140,19 @@ const HX_CSS = `
 .hx-ic { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; background: #e6f4f1; }
 .hx-h h3 { margin: 0; font-size: 17px; font-weight: 800; color: #1c1c1e; }
 .hx-h p { margin: 2px 0 0; font-size: 13px; color: #6e6e73; }
+.hx-comp { margin: 4px 0 12px; }
+.hx-comp-t { display: flex; align-items: baseline; gap: 6px; font-size: 14px; color: #334155; margin-bottom: 6px; }
+.hx-comp-t b { color: #0f2a24; }
+.hx-comp-t span { margin-left: auto; font-weight: 800; color: #0f766e; }
+.hx-bar { height: 10px; border-radius: 999px; background: #edf2f0; overflow: hidden; }
+.hx-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #14b8a6, #0f766e); transition: width .3s ease; }
+.hx-bars { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 10px; }
+.hx-b { display: grid; grid-template-columns: minmax(110px, 180px) minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 13.5px; color: #334155; }
+.hx-b b { color: #0f2a24; min-width: 44px; text-align: right; }
+.hx-tip { margin: 0 0 8px; font-size: 13px; color: #6e6e73; }
+.hx-days { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 0 4px; border: 0; border-top: 1px solid #eef2f0; background: none; font: inherit; font-size: 14px; font-weight: 800; color: #0f766e; cursor: pointer; text-align: left; }
+.hx-days i { margin-left: auto; font-style: normal; font-size: 18px; }
+@media (max-width: 640px) { .hx-b { grid-template-columns: minmax(0, 1fr) auto; } .hx-b > span { grid-column: 1 / -1; } }
 .hx-chart { margin: 6px 0 10px; }
 .hx-chart svg { display: block; width: 100%; height: 150px; }
 .hx-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: #334155; }

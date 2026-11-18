@@ -508,6 +508,31 @@ export const isPack = (t) => Object.prototype.hasOwnProperty.call(PACK_TOOLS, St
 const has = (v) => (Array.isArray(v) ? v.length > 0 : typeof v === "string" ? v.trim() !== "" : v !== null && v !== undefined);
 export const packFilled = (d) => Object.values(withPack(d)).some(has);
 
+/* how much of a worksheet is answered: one unit per question (a list of lines / a column counts once it has
+   anything in it). Used by the progress card. */
+export function packCompletion(tool, value) {
+  const def = PACK_TOOLS[tool];
+  const d = withPack(value);
+  if (!def) return { done: 0, total: 0 };
+  let done = 0, total = 0;
+  const unit = (ok) => { total++; if (ok) done++; };
+  const any = (pre) => Object.keys(d).some((k) => k.startsWith(pre) && has(d[k]));
+  const walk = (fields, p) => {
+    for (const f of fields) {
+      const k = p + f.id;
+      if (f.t === "group") { for (let i = 0; i < f.n; i++) walk(f.fields, `${k}-${i}-`); continue; }
+      if (f.t === "lines") unit(any(`${k}-`));
+      else if (f.t === "tf" || f.t === "agree" || f.t === "rate3" || f.t === "rate") f.items.forEach((_, i) => unit(has(d[`${k}-${i}`]) && d[`${k}-${i}`] !== ""));
+      else if (f.t === "yn") f.groups.forEach((g, gi) => g.items.forEach((_, i) => unit(typeof d[`${k}-${gi}-${i}`] === "boolean")));
+      else if (f.t === "cols") f.cols.forEach((c) => unit(any(`${k}-${c.id}-`)));
+      else if (f.t === "beliefmap") { unit(has(d[f.belief])); f.sides.forEach((sd) => sd.cols.forEach((c) => unit(any(`${k}-${c.id}-`)))); }
+      else unit(has(d[k]));
+    }
+  };
+  walk(def.fields, "");
+  return { done, total };
+}
+
 function Text({ k, f, d, set, ro }) {
   const v = typeof d[k] === "string" ? d[k] : "";
   return (
