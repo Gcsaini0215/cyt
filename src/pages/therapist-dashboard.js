@@ -519,6 +519,14 @@ const DASH_CSS = `
   .ov .ov-next.hero .ov-next-left > .ov-more, .ov .ov-next.hero .ov-next-left > .ov-next-assess { flex: 1 1 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .ov-more svg { transition: none; } }
+/* an odd tile left alone in the last row takes the full width, so no gap beside it */
+.ov-nd-grid > .ov-nd:not(.note):nth-child(odd):nth-last-child(2), .ov-nd-grid > .ov-nd:not(.note):nth-child(odd):last-child { grid-column: 1 / -1; }
+/* phones: the 1/5 counter sits at the right of the "Next session" line; the chips wrap under the title */
+@media (max-width: 767px) {
+  .ov .ov-next.hero .ov-next-top { flex-wrap: nowrap; align-items: flex-start; }
+  .ov .ov-next.hero .ov-next-top > .ov-next-k { flex: 1 1 auto; min-width: 0; }
+  .ov .ov-next.hero .ov-next-top > .ov-next-tr { flex: none; margin-left: auto; }
+}
 /* phones: Call / WhatsApp / mode / Invoice move into "Session details" (2026-11-18) */
 .ov-nd-acts { display: none; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; }
 @media (max-width: 767px) {
