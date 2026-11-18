@@ -658,7 +658,7 @@ const DASH_CSS = `
 .ov .ov-kpi-head b { font-size: 15px; }
 .ov .ov-kpi-head .ov-seg { padding: 2px; }
 .ov .ov-kpi-head .ov-seg button { height: 26px; padding: 0 10px; font-size: 12px; }
-@media (min-width: 768px) { .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -30px; position: relative; z-index: 1; } }
+@media (min-width: 768px) { .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -16px; position: relative; z-index: 1; } }
 @media (max-width: 767px) { .ov .ov-next-dots { padding-top: 6px; } .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -6px; } }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
