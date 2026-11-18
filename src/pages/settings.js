@@ -121,6 +121,7 @@ export default function ProfileSettings() {
                     {missing.map((m) => (
                       <button type="button" key={m.key} onClick={() => goTab(m.tab)} title={`Add ${m.label.toLowerCase()}`}>+ {m.label}</button>
                     ))}
+                    {missing.length > 3 && <span className="stg-missing-more" aria-hidden="true">+{missing.length - 3} more</span>}
                   </div>
                 )}
               </>
