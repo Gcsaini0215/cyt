@@ -597,6 +597,15 @@ const DASH_CSS = `
 .ov .ov-next.hero .ov-next-top .ov-next-nav button:hover { background: rgba(255,255,255,.2); }
 .ov .ov-next.hero.live .ov-next-k > span { background: #fff; color: #128c4b; }
 @media (max-width: 767px) { .ov .ov-next.hero .ov-next-top { margin: 0 -16px 4px; padding: 12px 16px; } }
+/* buttons that look like buttons (2026-11-18): Reschedule solid green; "Start from / Join opens" a raised white button */
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens), .ov .ov-next.hero .ov-next-rbtns .ov-btn {
+  background: linear-gradient(180deg, #16994a, #0b6b32) !important; color: #fff !important; font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,70,30,.25), 0 8px 16px -9px rgba(11,107,50,.9) !important; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens):hover { background: linear-gradient(180deg, #18a651, #0c7837) !important; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens) svg { color: #fff !important; }
+.ov .ov-next.hero .ov-btn.ov-opens { background: #fff !important; color: #128c4b !important; font-weight: 800;
+  box-shadow: inset 0 0 0 1.5px #1fb855, inset 0 -2px 0 rgba(18,140,75,.12), 0 6px 14px -8px rgba(0,0,0,.35) !important; }
+.ov .ov-next.hero .ov-btn.ov-opens svg { color: #1fb855 !important; } .ov .ov-next.hero .ov-btn.ov-opens b { color: #0b5a2f; }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
