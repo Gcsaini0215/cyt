@@ -7,6 +7,7 @@ import { ActivityForm, withActivity } from "../../../components/toolkit/activity
 import { WhatIfForm, withWhatIf } from "../../../components/toolkit/whatif";
 import { WhyCard, toolOf } from "../../../components/toolkit/registry";
 import { PackForm, isPack, withPack } from "../../../components/toolkit/rp-pack";
+import { HistoryCard } from "../../../components/toolkit/history";
 import { fetchById, putData } from "../../../utils/actions";
 import { apiUrl } from "../../../utils/url";
 import { bookPath } from "../../../utils/therapist-slug";
@@ -45,7 +46,7 @@ export default function WorksheetPage() {
     setSaved("Saving…");
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      save(latest.current).then((r) => setSaved(r?.status ? "Saved" : "Not saved")).catch(() => setSaved("Not saved — check your internet"));
+      save(latest.current).then((r) => { setSaved(r?.status ? "Saved" : "Not saved"); if (r?.data?.history) setW((x) => (x ? { ...x, history: r.data.history } : x)); }).catch(() => setSaved("Not saved — check your internet"));
     }, 900);
   };
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -71,7 +72,7 @@ export default function WorksheetPage() {
     setBusy(true);
     try {
       const r = await save({ data: dataRef.current || data, step: isPack(w.tool) ? 0 : w.tool === "activity" ? 1 : w.tool === "whatif" ? 2 : 4, submit: true });
-      if (r?.status) setW((x) => ({ ...x, status: r.data.status, flag: r.data.flag, submittedAt: new Date().toISOString() }));
+      if (r?.status) setW((x) => ({ ...x, status: r.data.status, flag: r.data.flag, submittedAt: new Date().toISOString(), history: r.data.history || x.history }));
       setSaved(r?.message || "");
     } catch (e) { setSaved(e?.response?.data?.message || "Couldn't send — try again"); }
     setBusy(false);
@@ -150,6 +151,7 @@ export default function WorksheetPage() {
                     canAdd={!th || !!w.ongoing}
                     lockCta={th?.live ? <Link href={bookPath(th)} className="ab-btn ws-lockbtn">Book a session with {th.name}</Link> : <Link href="/client/find" className="ab-btn ws-lockbtn">Find a therapist</Link>} />;
             })()}
+            <HistoryCard tool={w.tool} history={w.history} therapistName={th?.name || ""} onSend={th ? send : null} sending={busy} />
           </>
         )}
       </div>

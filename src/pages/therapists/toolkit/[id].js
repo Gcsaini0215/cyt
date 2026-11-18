@@ -8,6 +8,7 @@ import { ActivityForm, ActivityView, withActivity } from "../../../components/to
 import { WhatIfForm, WhatIfView, withWhatIf } from "../../../components/toolkit/whatif";
 import { Tiles, WhyCard, WR_CSS, toolOf } from "../../../components/toolkit/registry";
 import { PackForm, isPack, withPack } from "../../../components/toolkit/rp-pack";
+import { HistoryCard } from "../../../components/toolkit/history";
 import { deleteById, fetchById, putData } from "../../../utils/actions";
 import { apiUrl, imagePath } from "../../../utils/url";
 
@@ -40,6 +41,7 @@ function Mine({ id }) {
   const [step, setStep] = useState(0);
   const [saved, setSaved] = useState("");
   const [err, setErr] = useState("");
+  const [hist, setHist] = useState([]);
   const dataRef = useRef(null);
   const timer = useRef(null);
   const latest = useRef(null);
@@ -48,7 +50,7 @@ function Mine({ id }) {
       if (!r?.status) return setErr(r?.message || "Couldn't open it");
       const t = r.data.tool;
       const first = isPack(t) ? withPack(r.data.data) : t === "activity" ? withActivity(r.data.data) : t === "whatif" ? withWhatIf(r.data.data) : { logs: toLogs(r.data.data) };
-      setTool(t); setData(first); dataRef.current = first; setStep(r.data.step || 0);
+      setTool(t); setData(first); dataRef.current = first; setStep(r.data.step || 0); setHist(r.data.history || []);
     }).catch(() => setErr("Couldn't open it"));
   }, [id]);
   const save = (body) => putData(`${apiUrl}/my-worksheets/${id}`, body);
@@ -58,7 +60,7 @@ function Mine({ id }) {
     latest.current = { data: next, step: n };
     setSaved("Saving…");
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => { save(latest.current).then((r) => { setSaved(r?.status ? "Saved ✓" : "Not saved"); if (r?.status) latest.current = null; }).catch(() => setSaved("Not saved — check your internet")); }, 800);
+    timer.current = setTimeout(() => { save(latest.current).then((r) => { setSaved(r?.status ? "Saved ✓" : "Not saved"); if (r?.status) latest.current = null; if (r?.data?.history) setHist(r.data.history); }).catch(() => setSaved("Not saved — check your internet")); }, 800);
   };
   const onChange = (next) => { dataRef.current = next; setData(next); queue(next, step); };
   const onStep = (n) => { setStep(n); if (dataRef.current) queue(dataRef.current, n); };
@@ -82,6 +84,7 @@ function Mine({ id }) {
       {isPack(tool) ? <PackForm tool={tool} value={data} onChange={onChange} finish={finish} /> : tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} /> : tool === "activity"
         ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
         : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />}
+      <HistoryCard tool={tool} history={hist} />
     </>
   );
 }
@@ -123,6 +126,7 @@ function Review({ id }) {
           <section className="tw-card">
             {e.flag && <div className="tw-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
             {isPack(e.tool) ? <PackForm tool={e.tool} value={e.data} readOnly /> : e.tool === "activity" ? <ActivityView data={e.data} /> : e.tool === "whatif" ? <WhatIfView data={e.data} /> : <AbcdLogsView data={e.data} />}
+            {e.history?.length > 1 && <HistoryCard tool={e.tool} history={e.history} forTherapist clientName={e.client.name} />}
           </section>
           <aside className="tw-card tw-fb">
             <h2>Your feedback to {e.client.name.split(" ")[0]}</h2>
