@@ -705,6 +705,7 @@ export async function cycleCareCard() {
 const WS_CARD = {
   abcd: { kick: "CBT WORKSHEET  ·  FREE", l1: "Untangle a stressful", l2: "moment in 4 steps", tiles: [["A", "#2563eb", "Happened"], ["B", "#7c3aed", "Thought"], ["C", "#ea580c", "Felt"], ["D", "#16a34a", "Rethink"]] },
   whatif: { kick: "WHAT-IF FLIP  ·  FREE", l1: "Stop the what-if", l2: "spiral in 3 steps", tiles: [["?", "#7c3aed", "What if"], ["↓", "#e11d48", "The fear"], ["↑", "#16a34a", "Flip it"], ["✓", "#0ea5e9", "Likely"]] },
+  beliefs: { kick: "CORE BELIEFS  ·  CBT", l1: "Question the belief", l2: "behind the feeling", tiles: [["●", "#7c3aed", "Belief"], ["+", "#16a34a", "Fits"], ["✕", "#dc2626", "Ignored"], ["~", "#f59e0b", "Twisted"]] },
   rp: { kick: "RELAPSE PREVENTION  ·  FREE", l1: "Stay on track in", l2: "your recovery", tiles: [["1", "#0f766e", "Notice"], ["2", "#0891b2", "Plan"], ["3", "#16a34a", "Cope"], ["✓", "#f59e0b", "Grow"]] },
   activity: { kick: "ACTIVITY DIARY  ·  FREE", l1: "Find out what really", l2: "lifts your mood", tiles: [["A", "#0ea5e9", "Achieve"], ["C", "#ec4899", "Close"], ["E", "#f59e0b", "Enjoy"], ["7", "#16a34a", "Days"]] },
 };

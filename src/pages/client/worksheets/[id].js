@@ -105,7 +105,7 @@ export default function WorksheetPage() {
             <div className="ws-h">
               <div>
                 <h1>{toolOf(w.tool).name}</h1>
-                <p>{th ? <>From <b>{th.name}</b>{th.profile_type ? ` · ${th.profile_type}` : ""}</> : (isPack(w.tool) ? "A relapse prevention exercise" : "A CBT exercise")} {saved && <em className="ws-saved">{saved}</em>}</p>
+                <p>{th ? <>From <b>{th.name}</b>{th.profile_type ? ` · ${th.profile_type}` : ""}</> : (toolOf(w.tool).pack === "rp" ? "A relapse prevention exercise" : "A CBT exercise")} {saved && <em className="ws-saved">{saved}</em>}</p>
               </div>
               <div className="ws-h-acts">
                 <button type="button" className="ws-reset" onClick={() => setAskReset(true)} title="Clear all answers">↺ Reset</button>

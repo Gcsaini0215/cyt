@@ -7,7 +7,6 @@ import React, { useState } from "react";
    Each worksheet is plain data (fields below); PackForm draws any of them. Answers are one flat object
    { "<field id>": value } (keys use - not ., which MongoDB field names avoid) — the server keeps only short strings, numbers, true/false and short lists. */
 
-export const isPack = (t) => /^rp_/.test(String(t || ""));
 export const withPack = (v) => (v && typeof v === "object" && !Array.isArray(v) ? { ...v } : {});
 
 const TEAL = "#0f766e";
@@ -473,6 +472,38 @@ const RP_LIST = [
 export const RP_LIBRARY = RP_LIST.map((x) => ({ ...x, tag: TAG, pack: "rp", ready: true }));
 export const RP_TOOLS = Object.fromEntries(RP_LIBRARY.map((x) => [x.key, x]));
 
+/* Other worksheets drawn by the same PackForm (main library, not the pack). Our own wording. */
+export const CORE_BELIEFS = {
+  key: "beliefs", name: "Core Beliefs: Examining the Evidence", tag: "CBT", kind: "CBT", ready: true,
+  tiles: [["●", "#7c3aed"], ["+", "#16a34a"], ["✕", "#dc2626"], ["~", "#f59e0b"]],
+  short: "See how a deep belief about yourself filters what you notice — what you accept, ignore or explain away — and find a fairer belief.",
+  headline: "Question the belief behind the feeling",
+  why: "Core beliefs are our deepest ideas about ourselves, other people and the world — like glasses we see everything through. They don't filter evenly: anything that fits the belief slips in easily and makes it stronger, while anything that doesn't fit is ignored or explained away. Laying all the evidence side by side shows the filter at work, and makes room for a fairer, kinder belief.",
+  benefits: ["Name a belief that drives a lot of painful feelings", "Notice the evidence you usually ignore or explain away", "Weigh all of it fairly, side by side", "Arrive at a more balanced belief — and see how much it shifts"],
+  forWho: ["Low self-worth", "Anxiety in relationships", "Low mood", "Self-criticism"],
+  time: "15–20 minutes — come back and add to it over a week",
+  how: [["●", "Name the belief", "A deep idea about yourself, others or the world."], ["+", "What fits", "Things you took as proof of it."], ["✕", "What doesn't fit", "Things you ignored or explained away."], ["=", "A fairer belief", "Weigh it all and re-rate the old belief."]],
+  read: { title: "How core beliefs filter what we notice", sections: [
+    { p: "Core beliefs are our most central ideas about ourselves, other people and the world — for example 'I'm not good enough', 'People can't be trusted' or 'The world is dangerous'. They work like a lens: every experience is seen through them." },
+    { p: "Beliefs can change over time, but not evenly. Information that fits the belief is accepted straight away and makes it stronger. Information that doesn't fit is either ignored — it never really sinks in — or twisted with a '…but' until it fits." },
+    { h: "In this worksheet you'll sort what happens into three columns", list: ["Accepted — things that seemed to prove the belief", "Ignored — things that don't fit, which you brushed aside or forgot", "Explained away — things that don't fit, which you changed with a '…but'"] },
+  ] },
+  example: { title: "Example", lines: ["Belief: 'No one likes me.'", "Accepted: My friend didn't answer my call. · The shopkeeper was rude. · My manager criticised my report.", "Ignored: Colleagues invited me to a birthday lunch. · Customers enjoy chatting with me. · A friend checked on me when I was ill.", "Explained away: Someone asked me out… but it must have been pity. · My parents and I are close… but parents don't count. · A friend gave me a gift… but only because I gave them one."] },
+  fields: [
+    { t: "text", id: "belief", label: "The core belief you want to examine", rows: 2, hint: "Often short and absolute — 'I'm a failure', 'I'm unlovable', 'Nobody can be trusted'." },
+    { t: "scale", id: "before", label: "How strongly do you believe it right now?", min: 0, max: 10, low: "Not at all", high: "Completely" },
+    { t: "cols", id: "ev", label: "Sort the evidence — one thing per line", cols: [
+      { id: "acc", title: "Accepted", sub: "Fits the belief — I took it as proof", color: "#16a34a", n: 4 },
+      { id: "rej", title: "Ignored", sub: "Doesn't fit — I brushed it aside", color: "#dc2626", n: 4 },
+      { id: "mod", title: "Explained away", sub: "Doesn't fit — I added a '…but'", color: "#f59e0b", n: 4 },
+    ] },
+    { t: "text", id: "balanced", label: "Looking at all three columns together — what's a fairer, more balanced belief?", rows: 3 },
+    { t: "scale", id: "after", label: "Now, how strongly do you believe the original belief?", min: 0, max: 10, low: "Not at all", high: "Completely" },
+  ],
+};
+export const PACK_TOOLS = { ...RP_TOOLS, beliefs: CORE_BELIEFS };
+export const isPack = (t) => Object.prototype.hasOwnProperty.call(PACK_TOOLS, String(t || ""));
+
 /* ── the form ── */
 
 const has = (v) => (Array.isArray(v) ? v.length > 0 : typeof v === "string" ? v.trim() !== "" : v !== null && v !== undefined);
@@ -650,7 +681,26 @@ function Checks({ k, f, d, set, ro }) {
   );
 }
 
-const FIELD = { text: Text, lines: Lines, pick: Pick, scale: Scale, tf: Quiz, agree: Agree, rate3: Rate3, rate: Rate, checks: Checks };
+function Cols({ k, f, d, set, ro }) {
+  return (
+    <div className="rpk-f">
+      <span className="rpk-l">{f.label}</span>
+      <div className="rpk-cols">
+        {f.cols.map((c) => (
+          <div key={c.id} className="rpk-col" style={{ "--c": c.color }}>
+            <h5>{c.title}<small>{c.sub}</small></h5>
+            {Array.from({ length: c.n || 4 }, (_, i) => {
+              const key = `${k}-${c.id}-${i}`;
+              return <textarea key={key} rows={2} maxLength={300} disabled={ro} placeholder={i === 0 ? "Write one thing…" : ""} value={typeof d[key] === "string" ? d[key] : ""} onChange={(e) => set(key, e.target.value)} />;
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const FIELD = { cols: Cols, text: Text, lines: Lines, pick: Pick, scale: Scale, tf: Quiz, agree: Agree, rate3: Rate3, rate: Rate, checks: Checks };
 
 function Fields({ fields, p = "", d, set, ro }) {
   return fields.map((f) => {
@@ -693,7 +743,7 @@ function Read({ read, startOpen }) {
 
 // one page, saves as you type (the page around it does the saving); `finish` = the Send / privacy block
 export function PackForm({ tool, value, onChange, readOnly = false, finish = null }) {
-  const def = RP_TOOLS[tool];
+  const def = PACK_TOOLS[tool];
   const d = withPack(value);
   if (!def) return null;
   const set = (k, v) => onChange && onChange({ ...withPack(value), [k]: v });
@@ -770,6 +820,12 @@ export const RPK_CSS = `
 .rpk-count { font-style: normal; font-size: 12px; font-weight: 800; color: ${TEAL}; background: #e6f4f1; border-radius: 999px; padding: 2px 8px; }
 .rpk-cg { margin-top: 6px; }
 .rpk-cg h5 { margin: 6px 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #64748b; }
+.rpk-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rpk-col { border-radius: 16px; padding: 12px; background: color-mix(in srgb, var(--c) 7%, #fff); border: 1px solid color-mix(in srgb, var(--c) 28%, #fff); display: flex; flex-direction: column; gap: 8px; }
+.rpk-col h5 { margin: 0 0 2px; font-size: 15px; font-weight: 800; color: var(--c); display: flex; flex-direction: column; }
+.rpk-col textarea { resize: none; min-height: 0; }
+.rpk-col h5 small { font-size: 12px; font-weight: 600; color: #6b7280; }
+@media (max-width: 760px) { .rpk-cols { grid-template-columns: minmax(0, 1fr); } }
 .rpk-read { background: #f0faf8; border: 1px solid #cdebe5; border-radius: 20px; overflow: hidden; }
 .rpk-read-h { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; color: #0f2a24; }
 .rpk-read-h > span { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: #d5f0ea; font-size: 19px; }
@@ -789,6 +845,7 @@ export const RPK_CSS = `
 @media (max-width: 640px) {
   .rpk-card { padding: 16px 14px 4px; border-radius: 18px; }
   .rpk-rows li { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .rpk-scale button { width: 38px; height: 38px; }
+  .rpk-scale:not(.sm) { flex-wrap: nowrap; gap: 4px; }
+  .rpk-scale:not(.sm) button { flex: 1 1 0; width: auto; min-width: 0; height: 40px; border-radius: 10px; font-size: 13px; }
 }
 `;
