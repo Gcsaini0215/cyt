@@ -272,7 +272,8 @@ export const toLogs = (data) => {
   const logs = Array.isArray(data?.logs) ? data.logs : data?.a ? [data] : [];
   return (logs.length ? logs : [emptyData()]).map(withDefaults);
 };
-const short = (l, i) => { const t = String(l?.a?.what || "").trim(); return t ? (t.length > 26 ? `${t.slice(0, 26)}…` : t) : `Situation ${i + 1}`; };
+// not named "short": the dev compiler (ES5) renames that old reserved word in the declaration but not in JSX
+const tabLabel = (l, i) => { const t = String(l?.a?.what || "").trim(); return t ? (t.length > 26 ? `${t.slice(0, 26)}…` : t) : `Situation ${i + 1}`; };
 
 /* tabs for each situation + "New situation". canAdd=false (not in sessions with this therapist yet) shows the
    lock with a Book button instead — the free share link allows one situation. */
@@ -297,7 +298,7 @@ export function AbcdMulti({ value, onChange, step, onStep, therapistName, canAdd
       <div className="abm-tabs" role="tablist" aria-label="Situations">
         {logs.map((l, k) => (
           <button key={k} type="button" role="tab" aria-selected={k === i && !lock} className={k === i && !lock ? "on" : ""} onClick={() => { setCur(k); setLock(false); }}>
-            <i>{k + 1}</i><span>{short(l, k)}</span>
+            <i>{k + 1}</i><span>{tabLabel(l, k)}</span>
           </button>
         ))}
         <button type="button" className={`abm-add${canAdd ? "" : " locked"}${lock ? " on" : ""}`} onClick={add}>{canAdd ? "+ New situation" : "🔒 New situation"}</button>

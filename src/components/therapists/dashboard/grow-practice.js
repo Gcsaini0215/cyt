@@ -183,7 +183,7 @@ function FollowupCard({ list, therapistName, onChanged }) {
 
 function DemandCard({ demand }) {
   const max = Math.max(1, ...demand.grid.flat());
-  const short = { Monday: "Mon", Tuesday: "Tue", Wednesday: "Wed", Thursday: "Thu", Friday: "Fri", Saturday: "Sat", Sunday: "Sun" };
+  const dayShort = { Monday: "Mon", Tuesday: "Tue", Wednesday: "Wed", Thursday: "Thu", Friday: "Fri", Saturday: "Sat", Sunday: "Sun" };
   return (
     <div className="gp-card gp-dm">
       <div className="gp-h"><b>When clients book</b><span>last 90 days · all of CYT</span></div>
@@ -191,7 +191,7 @@ function DemandCard({ demand }) {
         <div className="gp-heat-row head" role="row"><span />{demand.bands.map((b) => <span key={b.key} role="columnheader" title={b.range}>{b.label}</span>)}</div>
         {demand.days.map((d, di) => (
           <div className="gp-heat-row" role="row" key={d}>
-            <span role="rowheader">{short[d]}</span>
+            <span role="rowheader">{dayShort[d]}</span>
             {demand.bands.map((b, bi) => {
               const n = demand.grid[di][bi];
               const lvl = n === 0 ? 0 : Math.max(1, Math.ceil((n / max) * 4));

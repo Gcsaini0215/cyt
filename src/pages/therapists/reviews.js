@@ -58,7 +58,7 @@ function Stars({ value, size = 18 }) {
 
 function ReviewCard({ r, isNew }) {
   const [more, setMore] = useState(false);
-  const long = (r.description || "").length > 260;
+  const isLong = (r.description || "").length > 260;
   return (
     <article className={`rv-card${isNew ? " new" : ""}`}>
       <div className="rv-card-top">
@@ -75,11 +75,11 @@ function ReviewCard({ r, isNew }) {
         {isNew && <span className="pt-chip ok">New</span>}
       </div>
       <Stars value={r.rating} />
-      <p className={`rv-text${long && !more ? " clamp" : ""}`}>
+      <p className={`rv-text${isLong && !more ? " clamp" : ""}`}>
         <FormatQuoteRoundedIcon className="rv-q" />
         {r.description}
       </p>
-      {long && <button type="button" className="rv-more" onClick={() => setMore((m) => !m)}>{more ? "Show less" : "Read more"}</button>}
+      {isLong && <button type="button" className="rv-more" onClick={() => setMore((m) => !m)}>{more ? "Show less" : "Read more"}</button>}
     </article>
   );
 }
