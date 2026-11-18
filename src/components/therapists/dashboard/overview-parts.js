@@ -262,7 +262,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
   return (
     <div className={`ov-next ov-card hero ${live || started ? "live" : ""}${moreOpen ? " more-open" : ""}`}>
       <div className="ov-next-top">
-        <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : upcoming ? "Upcoming session" : "Next session"} <span>{started ? "started" : when}</span>{isNew && !started && <em className="ov-new-tag">New booking{bookedText ? ` · ${bookedText.toLowerCase()}` : ""}</em>}
+        <div className={`ov-next-k${isNew && !started ? " has-new" : ""}`}><b className="ov-next-lbl">{started ? "In session" : live ? "Starting now" : upcoming ? "Upcoming session" : "Next session"}</b> <span>{started ? "started" : when}</span>{isNew && !started && <em className="ov-new-tag">New<i className="ov-nt-full"> booking</i>{bookedText ? ` · ${bookedText.toLowerCase()}` : ""}</em>}
           {b._id && <button type="button" className="ov-inv-btn" onClick={() => setReceipt(true)} title="Open the invoice"><ReceiptLongRoundedIcon aria-hidden="true" />Invoice<span aria-hidden="true">›</span></button>}</div>
         <span className="ov-next-tr">
           <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? <><PlaceRoundedIcon aria-hidden="true" /> In person</> : <><VideocamRoundedIcon aria-hidden="true" /> Video session</>}</span>
@@ -278,7 +278,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
               <b>{new Date(s.date).toLocaleDateString("en-IN", { day: "numeric", timeZone: IST })}</b>
             </div>
             <div className="ov-next-info">
-              <div className="ov-next-name">{s.name}</div>
+              <div className="ov-next-name"><span className="ov-next-nm">{s.name}</span>{paid > 0 && payOk && <span className="ov-paid-stamp" title="Paid">Paid</span>}</div>
               <div className="ov-next-sub">{fmtDay(s.date)} · {fmtTime(s.date)}</div>
               {phone && (
                 <div className="ov-next-contact">

@@ -660,6 +660,35 @@ const DASH_CSS = `
 .ov .ov-kpi-head .ov-seg button { height: 26px; padding: 0 10px; font-size: 12px; }
 @media (min-width: 768px) { .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -16px; position: relative; z-index: 1; } }
 @media (max-width: 767px) { .ov .ov-next-dots { padding-top: 6px; } .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -6px; } }
+/* phones, inside Session details: two even columns — Call | WhatsApp, then In person | Invoice */
+@media (max-width: 767px) {
+  .ov-nd-acts { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ov-nd-acts > * { width: 100%; justify-content: center; min-width: 0; }
+  .ov .ov-next.hero .ov-nd-acts .ov-mode, .ov .ov-next.hero .ov-nd-acts .ov-inv-btn { height: 32px; justify-content: center; }
+}
+/* a "PAID" stamp next to the client name (phones), like a rubber stamp */
+.ov-paid-stamp { display: none; }
+@media (max-width: 767px) {
+  .ov .ov-next.hero .ov-next-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .ov .ov-next.hero .ov-next-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ov-paid-stamp { display: inline-block; flex: none; transform: rotate(-8deg); padding: 1px 8px; border: 2px solid #16a34a; border-radius: 6px; color: #16a34a;
+    font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; line-height: 1.4; background: rgba(22,163,74,.07); opacity: .9;
+    box-shadow: inset 0 0 0 1px rgba(22,163,74,.25); }
+}
+/* the green strip sits flush with the card's edges: same rounding as the card top, full bleed on phones (card padding is 20px there) */
+.ov .ov-next.hero .ov-next-top { border-radius: 21px 21px 0 0; }
+@media (max-width: 767px) { .ov .ov-next.hero .ov-next-top { margin: 0 -20px 4px !important; padding: 12px 20px !important; } }
+/* label is a <b> now: keep the old look */
+.ov .ov-next-k .ov-next-lbl { font: inherit; color: inherit; }
+.ov-nt-full { font-style: normal; }
+/* phones: date pill + "New · 7 h ago" on one line with the 1/5 switcher (label hidden only while the New tag shows) */
+@media (max-width: 767px) {
+  .ov .ov-next.hero .ov-next-top { align-items: center !important; }
+  .ov .ov-next.hero .ov-next-k { flex-wrap: nowrap !important; gap: 6px; white-space: nowrap; overflow: hidden; }
+  .ov .ov-next.hero .ov-next-k.has-new .ov-next-lbl, .ov .ov-next.hero .ov-nt-full { display: none; }
+  .ov .ov-next.hero .ov-next-k > span { flex: none; }
+  .ov .ov-next.hero .ov-new-tag { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; padding: 3px 8px; }
+}
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
