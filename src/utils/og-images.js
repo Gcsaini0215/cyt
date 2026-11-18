@@ -705,10 +705,11 @@ export async function cycleCareCard() {
 const WS_CARD = {
   abcd: { kick: "CBT WORKSHEET  ·  FREE", l1: "Untangle a stressful", l2: "moment in 4 steps", tiles: [["A", "#2563eb", "Happened"], ["B", "#7c3aed", "Thought"], ["C", "#ea580c", "Felt"], ["D", "#16a34a", "Rethink"]] },
   whatif: { kick: "WHAT-IF FLIP  ·  FREE", l1: "Stop the what-if", l2: "spiral in 3 steps", tiles: [["?", "#7c3aed", "What if"], ["↓", "#e11d48", "The fear"], ["↑", "#16a34a", "Flip it"], ["✓", "#0ea5e9", "Likely"]] },
+  rp: { kick: "RELAPSE PREVENTION  ·  FREE", l1: "Stay on track in", l2: "your recovery", tiles: [["1", "#0f766e", "Notice"], ["2", "#0891b2", "Plan"], ["3", "#16a34a", "Cope"], ["✓", "#f59e0b", "Grow"]] },
   activity: { kick: "ACTIVITY DIARY  ·  FREE", l1: "Find out what really", l2: "lifts your mood", tiles: [["A", "#0ea5e9", "Achieve"], ["C", "#ec4899", "Close"], ["E", "#f59e0b", "Enjoy"], ["7", "#16a34a", "Days"]] },
 };
 export async function worksheetCard(t, tool = "abcd") {
-  const cfg = WS_CARD[tool] || WS_CARD.abcd;
+  const cfg = WS_CARD[tool] || (/^rp_/.test(String(tool)) ? WS_CARD.rp : WS_CARD.abcd);
   const layers = [];
   const bg = Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs>
     <radialGradient id="a" cx="1" cy="0" r="1"><stop offset="0" stop-color="#d9efe1"/><stop offset="1" stop-color="#d9efe1" stop-opacity="0"/></radialGradient></defs>

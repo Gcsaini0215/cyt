@@ -6,6 +6,7 @@ import { AbcdMulti, toLogs } from "../../../components/toolkit/abcd";
 import { ActivityForm, withActivity } from "../../../components/toolkit/activity";
 import { WhatIfForm, withWhatIf } from "../../../components/toolkit/whatif";
 import { WhyCard, toolOf } from "../../../components/toolkit/registry";
+import { PackForm, isPack, withPack } from "../../../components/toolkit/rp-pack";
 import { fetchById, putData } from "../../../utils/actions";
 import { apiUrl } from "../../../utils/url";
 import { bookPath } from "../../../utils/therapist-slug";
@@ -30,9 +31,10 @@ export default function WorksheetPage() {
     fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
       if (!r?.status) return setErr(r?.message || "Worksheet not found");
       const act = r.data.tool === "activity";
-      const first = act ? withActivity(r.data.data) : r.data.tool === "whatif" ? withWhatIf(r.data.data) : { logs: toLogs(r.data.data) };
+      const pk = isPack(r.data.tool);
+      const first = pk ? withPack(r.data.data) : act ? withActivity(r.data.data) : r.data.tool === "whatif" ? withWhatIf(r.data.data) : { logs: toLogs(r.data.data) };
       setW(r.data); setData(first); dataRef.current = first;
-      const last = act ? 1 : r.data.tool === "whatif" ? 2 : 4;
+      const last = pk ? 0 : act ? 1 : r.data.tool === "whatif" ? 2 : 4;
       setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? last : Math.min(r.data.step || 0, last));
     }).catch(() => setErr("Couldn't open this worksheet"));
   }, [id]);
@@ -68,14 +70,14 @@ export default function WorksheetPage() {
     clearTimeout(timer.current);
     setBusy(true);
     try {
-      const r = await save({ data: dataRef.current || data, step: w.tool === "activity" ? 1 : w.tool === "whatif" ? 2 : 4, submit: true });
+      const r = await save({ data: dataRef.current || data, step: isPack(w.tool) ? 0 : w.tool === "activity" ? 1 : w.tool === "whatif" ? 2 : 4, submit: true });
       if (r?.status) setW((x) => ({ ...x, status: r.data.status, flag: r.data.flag, submittedAt: new Date().toISOString() }));
       setSaved(r?.message || "");
     } catch (e) { setSaved(e?.response?.data?.message || "Couldn't send — try again"); }
     setBusy(false);
   };
 
-  const blank = (tool) => (tool === "activity" ? withActivity({}) : tool === "whatif" ? withWhatIf({}) : { logs: toLogs({}) });
+  const blank = (tool) => (isPack(tool) ? {} : tool === "activity" ? withActivity({}) : tool === "whatif" ? withWhatIf({}) : { logs: toLogs({}) });
   const reset = async () => {
     clearTimeout(timer.current); latest.current = { data: null, step: 0 };
     setBusy(true);
@@ -103,7 +105,7 @@ export default function WorksheetPage() {
             <div className="ws-h">
               <div>
                 <h1>{toolOf(w.tool).name}</h1>
-                <p>{th ? <>From <b>{th.name}</b>{th.profile_type ? ` · ${th.profile_type}` : ""}</> : "A CBT exercise"} {saved && <em className="ws-saved">{saved}</em>}</p>
+                <p>{th ? <>From <b>{th.name}</b>{th.profile_type ? ` · ${th.profile_type}` : ""}</> : (isPack(w.tool) ? "A relapse prevention exercise" : "A CBT exercise")} {saved && <em className="ws-saved">{saved}</em>}</p>
               </div>
               <div className="ws-h-acts">
                 <button type="button" className="ws-reset" onClick={() => setAskReset(true)} title="Clear all answers">↺ Reset</button>
@@ -140,6 +142,7 @@ export default function WorksheetPage() {
                   {th?.live && <Link href={bookPath(th)} className="ws-talk">Worksheets work best when you talk them through — book a session with {th.name} →</Link>}
                 </div>
               );
+              if (isPack(w.tool)) return <PackForm tool={w.tool} value={data} onChange={onChange} finish={finish} />;
               if (w.tool === "whatif") return <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />;
               return w.tool === "activity"
                 ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />

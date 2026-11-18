@@ -4,7 +4,7 @@ import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
-import { LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
+import { LIBRARY, RP_LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
 import { deleteById, fetchById, postJsonData } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
 
@@ -14,7 +14,8 @@ import { apiUrl, imagePath } from "../../utils/url";
    and review what clients send you.
    Plan rules: the first two worksheets are free for the therapist's OWN use (saved, private). The yearly plan
    unlocks every worksheet for themselves, plus Share link and Send to a client (server checks it too). */
-const FREE_SELF = ["abcd", "activity"];
+// the Relapse Prevention pack is free for the therapist's own use too (owner, 2026-11-19)
+const FREE_SELF = ["abcd", "activity", ...RP_LIBRARY.map((w) => w.key)];
 const PLAN_NAME = { annual: "Yearly", free: "Free (given by CYT)", "1_month": "1-month", "3_month": "3-month", "6_month": "6-month" };
 const longDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "");
 const SITE = "https://www.chooseyourtherapist.in";
@@ -68,6 +69,29 @@ export default function ToolkitPage() {
     setStarting("");
   };
 
+  const [allRp, setAllRp] = useState(false);
+  // one worksheet card (main library and the Relapse Prevention pack)
+  const card = (w) => (
+    <article key={w.key} className="tk-w ready">
+      <div className="tk-w-top">
+        <Tiles tool={w.key} />
+        <span className="tk-tags">{!yearly && <em className={FREE_SELF.includes(w.key) ? "free" : "lock"}>{FREE_SELF.includes(w.key) ? "Free for you" : "🔒 Yearly plan"}</em>}<em>{w.kind || w.tag}</em></span>
+      </div>
+      <h2>{w.name}</h2>
+      <p>{w.short}</p>
+      {w.ready && (
+        <>
+          <div className="tk-acts">
+            <button type="button" className={`tk-btn${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "share", tool: w.key } : { kind: "upgrade", tool: w.key, why: "share" })}>{yearly ? "" : "🔒 "}Share link</button>
+            <button type="button" className={`tk-btn line${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "send", tool: w.key } : { kind: "upgrade", tool: w.key, why: "send" })}>{yearly ? "" : "🔒 "}Send to a client</button>
+            <button type="button" className="tk-btn ghost" disabled={starting === w.key} onClick={() => openForMe(w.key)}>{starting === w.key ? "Opening…" : `${selfOk(w.key) ? "" : "🔒 "}Use it for myself`}</button>
+          </div>
+          <WhyCard tool={w.key} compact onOpen={() => setPanel({ kind: "why", tool: w.key })} />
+        </>
+      )}
+    </article>
+  );
+
   return (
     <MainLayout>
       <Head><title>Toolkit | Choose Your Therapist</title></Head>
@@ -91,26 +115,19 @@ export default function ToolkitPage() {
         {err && <div className="tk-box">{err}</div>}
 
         <section className="tk-lib" aria-label="Worksheets">
-          {LIBRARY.filter((w) => w.ready).map((w) => (
-            <article key={w.key} className="tk-w ready">
-              <div className="tk-w-top">
-                <Tiles tool={w.key} />
-                <span className="tk-tags">{!yearly && <em className={FREE_SELF.includes(w.key) ? "free" : "lock"}>{FREE_SELF.includes(w.key) ? "Free for you" : "🔒 Yearly plan"}</em>}<em>{w.tag}</em></span>
-              </div>
-              <h2>{w.name}</h2>
-              <p>{w.short}</p>
-              {w.ready && (
-                <>
-                  <div className="tk-acts">
-                    <button type="button" className={`tk-btn${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "share", tool: w.key } : { kind: "upgrade", tool: w.key, why: "share" })}>{yearly ? "" : "🔒 "}Share link</button>
-                    <button type="button" className={`tk-btn line${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "send", tool: w.key } : { kind: "upgrade", tool: w.key, why: "send" })}>{yearly ? "" : "🔒 "}Send to a client</button>
-                    <button type="button" className="tk-btn ghost" disabled={starting === w.key} onClick={() => openForMe(w.key)}>{starting === w.key ? "Opening…" : `${selfOk(w.key) ? "" : "🔒 "}Use it for myself`}</button>
-                  </div>
-                  <WhyCard tool={w.key} compact onOpen={() => setPanel({ kind: "why", tool: w.key })} />
-                </>
-              )}
-            </article>
-          ))}
+          {LIBRARY.filter((w) => w.ready).map(card)}
+        </section>
+
+        <section className="tk-pack" aria-label="Relapse Prevention pack">
+          <div className="tk-pack-h">
+            <span className="tk-pack-ic" aria-hidden="true">🛡️</span>
+            <div>
+              <h2>Relapse Prevention <em>{RP_LIBRARY.length} worksheets</em></h2>
+              <p>For clients in alcohol or drug recovery — from a myths quiz to a slip plan. Each opens with a short read, then a few questions.{yearly ? "" : " Free for your own use."}</p>
+            </div>
+          </div>
+          <div className="tk-lib rp">{(allRp ? RP_LIBRARY : RP_LIBRARY.slice(0, 6)).map(card)}</div>
+          {!allRp && <button type="button" className="tk-more" onClick={() => setAllRp(true)}>Show all {RP_LIBRARY.length} worksheets</button>}
         </section>
 
         {d?.mine?.length > 0 && (
@@ -230,8 +247,8 @@ function UpgradePanel({ tool, why, access, onClose }) {
           {access?.plan && access.plan !== "annual" && access.plan !== "free" && <em>The Toolkit opens with the yearly plan — your current plan doesn&apos;t include it.</em>}
         </div>
         <p>{why === "self"
-          ? <>Your profile stays live and growing on CYT all year — and <b>{w.name}</b> and every new worksheet open for you. ABCD and the Activity Diary stay free for your own use.</>
-          : <>Your profile stays live and growing on CYT all year — and you can share worksheets with your name and Book button, and send them to your clients. ABCD and the Activity Diary stay free for your own use.</>}</p>
+          ? <>Your profile stays live and growing on CYT all year — and <b>{w.name}</b> and every new worksheet open for you. ABCD, the Activity Diary and the Relapse Prevention pack stay free for your own use.</>
+          : <>Your profile stays live and growing on CYT all year — and you can share worksheets with your name and Book button, and send them to your clients. ABCD, the Activity Diary and the Relapse Prevention pack stay free for your own use.</>}</p>
         <ul>
           <li>Your profile stays live on CYT for the full year — one payment, no monthly renewals</li>
           <li>Send any worksheet to your clients — they fill it in their dashboard</li>
@@ -532,4 +549,17 @@ const CSS = `
 .tk-alert { border: 0; border-radius: 999px; background: #fff1e0; color: #b45309; }
 .tk-freeplan { border: 0; border-radius: 18px; }
 @media (max-width: 767px) { .tk-h h1 { font-size: 24px; } }
+
+/* Relapse Prevention pack (2026-11-19): its own section under the main worksheets, smaller cards */
+.tk-pack { margin: 6px 0 22px; }
+.tk-pack-h { display: flex; align-items: center; gap: 14px; margin: 0 2px 14px; }
+.tk-pack-ic { flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; background: linear-gradient(160deg, #5eead4, #0f766e); box-shadow: 0 8px 16px -9px #0f766e; }
+.tk-pack-h h2 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.02em; color: #1c1c1e; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tk-pack-h h2 em { font-style: normal; font-size: 12px; font-weight: 800; color: #0f766e; background: #e6f4f1; border-radius: 999px; padding: 3px 10px; letter-spacing: 0; }
+.tk-pack-h p { margin: 3px 0 0; font-size: 14px; color: #6e6e73; }
+.tk-lib.rp { margin-bottom: 12px; }
+.tk-lib.rp .tk-w.ready h2 { font-size: 18px; }
+.tk-more { display: block; margin: 0 auto; height: 42px; padding: 0 20px; border-radius: 999px; border: 0; background: #e6f4f1; color: #0f766e; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.tk-more:hover { background: #d5efe9; }
+@media (max-width: 640px) { .tk-pack-h { align-items: flex-start; gap: 12px; } .tk-pack-ic { width: 42px; height: 42px; font-size: 21px; border-radius: 12px; } .tk-pack-h h2 { font-size: 19px; } .tk-pack-h p { font-size: 13.5px; } }
 `;

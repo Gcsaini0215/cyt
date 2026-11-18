@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { RP_TOOLS, RP_LIBRARY } from "./rp-pack";
 
 /* Every Toolkit worksheet in one place: name, why it matters, benefits, who it's for, how long, how it works.
    Shown on the therapist Toolkit, the shared /worksheet/<code> page and at the top of the client's worksheet. */
@@ -70,7 +71,9 @@ export const WORKSHEETS = {
   worry: { key: "worry", name: "Worry Tree", tag: "Anxiety", short: "Sort worries you can act on from the ones to let go, and plan worry time." },
   exposure: { key: "exposure", name: "Exposure Ladder", tag: "Anxiety", short: "Step-by-step fear ladder with distress ratings, from easiest to hardest." },
   coping: { key: "coping", name: "Coping Cards", tag: "Skills", short: "Personal reminder cards for hard moments — made together in session." },
+  ...RP_TOOLS, // Relapse Prevention pack (rp-pack.js)
 };
+export { RP_LIBRARY };
 export const LIBRARY = ["abcd", "activity", "whatif", "record", "worry", "exposure", "coping"].map((k) => WORKSHEETS[k]);
 export const toolOf = (k) => WORKSHEETS[k] || WORKSHEETS.abcd;
 

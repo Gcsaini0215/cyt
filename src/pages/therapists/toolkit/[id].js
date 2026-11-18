@@ -7,6 +7,7 @@ import { AbcdMulti, AbcdLogsView, toLogs } from "../../../components/toolkit/abc
 import { ActivityForm, ActivityView, withActivity } from "../../../components/toolkit/activity";
 import { WhatIfForm, WhatIfView, withWhatIf } from "../../../components/toolkit/whatif";
 import { Tiles, WhyCard, WR_CSS, toolOf } from "../../../components/toolkit/registry";
+import { PackForm, isPack, withPack } from "../../../components/toolkit/rp-pack";
 import { deleteById, fetchById, putData } from "../../../utils/actions";
 import { apiUrl, imagePath } from "../../../utils/url";
 
@@ -46,7 +47,7 @@ function Mine({ id }) {
     fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
       if (!r?.status) return setErr(r?.message || "Couldn't open it");
       const t = r.data.tool;
-      const first = t === "activity" ? withActivity(r.data.data) : t === "whatif" ? withWhatIf(r.data.data) : { logs: toLogs(r.data.data) };
+      const first = isPack(t) ? withPack(r.data.data) : t === "activity" ? withActivity(r.data.data) : t === "whatif" ? withWhatIf(r.data.data) : { logs: toLogs(r.data.data) };
       setTool(t); setData(first); dataRef.current = first; setStep(r.data.step || 0);
     }).catch(() => setErr("Couldn't open it"));
   }, [id]);
@@ -78,7 +79,7 @@ function Mine({ id }) {
         <div><h1>{w.name}</h1><p>Just for you — it saves as you type. {saved && <b className="tw-saved">{saved}</b>}</p></div>
       </header>
       <WhyCard tool={tool} open={false} />
-      {tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} /> : tool === "activity"
+      {isPack(tool) ? <PackForm tool={tool} value={data} onChange={onChange} finish={finish} /> : tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} /> : tool === "activity"
         ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
         : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />}
     </>
@@ -121,7 +122,7 @@ function Review({ id }) {
         <div className="tw-grid">
           <section className="tw-card">
             {e.flag && <div className="tw-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
-            {e.tool === "activity" ? <ActivityView data={e.data} /> : e.tool === "whatif" ? <WhatIfView data={e.data} /> : <AbcdLogsView data={e.data} />}
+            {isPack(e.tool) ? <PackForm tool={e.tool} value={e.data} readOnly /> : e.tool === "activity" ? <ActivityView data={e.data} /> : e.tool === "whatif" ? <WhatIfView data={e.data} /> : <AbcdLogsView data={e.data} />}
           </section>
           <aside className="tw-card tw-fb">
             <h2>Your feedback to {e.client.name.split(" ")[0]}</h2>
