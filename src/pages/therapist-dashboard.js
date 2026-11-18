@@ -554,6 +554,14 @@ const DASH_CSS = `
 .ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens), .ov .ov-next.hero .ov-next-rbtns .ov-btn { background: #e3f4e9; color: #14532d !important; }
 .ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens):hover, .ov .ov-next.hero .ov-next-rbtns .ov-btn:hover { background: #d2ecdb; }
 .ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens) svg { color: #1e8a4f; }
+/* detail values on one line; a very long one ends in an ellipsis instead of breaking mid-word */
+.ov-nd b { display: block; -webkit-line-clamp: unset; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; word-break: normal; }
+.ov-nd.note b { display: -webkit-box; -webkit-line-clamp: 3; overflow: hidden; }
+/* date tile like the iPhone Calendar icon: a coloured top strip with the weekday, a big dark day number */
+.ov .ov-next-cal { width: 64px; height: 70px; justify-content: flex-start; padding: 0; border-radius: 16px; background: #fff; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(60,60,67,.14), 0 10px 20px -10px rgba(15,23,42,.45); }
+.ov .ov-next-cal span { display: block; width: 100%; text-align: center; padding: 5px 0 4px; background: linear-gradient(180deg, #3d8bff, #0a5bd3); color: #fff; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; line-height: 1.1; }
+.ov .ov-next-cal b { flex: 1; display: grid; place-items: center; font-size: 32px; font-weight: 800; letter-spacing: -.04em; color: #1c1c1e; line-height: 1; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 

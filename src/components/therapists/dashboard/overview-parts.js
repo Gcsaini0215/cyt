@@ -240,7 +240,8 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
   const details = [
     ["Age", about || "Not shared", PersonRoundedIcon, "#c58cff", "#8a3fd6"],
     forOther ? ["Session for", forOther, FamilyRestroomRoundedIcon, "#ff8ac2", "#d6338a"] : null,
-    ["Service", [clean(b.service) || "Session", clean(b.format)].filter(Boolean).join(" · "), SpaRoundedIcon, "#ffc65a", "#f07b12"],
+    ["Service", clean(b.service) || "Session", // the mode (in person / video) is the chip above, so not repeated here
+      SpaRoundedIcon, "#ffc65a", "#f07b12"],
     // payment sits in this tile label (no extra tiles, so the card stays short); when it was booked shows in the header
     paid ? [payOk ? "You earn · Paid ✓" : `You earn · ${payName || "payment pending"}`, `${inr(earningOf(b))} of ${inr(paid)}`, CurrencyRupeeRoundedIcon, payOk ? "#4fd38b" : "#ffb36b", payOk ? "#12804a" : "#d9661c"] : null,
   ].filter(Boolean);
