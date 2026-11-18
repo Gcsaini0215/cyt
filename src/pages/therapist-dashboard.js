@@ -562,6 +562,27 @@ const DASH_CSS = `
   box-shadow: 0 0 0 1px rgba(60,60,67,.14), 0 10px 20px -10px rgba(15,23,42,.45); }
 .ov .ov-next-cal span { display: block; width: 100%; text-align: center; padding: 5px 0 4px; background: linear-gradient(180deg, #3d8bff, #0a5bd3); color: #fff; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; line-height: 1.1; }
 .ov .ov-next-cal b { flex: 1; display: grid; place-items: center; font-size: 32px; font-weight: 800; letter-spacing: -.04em; color: #1c1c1e; line-height: 1; margin: 0; }
+/* desktop too: the iPad landscape layout — client on the left, buttons on the right, details folded under "Session details" */
+@media (min-width: 600px) {
+  .ov .ov-next.hero .ov-next-grid { grid-template-columns: minmax(0, 1fr); }
+  .ov-more { display: inline-flex; }
+  .ov .ov-next.hero:not(.more-open) .ov-next-right { display: none !important; }
+  .ov .ov-next.hero.more-open .ov-next-right { display: flex !important; }
+  .ov .ov-next.hero .ov-next-left { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .ov .ov-next.hero .ov-next-left > .ov-next-row { flex: 1 1 320px; }
+  .ov .ov-next.hero .ov-next-left > .ov-next-btns { flex: 0 0 auto; display: flex; }
+  .ov .ov-next.hero .ov-next-left > .ov-more, .ov .ov-next.hero .ov-next-left > .ov-next-assess { flex: 1 1 100%; }
+  .ov .ov-next.hero.more-open .ov-nd-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 600px) and (max-width: 1100px) { .ov .ov-next.hero.more-open .ov-nd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* wide screens, details open: age, service and you-earn share one row (no lone full-width tile) */
+@media (min-width: 1101px) { .ov .ov-next.hero.more-open .ov-nd-grid > .ov-nd:not(.note) { grid-column: auto; } }
+/* phones: the same Calendar date tile, a little smaller */
+@media (max-width: 767px) {
+  .ov .ov-next-cal { display: flex; width: 54px; height: 60px; border-radius: 14px; }
+  .ov .ov-next-cal span { font-size: 10.5px; padding: 4px 0 3px; }
+  .ov .ov-next-cal b { font-size: 27px; }
+}
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
