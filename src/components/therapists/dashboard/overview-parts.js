@@ -303,6 +303,13 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
         </div>
 
         <div className="ov-next-right">
+          {/* phones: call, WhatsApp, mode and invoice live inside "Session details" so the card stays short */}
+          <div className="ov-nd-acts">
+            {phone && <a href={`tel:${phone}`} className="ov-pill call"><i aria-hidden="true"><CallRoundedIcon /></i>Call</a>}
+            {phone && <a href={`https://wa.me/${phone.length === 10 ? "91" + phone : phone}`} target="_blank" rel="noopener noreferrer" className="ov-pill wa"><i aria-hidden="true"><WhatsAppIcon /></i>WhatsApp</a>}
+            <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? <><PlaceRoundedIcon aria-hidden="true" /> In person</> : <><VideocamRoundedIcon aria-hidden="true" /> Video session</>}</span>
+            {b._id && <button type="button" className="ov-inv-btn" onClick={() => setReceipt(true)} title="Open the invoice"><ReceiptLongRoundedIcon aria-hidden="true" />Invoice<span aria-hidden="true">›</span></button>}
+          </div>
           <div className="ov-nd-grid">
             {details.map(([k, v, Icon, c1, c2]) => (
               <div key={k} className="ov-nd">

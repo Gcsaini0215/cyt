@@ -519,6 +519,13 @@ const DASH_CSS = `
   .ov .ov-next.hero .ov-next-left > .ov-more, .ov .ov-next.hero .ov-next-left > .ov-next-assess { flex: 1 1 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .ov-more svg { transition: none; } }
+/* phones: Call / WhatsApp / mode / Invoice move into "Session details" (2026-11-18) */
+.ov-nd-acts { display: none; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; }
+@media (max-width: 767px) {
+  .ov-nd-acts { display: flex; }
+  .ov .ov-next.hero .ov-next-row .ov-next-contact, .ov .ov-next.hero .ov-next-top .ov-mode, .ov .ov-next.hero .ov-next-k .ov-inv-btn { display: none !important; }
+  .ov .ov-next.hero.more-open .ov-next-right { gap: 10px; }
+}
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
