@@ -16,7 +16,7 @@ const RECOVERY = ["Alcohol or drug recovery", "Early recovery", "After a slip"];
 
 const RP_LIST = [
   {
-    key: "rp_quiz", n: 1, kind: "Quiz", name: "Relapse Myths Quiz", tiles: tiles(1, "?", "#7c3aed"),
+    key: "rp_quiz", n: 1, kind: "Quiz", name: "Preventing Relapse Quiz", tiles: tiles(1, "?", "#7c3aed"),
     short: "Ten common beliefs about relapse — true or false? See the fact behind each answer.",
     headline: "Test what you know about relapse",
     why: "Many people in recovery carry beliefs about relapse that quietly make it more likely — that it comes out of nowhere, or that it only happens to people with no willpower. Checking these beliefs against the facts makes relapse feel less mysterious and much more preventable.",
@@ -41,31 +41,41 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_check", n: 2, kind: "Check-in", name: "Relapse Prevention Check-in", tiles: tiles(2, "✓", "#0ea5e9"),
-    short: "Fourteen quick questions on how well your recovery plan protects you — and where to make it stronger.",
+    key: "rp_check", n: 2, kind: "Check-in", name: "How Well Are You Preventing Relapse?", tiles: tiles(2, "✓", "#0ea5e9"),
+    short: "Twenty-four questions on how well your recovery plan protects you — and where to make it stronger.",
     headline: "How strong is your relapse prevention plan?",
     why: "A recovery plan has many parts — goals, triggers, support, your surroundings and how you look at past slips. This check-in shows at a glance which parts are already strong and which need attention next, so you and your therapist know where to start.",
     benefits: ["See your plan's strong and weak spots in a few minutes", "Turn a big goal into a few clear next steps", "Track how your plan improves when you repeat it later"],
-    forWho: RECOVERY, time: "About 5 minutes — repeat it every few weeks",
-    how: [["1", "Read each line", "Fourteen parts of a solid recovery plan."], ["2", "Answer honestly", "Yes, Partly or Not yet."], ["3", "Pick two to work on", "Choose the areas to strengthen first."]],
+    forWho: RECOVERY, time: "20–30 minutes — repeat it every few weeks",
+    how: [["1", "Read each question", "Twenty-four parts of a solid recovery plan."], ["2", "Answer honestly", "A line or two for each."], ["3", "Talk it through", "Go over the gaps with your therapist."]],
     fields: [
-      { t: "rate3", id: "c", items: [
-        "I have clear goals for staying sober, and I know what sobriety will let me do",
-        "I know what sets off my urges — people, places, money, things",
-        "I know who around me — at home, work and among friends — drinks or uses",
-        "I've made alcohol / drugs, and spare cash for them, harder to get to",
-        "I've talked through my high-risk situations with my therapist or group",
-        "I have a plan ready for each high-risk situation I can expect",
-        "I've talked about what I feel I'm losing or missing by stopping",
-        "I notice the excuses my mind makes to drink or use",
-        "I don't expect treatment to be a quick or magic cure",
-        "I avoid 'testing' myself in risky situations",
-        "I see past slips as lessons, not as proof that I'm weak",
-        "I keep track of how I'm feeling from day to day",
-        "I don't assume that no cravings now means no cravings later",
-        "I reach out for help instead of waiting for it to come to me",
-      ] },
-      { t: "text", id: "focus", label: "Which two areas do you want to work on first?", rows: 3 },
+      { t: "text", id: "q1", label: "1. Have you set goals for staying clean and sober? What will staying clean allow you to achieve?", rows: 2 },
+      { t: "text", id: "q2a", label: "2a. Your use: what sets you off — money, people, places, things linked to using?", rows: 2 },
+      { t: "text", id: "q2b", label: "2b. Who in your work, home and social life drinks or uses drugs?", rows: 2 },
+      { t: "text", id: "q2c", label: "2c. How easy is it to get alcohol or drugs around you?", rows: 2 },
+      { t: "text", id: "q2d", label: "2d. How easy is it to get money for alcohol or drugs? Are you expecting a large sum of money soon?", rows: 2 },
+      { t: "text", id: "q3", label: "3. Have you gone through all your high-risk situations with your peers and your therapist?", rows: 2 },
+      { t: "text", id: "q4", label: "4. Do you have a plan for every high-risk situation you can expect?", rows: 2 },
+      { t: "text", id: "q5", label: "5. Have you talked about the feelings of loss or missing out that come with getting sober? Do you feel cheated because you can't drink or use?", rows: 2 },
+      { t: "text", id: "q6", label: "6. Are you aware of how you justify your drinking or drug use to yourself?", rows: 2 },
+      { t: "text", id: "q7", label: "7. Are you aware of the ways you have tried to control your use?", rows: 2 },
+      { t: "text", id: "q8", label: "8. Are you prepared for the highs and lows of recovery?", rows: 2 },
+      { t: "text", id: "q9", label: "9. Have you taken steps to make alcohol and other substances harder to get?", rows: 2 },
+      { t: "text", id: "q10", label: "10. Have you told all the important people in your life about your addiction?", rows: 2 },
+      { t: "text", id: "q11", label: "11. Do you expect treatment to be a 'cure' or a magic solution?", rows: 2 },
+      { t: "text", id: "q12", label: "12. How do you 'test' yourself in recovery?", rows: 2 },
+      { t: "text", id: "q13", label: "13. How will you limit your time with people who drink or use drugs?", rows: 2 },
+      { t: "text", id: "q14", label: "14. Are you aware of the 'chain' of decisions that leads you to using?", rows: 2 },
+      { t: "text", id: "q15", label: "15. Have you looked closely at past relapses? Do you see them as mistakes, failures or moments of weakness?", rows: 2 },
+      { t: "text", id: "q16", label: "16. Which of your personality traits might get in the way of your recovery?", rows: 2 },
+      { t: "text", id: "q17", label: "17. Do you feel you're entitled to drink or use?", rows: 2 },
+      { t: "text", id: "q18", label: "18. How well can you keep track of how you are feeling?", rows: 2 },
+      { t: "text", id: "q19", label: "19. How well do you solve problems? Do you jump at the first solution you see?", rows: 2 },
+      { t: "text", id: "q20", label: "20. Do you assume that if you don't have cravings during treatment, you won't have them after it?", rows: 2 },
+      { t: "text", id: "q21", label: "21. Do you see craving as something with a life of its own, out of your control?", rows: 2 },
+      { t: "text", id: "q22", label: "22. What lifestyle changes have you made? Do you need to change the way you structure your days?", rows: 2 },
+      { t: "text", id: "q23", label: "23. Do you go out and look for help, or wait for it to come to you?", rows: 2 },
+      { t: "text", id: "q24", label: "24. What are your plans for reducing complications and crises in your life?", rows: 2 }
     ],
   },
   {
@@ -76,7 +86,7 @@ const RP_LIST = [
     benefits: ["Understand what to focus on right now", "Feel less frustrated by slow progress", "See what's coming next — and how to prepare"],
     forWho: RECOVERY, time: "About 10 minutes",
     how: [["i", "Read the four stages", "What each stage is about."], ["●", "Find your stage", "Where you are today."], ["→", "Pick a focus", "One task for this month."]],
-    read: { title: "The four stages of recovery", sections: [
+    read: { title: "Stages of Recovery", sections: [
       { h: "1 · Stopping (about the first 6 months)", list: ["The focus is on not drinking or using", "Tasks are clear and practical — changes are easy to see", "Life often feels calmer quite quickly", "Building a new daily routine takes most of your attention"] },
       { h: "2 · Rebuilding life (about 6 to 18 months)", list: ["The focus is on preventing relapse", "Decisions about relationships, home, free time, work and family", "Results take longer, as these changes affect other people too", "Building a strong base for the long term"] },
       { h: "3 · Knowing yourself (after about 18 months)", list: ["Deeper issues — past hurt, mental health, old patterns, conflicts", "Often needs time and regular therapy", "Change is more on the inside, so it's less visible", "Understanding your own life takes most of your attention"] },
@@ -90,7 +100,7 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_review", n: 4, kind: "Worksheet", name: "Looking Back at a Relapse", tiles: tiles(4, "↺", "#2563eb"),
+    key: "rp_review", n: 4, kind: "Worksheet", name: "Relapse Prevention Self-Assessment", tiles: tiles(4, "↺", "#2563eb"),
     short: "Retrace your last relapse — the warning signs, the moment, and what could make the difference next time.",
     headline: "Learn from your last relapse",
     why: "Looking back at a relapse with curiosity, not blame, shows the chain that led to it — the early warning signs, the setting, the feelings. Each link you can name is a place where you can step in next time.",
@@ -107,7 +117,7 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_treatment", n: 5, kind: "Questionnaire", name: "My View of Treatment", tiles: tiles(5, "✎", "#9333ea"),
+    key: "rp_treatment", n: 5, kind: "Questionnaire", name: "Treatment Attitudes Questionnaire", tiles: tiles(5, "✎", "#9333ea"),
     short: "What helped before, what didn't, and how you honestly feel about treatment and support.",
     headline: "Your honest view of treatment",
     why: "How we feel about treatment shapes how much it helps. Writing down what worked before, what didn't, and which beliefs you hold lets you and your therapist build a plan that fits you — instead of repeating what didn't work.",
@@ -121,8 +131,9 @@ const RP_LIST = [
       { t: "text", id: "followed", label: "Which suggestions did you follow?", rows: 2 },
       { t: "text", id: "ignored", label: "Which suggestions did you ignore?", rows: 2 },
       { t: "pick", id: "groups", label: "Have you been to support group meetings (like AA or NA)?", options: ["Yes", "No"] },
-      { t: "text", id: "gyes", label: "If yes — what helped about the meetings, and what didn't?", rows: 3 },
-      { t: "agree", id: "b", label: "Is each of these true for you?", items: [
+      { t: "text", id: "gyes", label: "If yes — what was helpful about the meetings?", rows: 2 },
+      { t: "text", id: "gno", label: "What was not helpful about the meetings?", rows: 2 },
+      { t: "agree", id: "b", label: "Answer each statement True or False:", labels: ["True", "False"], items: [
         "I expect treatment to take real work from me",
         "It annoys me when people say I need treatment",
         "I expect treatment to help me in the long run",
@@ -145,14 +156,14 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_patterns", n: 6, kind: "Worksheet", name: "Recovery Behaviours", tiles: tiles(6, "⇄", "#ea580c"),
+    key: "rp_patterns", n: 6, kind: "Worksheet", name: "Recovery Behaviours Form", tiles: tiles(6, "⇄", "#ea580c"),
     short: "Spot the habits that can quietly get in the way of treatment, and plan three better moves for each.",
     headline: "Turn treatment roadblocks into progress",
     why: "Almost everyone falls into a few habits in treatment that protect them from discomfort — staying quiet, blaming, saying 'yes, but…'. They feel safe but slow recovery down. Naming your own patterns and planning small, positive actions makes therapy and group work far more useful.",
     benefits: ["Recognise your own patterns without judging yourself", "Plan three concrete actions for each", "Get much more out of sessions and groups"],
     forWho: ["In treatment or groups", "Alcohol or drug recovery", "Feeling stuck in therapy"], time: "10–15 minutes",
     how: [["i", "Read the patterns", "Seventeen common ones."], ["1", "Pick three", "The ones you notice in yourself."], ["2", "Plan actions", "Three positive steps for each."]],
-    read: { title: "Patterns that can get in the way of treatment", intro: "Most of us show some of these now and then. Spotting yours is a strength, not a failure.", sections: [
+    read: { title: "Negative Behaviours in Treatment", intro: "Most of us show some of these now and then. Spotting yours is a strength, not a failure.", sections: [
       { list: [
         "The Intimidator — uses anger to keep people at a distance",
         "The Intellectual — knows a lot about addiction but doesn't apply it to themselves",
@@ -189,7 +200,7 @@ const RP_LIST = [
     benefits: ["Learn the seven common high-risk situations", "Name your own top three with real examples", "Have three coping steps ready for each"],
     forWho: RECOVERY, time: "15 minutes",
     how: [["i", "Read the 7 situations", "Where relapse usually happens."], ["1", "Pick your top three", "With a real example of each."], ["2", "Plan to cope", "Three steps for each one."]],
-    read: { title: "Seven high-risk situations for relapse", sections: [
+    read: { title: "High-Risk Situations for Relapse", sections: [
       { h: "Difficult feelings", p: "Wanting to drink or use to change how you feel — fear, anger, sadness, anxiety, tension, boredom, loneliness or guilt." },
       { h: "Physical discomfort", p: "Wanting relief from feeling unwell — shakiness or poor sleep after stopping, or pain, illness, injury, tiredness and headaches." },
       { h: "Wanting to feel even better", p: "Feeling good and wanting more — birthdays, weddings, festivals, holidays. \"Just this once, it's a special day.\"" },
@@ -215,7 +226,7 @@ const RP_LIST = [
     benefits: ["See that these dilemmas are common — you're not alone", "Compare the old way with what you want now", "Leave with a practical new strategy"],
     forWho: RECOVERY, time: "15 minutes",
     how: [["i", "Read common dilemmas", "Twenty-one real situations."], ["1", "Choose one", "The one that fits you best."], ["2", "Six steps", "From old habit to new plan."]],
-    read: { title: "Common recovery dilemmas", sections: [
+    read: { title: "Some Common Recovery Dilemmas", sections: [
       { list: [
         "Someone you used to buy from wants money you owe",
         "Your partner asks why you need so many meetings or sessions",
@@ -258,7 +269,8 @@ const RP_LIST = [
     benefits: ["Learn practical tools that work during a craving", "Name the triggers that set yours off", "Have three positive alternatives ready for each"],
     forWho: ["Strong cravings", "Alcohol or drug recovery", "Early recovery"], time: "15 minutes",
     how: [["i", "Read the craving tools", "What helps in the moment."], ["1", "Your three triggers", "What sets cravings off."], ["2", "Three alternatives", "What you'll do instead."]],
-    read: { title: "Getting through cravings: tools that help", sections: [
+    read: { title: "Managing Cravings: Tricks and Tools", sections: [
+      { p: "Some people, places and situations are best avoided so you don't put yourself at risk. You can't avoid every one, but you can know your personal triggers and stay away from them as much as possible. Early recovery is not the time to 'test' yourself on purpose. If you know a risky situation is coming, make a plan for coping with cravings before you go." },
       { h: "Leave", p: "If a place or situation sets off a craving, leave. A polite excuse is fine — your recovery comes first." },
       { h: "Talk to someone", p: "Call a supportive friend, your sponsor or your therapist. If they don't pick up, call the next person. Keep numbers handy." },
       { h: "Go to a support meeting", p: "An AA / NA meeting or your group — an hour where you're safe and understood." },
@@ -268,6 +280,7 @@ const RP_LIST = [
       { h: "Clear your space", p: "Remove alcohol, drugs and anything that goes with them from your home — they keep cravings alive." },
       { h: "Dreams are normal", p: "Dreams about drinking or using are common and fade with time. Writing and talking about them takes away their power." },
       { h: "In a crisis", p: "Big events like a loss can stir old habits even in solid recovery. Lean on the tools that have worked for you all along." },
+      { h: "Read recovery literature", p: "Books such as the AA Big Book inspire, give practical ideas and can calm anxiety." },
       { h: "Each win weakens the trigger", p: "Facing a trigger without using — with support and a plan — makes it a little weaker every time." },
     ] },
     example: { title: "Example", lines: ["Trigger: My old drinking friends call me to go out.", "1. Tell them I don't drink any more and end the call quickly.", "2. Go to a meeting.", "3. Go to the gym."] },
@@ -279,14 +292,14 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_brain", n: 10, kind: "Guide + reflect", name: "After Withdrawal: Brain Recovery", tiles: tiles(10, "✱", "#db2777"),
+    key: "rp_brain", n: 10, kind: "Guide + reflect", name: "Protracted Withdrawal", tiles: tiles(10, "✱", "#db2777"),
     short: "Why focus, sleep and mood can stay off for months after stopping — and what helps the brain heal.",
     headline: "Your brain is healing — here's what helps",
     why: "After long use, the brain needs time to heal. Feeling foggy, forgetful or on edge for weeks after stopping is common — and it's a sign of healing, not a sign that sobriety isn't working. Knowing this makes the hard weeks easier to get through.",
     benefits: ["Understand what you may notice after the first week", "Know these signs improve with time", "Choose a few things that help your brain recover"],
     forWho: ["First months after stopping", "Alcohol or drug recovery", "Family members"], time: "10 minutes",
     how: [["i", "Read what happens", "Why the brain needs time."], ["✓", "Tick what you notice", "Your own signs."], ["→", "Pick what helps", "Your plan for this week."]],
-    read: { title: "Brain recovery after withdrawal", sections: [
+    read: { title: "Protracted Withdrawal", sections: [
       { h: "What is it?", p: "After long use of alcohol or drugs, the brain takes time to heal. After the first week you may feel better physically, but thinking can stay foggy for weeks or even months. It improves steadily as recovery goes on, and it doesn't affect your overall intelligence. These signs come from the past use — not from being sober. Healing can take a little longer as we get older." },
       { h: "Signs you may notice", list: ["Trouble remembering new things", "Trouble solving problems", "Poor concentration", "Strong emotional reactions — or feeling numb", "Sleep problems and vivid dreams", "Clumsiness, poor balance or dizziness", "Feeling stressed more easily", "Trouble picking up new ideas", "Poor hand–eye coordination"] },
       { h: "What helps", list: ["Talk about how you feel", "Learn about these signs", "Write things down", "Keep your mind active — read, do puzzles", "Notice what stresses you", "Learn relaxation skills", "Eat three balanced meals; go easy on caffeine and sugar", "Exercise 3–4 times a week", "Find meaning — faith, values, purpose", "Balance work and rest", "Build healthy relationships"] },
@@ -298,14 +311,14 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_slip", n: 11, kind: "Guide + plan", name: "If I Slip: My Slip Plan", tiles: tiles(11, "↶", "#f59e0b"),
+    key: "rp_slip", n: 11, kind: "Guide + plan", name: "Abstinence Violation Effect", tiles: tiles(11, "↶", "#f59e0b"),
     short: "Why one slip can turn into a full relapse — and a plan, made in advance, to stop that happening.",
     headline: "Stop a slip from becoming a relapse",
     why: "After a slip, guilt and shame often say \"I've already blown it, so what's the use?\" — and that thought turns one slip into a full relapse. Deciding now, while you're calm, exactly what you'll do and who you'll tell makes it far easier to get straight back on track.",
     benefits: ["Understand the 'what's the use' trap", "See a slip as something to learn from, not a failure", "Have your next steps decided in advance"],
     forWho: RECOVERY, time: "10 minutes",
     how: [["i", "Read about slips", "The 'what's the use' trap."], ["↶", "Make your plan", "What you'll do and who you'll tell."], ["↺", "Learn from the past", "What led to an earlier slip."]],
-    read: { title: "The 'what's the use' trap", sections: [
+    read: { title: "The Abstinence Violation Effect", sections: [
       { p: "After giving in to an urge — to alcohol, drugs, food, anything — most people feel guilty and start putting themselves down. That leads to: \"What's the use? I've already slipped, once more won't matter.\" This thinking is dangerous and needs handling straight away, before a slip becomes a full relapse. (Therapists call it the abstinence violation effect.)" },
       { p: "The trap is stronger when you blame something fixed inside you, like \"I have no willpower\" — that brings shame and the feeling that all is lost. It's weaker when you see a cause you can change, like \"I went to that party without a plan\" — because next time you can do it differently." },
       { h: "How to handle a slip", list: ["Get out of the situation — staying clouds your judgement", "Treat it as a lesson, not a failure — you needed more information, that's all", "Play detective — retrace the decisions and thoughts that led up to it", "Don't keep it secret — secrets feed more slips", "Talk to supportive people — they may see patterns you missed", "Make a plan ahead of time — decide now what you'll do if it happens"] },
@@ -319,14 +332,14 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_decisions", n: 12, kind: "Guide + plan", name: "Small Decisions, Big Risks", tiles: tiles(12, "→", "#65a30d"),
+    key: "rp_decisions", n: 12, kind: "Guide + plan", name: "Seemingly Irrelevant Decisions", tiles: tiles(12, "→", "#65a30d"),
     short: "Everyday choices that seem harmless but lead step by step towards relapse — and the safer choice for each.",
     headline: "Catch the small choices that lead to relapse",
     why: "Many relapses begin with decisions that seem to have nothing to do with drinking or using — the route home, keeping a bottle 'for guests', an empty weekend. Each small step moves you closer to a risky moment. Spotting them early lets you choose the safer path while it's still easy.",
     benefits: ["Learn how ordinary choices can lead to relapse", "Spot the small decisions coming up for you", "Plan the safer option in advance"],
     forWho: RECOVERY, time: "10 minutes",
     how: [["i", "Read how it works", "Seemingly irrelevant decisions."], ["1", "List your decisions", "Small choices coming up."], ["2", "Choose safer", "The lower-risk option for each."]],
-    read: { title: "Seemingly irrelevant decisions", sections: [
+    read: { title: "Seemingly Irrelevant Decisions (SIDs)", sections: [
       { p: "These are everyday choices that seem unimportant but can move you, step by step, towards a situation where you have to decide whether to drink or use. In the moment they don't feel connected to drinking at all — which is why they're hard to spot. Looking back, the chain is usually clear." },
       { h: "Think ahead", list: ["Before a choice, think through the options", "Picture where each option could lead", "Pick the one with the lowest risk — avoiding a risky spot is easier than resisting once you're in it", "If you do choose the riskier option, plan how you'll protect yourself"] },
       { h: "Examples", list: ["Keeping alcohol at home 'for guests'", "Meeting old friends at the usual bar or theka", "Going to a party or wedding where people will be drinking", "Buying snacks from a shop that also sells alcohol", "Taking the road past your old place", "Leaving the weekend unplanned", "Not telling a friend that you've stopped", "Free time after work with nothing planned"] },
@@ -357,14 +370,14 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_thinking", n: 14, kind: "Worksheet", name: "Thinking My Way Out", tiles: tiles(14, "✦", "#0d9488"),
+    key: "rp_thinking", n: 14, kind: "Worksheet", name: "Managing My Relapse Thinking", tiles: tiles(14, "✦", "#0d9488"),
     short: "Ways to think yourself out of using — then two of your risky situations, each with three ways out.",
     headline: "Think your way out of a risky moment",
     why: "In risky moments the mind often focuses only on the 'fun' of using. Deliberately thinking about the real consequences, your progress and the beliefs that trip you up breaks that tunnel vision. Planning your thinking in advance means it's ready when you need it.",
     benefits: ["Learn six ways to think yourself out of using", "Challenge beliefs like 'just one won't hurt'", "Prepare your own ways out for two risky situations"],
     forWho: RECOVERY, time: "15 minutes",
     how: [["i", "Read the six ways", "How to think your way out."], ["1", "Two situations", "Where your thinking puts you at risk."], ["2", "Three ways out", "For each situation."]],
-    read: { title: "Thinking your way out of using", sections: [
+    read: { title: "Think Your Way Out of Using", sections: [
       { h: "Think about what you gain", p: "Better health, family life, steadier work, more money for things that matter, and self-respect." },
       { h: "Remember the bad times honestly", p: "Hangovers, blackouts, fights, shame, money gone, trouble at home or with the police. Picture one specific moment." },
       { h: "Focus on your progress", p: "Don't dwell on what you've 'given up' — if using were still fun, you wouldn't have stopped. Think of what you can do now that you couldn't before." },
@@ -381,58 +394,43 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_balance", n: 15, kind: "Check-in", name: "Balanced Lifestyle Check", tiles: tiles(15, "≡", "#ca8a04"),
-    short: "Rate nine areas of life from out of balance to well balanced, and choose one to improve.",
+    key: "rp_balance", n: 15, kind: "Check-in", name: "Assessing Your Lifestyle", tiles: tiles(15, "≡", "#ca8a04"),
+    short: "Questions across nine areas of life — physical, emotional, family, work, money and more — to see where life is out of balance.",
     headline: "How balanced is your life right now?",
     why: "When life is badly out of balance — too much work, no rest, no friends, money worries — using can start to feel like an escape. A quick look across nine areas shows where life is thin, so you can build it up and lower your risk.",
     benefits: ["See your whole life on one page", "Spot the areas that drain you", "Pick one small step to restore balance"],
     forWho: ["Alcohol or drug recovery", "Stress and burnout", "Rebuilding life"], time: "10 minutes",
-    how: [["1", "Rate nine areas", "From 1 (out of balance) to 5 (well balanced)."], ["2", "Spot the gaps", "The lowest scores."], ["3", "One step", "Where you'll start."]],
+    how: [["1", "Nine areas of life", "A few questions in each."], ["2", "Answer Yes or No", "Notice where balance is missing."], ["3", "One step", "Where you'll start."]],
+    read: { title: "Assessing Your Lifestyle", sections: [{ p: "A balanced lifestyle raises your satisfaction with life and lowers your risk of relapse. When life is badly out of balance and you feel overwhelmed by duties and pressure, drinking or using can start to look like an escape. Some areas will be out of balance for a while — what matters is working towards a balance that suits you. Go through the questions below and notice the areas where moderation is hard for you." }] },
     fields: [
-      { t: "rate", id: "a", label: "How balanced is each area for you right now?", low: "Out of balance", high: "Well balanced", items: [
-        ["Physical health", "Exercise, food, sleep, looking after yourself, regular check-ups"],
-        ["Mind and emotions", "Coping with stress, mood, worry"],
-        ["Learning and interests", "Things that keep your mind curious and busy"],
-        ["Creativity", "Using your talents — art, music, making things"],
-        ["Family", "Time together, feeling supported"],
-        ["Friends and relationships", "People you can rely on, saying what you need"],
-        ["Inner peace", "Love, calm, faith or a sense of meaning"],
-        ["Work or studies", "Not too much, not too little; feeling okay about it"],
-        ["Money", "Handling it responsibly; enough to meet expenses"],
-      ] },
-      { t: "text", id: "step", label: "The area I most want to improve — and one small step I'll take", rows: 3 },
+      { t: "yn", id: "l", label: "Answer each question Yes or No — notice where your life is out of balance", groups: [{"h":"Physical","items":["Do you exercise regularly?","Do you eat a reasonable diet?","Do you take good care of your appearance?","Do you get enough sleep?","Do you get regular medical and dental check-ups?"]},{"h":"Mental / emotional","items":["Do you have ways of coping with stress?","Are you seriously depressed or anxious?","Do you worry too much or feel too much stress?"]},{"h":"Intellectual","items":["Are you able to meet your intellectual needs?","Do you have enough interests to keep your mind curious?"]},{"h":"Creative / artistic","items":["Do you practise your creativity or art regularly?","Do you have talents or abilities you are not fully using?"]},{"h":"Family","items":["Are you generally satisfied with your family relationships?","Do you spend enough time with your family?","Can you rely on your family for help and support?"]},{"h":"Personal relationships","items":["Are you happy with how many relationships you have, and how good they are?","Do you have friends you can depend on for help and support?","Can you express your ideas, needs and feelings to others?","Are there relationships in which you have serious problems?"]},{"h":"Spiritual","items":["Is there enough love in your life?","Do you feel a sense of inner peace?","Do you pay enough attention to your inner, spiritual life?"]},{"h":"Work / school","items":["Do you spend too much time or effort working?","Do you spend too little time or effort working?","Are you generally satisfied with your work or studies?"]},{"h":"Financial","items":["Do you have any serious money problems?","Do you handle your money responsibly?","Do you earn enough to meet your expenses?"]}] },
+      { t: "text", id: "hard", label: "Areas where you find it hard to keep a healthy balance", rows: 3 },
+      { t: "text", id: "step", label: "One small step you'll take to bring more balance", rows: 2 }
     ],
   },
   {
-    key: "rp_leisure", n: 16, kind: "Checklist", name: "New Things to Enjoy", tiles: tiles(16, "♪", "#e11d48"),
-    short: "Tick the activities you'd like to try or get back to — free time that supports your recovery.",
+    key: "rp_leisure", n: 16, kind: "Checklist", name: "Leisure Activity Exercise", tiles: tiles(16, "♪", "#e11d48"),
+    short: "Over 120 activities in seven groups — tick the ones you'd like to take part in or learn more about.",
     headline: "Fill your free time with things you enjoy",
     why: "Stopping alcohol or drugs often leaves empty hours — and boredom is one of the biggest triggers. Choosing enjoyable activities, old and new, gives your time and energy somewhere good to go.",
     benefits: ["Find activities that fit your interests", "Fill the hours that used to go to using", "Meet people who share healthy interests"],
     forWho: ["Boredom or empty evenings", "Alcohol or drug recovery", "Rebuilding life"], time: "5–10 minutes",
     how: [["✓", "Tick what appeals", "Things to try or get back to."], ["+", "Add your own", "Anything we missed."], ["+", "Plan one", "When, where and with whom."]],
     fields: [
-      { t: "checks", id: "act", label: "Tick everything you'd like to do or learn more about", groups: [
-        { h: "Sports and fitness", items: ["Cricket", "Football", "Badminton", "Swimming", "Running", "Cycling", "Gym", "Yoga", "Table tennis", "Volleyball", "Kabaddi", "Martial arts", "Walking", "Dance fitness"] },
-        { h: "Games", items: ["Chess", "Carrom", "Board games", "Card games", "Video games", "Puzzles and crosswords"] },
-        { h: "Outdoors", items: ["Trekking", "Camping", "Bird watching", "Star gazing", "Travel and sightseeing", "Picnics", "Nature walks"] },
-        { h: "With people", items: ["Volunteering", "Clubs and societies", "Faith community", "Singing or music group", "Theatre", "Watching live sports", "Movies", "Chai or coffee with friends", "Dancing"] },
-        { h: "Home and nature", items: ["Gardening", "Indoor plants", "Pets", "Cooking", "Baking"] },
-        { h: "Creative and learning", items: ["Drawing or painting", "Photography", "Playing an instrument", "Writing or journaling", "Crafts", "Knitting or sewing", "Pottery", "Reading", "Learning a language", "Online courses"] },
-      ] },
-      { t: "text", id: "more", label: "Anything else you'd add?", rows: 2 },
+      { t: "checks", id: "act", label: "Tick every activity you'd like to take part in or learn more about", groups: [{"h":"Sports","items":["Waterskiing","Downhill skiing","Cross-country skiing","Hang-gliding","Parachuting","Tobogganing / sledding","Tennis","Soccer (football)","Rugby","American football","Baseball","Softball","Basketball","Field hockey","Street hockey","Ice hockey","Bowling","Paddleball","Squash","Racquetball","Archery","Fishing","Hunting","Sailing","Motor boating","Gymnastics","Golf","Wrestling","Swimming","Jogging / running","Walking","Badminton","Weight lifting","Rollerblading","Roller skating","Ice skating","Volleyball","Water polo","Snorkelling / scuba","Horse riding","Cycling","Skateboarding","Snowboarding"]},{"h":"Games","items":["Pinball","Billiards / pool","Computer / video games","Chess / checkers","Board games","Charades","Table tennis"]},{"h":"Outdoor activities","items":["Climbing / rappelling","Hiking / backpacking","Camping","Canoeing","Kayaking","Outdoor cooking","Bird watching","Animal tracking","Cave exploring","Star gazing","Sightseeing"]},{"h":"Social activities","items":["Dancing (e.g. ballet, tap)","Going to movies","Going to plays","Going to dance performances","Going to parties","Attending lectures","Singing in a group / choir","Playing cards","Clubs (e.g. Rotary)","Informal get-togethers","Member of a place of worship","Going to sporting events","Political group member","Acting / theatre group","Playing in a band"]},{"h":"Nature","items":["Gardening","Plant care / indoor plants","Raising animals","Rock collecting","Shell collecting","Beachcombing","Nature walks"]},{"h":"Crafts / hobbies","items":["Cooking / baking","Pottery / ceramics","Painting / drawing","Photography","Playing / writing music","Writing","Singing","Reading","Going to museums","Model building","Model railways","Sewing / quilting / knitting","Leatherwork","Metalwork","Decoupage","Candle making","Collecting (coins, stamps)","Making recordings","Jewellery making","Sculpting","Welding","Car restoration","Antique restoration","Art / antique collecting","Doll collecting","Film making","Crossword puzzles"]},{"h":"Other activities","items":["Computers / browsing the internet","Meditation / yoga","Watching TV / videos","Listening to music / radio","Volunteering","Travelling","Shopping","Eating out","Flea markets / yard sales","Exercising","Judo / karate"]}] },
+      { t: "text", id: "more", label: "Other activities (write your own)", rows: 2 },
       { t: "text", id: "plan", label: "Pick one to try this week — when, where and with whom?", rows: 2 },
     ],
   },
   {
-    key: "rp_social", n: 17, kind: "Guide + plan", name: "Social Survival Plan", tiles: tiles(17, "◎", "#4f46e5"),
+    key: "rp_social", n: 17, kind: "Guide + plan", name: "Social Survival Manual", tiles: tiles(17, "◎", "#4f46e5"),
     short: "Making sober-friendly friends, stepping back from risky ones, and handling weddings, office drinks and more.",
     headline: "Handle friends, family and social life in recovery",
     why: "Old friends, family functions and office parties are where a lot of pressure to drink or use comes from. Knowing how to make new friends, step back from unhealthy ones and handle tricky invitations protects your recovery without cutting you off from people.",
     benefits: ["Practical tips for weddings, parties and office drinks", "Ways to make new, sober-friendly friends", "A plan for the situation coming up for you"],
     forWho: RECOVERY, time: "15 minutes",
     how: [["i", "Read the guide", "Friendships and tricky situations."], ["1", "Your people", "New friends and risky ones."], ["2", "Your plan", "For a situation coming up."]],
-    read: { title: "Social survival guide", sections: [
+    read: { title: "Social Survival Manual", sections: [
       { h: "Making new friends", list: ["There'll be a pull towards old friends who drink or use. New friends take effort, but they protect your recovery", "Reach out first — risk a 'no'", "Suggest something easy: chai or coffee, a walk, a film, watching a match", "Expect some people to say no — that's a normal part of social life, not a rejection of you"] },
       { h: "Stepping back from unhealthy friendships", p: "Ending a close friendship takes courage. But friends who drink or use heavily are unhealthy for you to be around. You may want to explain why — it might even make them think. Plan what you'll say, meet somewhere safe, and expect it to feel like a loss. Get support if it does." },
       { h: "Check your reasons", list: ["Am I showing off that I'm sober and doing well?", "Do I miss the excitement of the old life?", "Am I trying to prove old friends can't influence me?", "Am I hoping they'll share the blame if I slip?"] },
@@ -450,7 +448,7 @@ const RP_LIST = [
     ],
   },
   {
-    key: "rp_contacts", n: 18, kind: "Worksheet", name: "Safe & Risky Contacts", tiles: tiles(18, "◐", "#0284c7"),
+    key: "rp_contacts", n: 18, kind: "Worksheet", name: "Safe and Dangerous Contacts", tiles: tiles(18, "◐", "#0284c7"),
     short: "Two people who could put your sobriety at risk, the situations to watch for, and how you'll cope.",
     headline: "Know who supports your recovery — and who doesn't",
     why: "Some people in our lives support recovery; others — often without meaning to — pull us back. Naming who is risky, in which situations, and planning how you'll cope makes those meetings much safer. Naming your safe people tells you who to lean on.",
@@ -476,27 +474,28 @@ export const RP_TOOLS = Object.fromEntries(RP_LIBRARY.map((x) => [x.key, x]));
 export const CORE_BELIEFS = {
   key: "beliefs", name: "Core Beliefs: Examining the Evidence", tag: "CBT", kind: "CBT", ready: true,
   tiles: [["●", "#7c3aed"], ["+", "#16a34a"], ["✕", "#dc2626"], ["~", "#f59e0b"]],
-  short: "See how a deep belief about yourself filters what you notice — what you accept, ignore or explain away — and find a fairer belief.",
+  short: "See how a core belief filters what you notice — what you accept, reject or modify — and find a fairer belief.",
   headline: "Question the belief behind the feeling",
   why: "Core beliefs are our deepest ideas about ourselves, other people and the world — like glasses we see everything through. They don't filter evenly: anything that fits the belief slips in easily and makes it stronger, while anything that doesn't fit is ignored or explained away. Laying all the evidence side by side shows the filter at work, and makes room for a fairer, kinder belief.",
   benefits: ["Name a belief that drives a lot of painful feelings", "Notice the evidence you usually ignore or explain away", "Weigh all of it fairly, side by side", "Arrive at a more balanced belief — and see how much it shifts"],
   forWho: ["Low self-worth", "Anxiety in relationships", "Low mood", "Self-criticism"],
   time: "15–20 minutes — come back and add to it over a week",
-  how: [["●", "Name the belief", "A deep idea about yourself, others or the world."], ["+", "What fits", "Things you took as proof of it."], ["✕", "What doesn't fit", "Things you ignored or explained away."], ["=", "A fairer belief", "Weigh it all and re-rate the old belief."]],
+  how: [["●", "Name the belief", "A deep idea about yourself, others or the world."], ["+", "Accepted", "What supports it — and you took in."], ["✕", "Rejected or modified", "What doesn't fit — and you pushed away or changed."], ["=", "A fairer belief", "Weigh it all and re-rate the old belief."]],
   read: { title: "How core beliefs filter what we notice", sections: [
     { p: "Core beliefs are our most central ideas about ourselves, other people and the world — for example 'I'm not good enough', 'People can't be trusted' or 'The world is dangerous'. They work like a lens: every experience is seen through them." },
     { p: "Beliefs can change over time, but not evenly. Information that fits the belief is accepted straight away and makes it stronger. Information that doesn't fit is either ignored — it never really sinks in — or twisted with a '…but' until it fits." },
-    { h: "In this worksheet you'll sort what happens into three columns", list: ["Accepted — things that seemed to prove the belief", "Ignored — things that don't fit, which you brushed aside or forgot", "Explained away — things that don't fit, which you changed with a '…but'"] },
+    { h: "In this worksheet you'll sort what happens into three columns", list: ["Accepted — information that supports the belief, which you took in", "Rejected — information that doesn't fit, which you never took in", "Modified — information that doesn't fit, which you changed with a '…but' before taking it in"] },
   ] },
-  example: { title: "Example", lines: ["Belief: 'No one likes me.'", "Accepted: My friend didn't answer my call. · The shopkeeper was rude. · My manager criticised my report.", "Ignored: Colleagues invited me to a birthday lunch. · Customers enjoy chatting with me. · A friend checked on me when I was ill.", "Explained away: Someone asked me out… but it must have been pity. · My parents and I are close… but parents don't count. · A friend gave me a gift… but only because I gave them one."] },
+  example: { title: "Example", lines: ["Belief: 'No one likes me.'", "Accepted: My friend didn't answer my call. · The shopkeeper was rude. · My manager criticised my report.", "Rejected: Colleagues invited me to a birthday lunch. · Customers enjoy chatting with me. · A friend checked on me when I was ill.", "Modified: Someone asked me out… but it must have been pity. · My parents and I are close… but parents don't count. · A friend gave me a gift… but only because I gave them one."] },
   fields: [
-    { t: "text", id: "belief", label: "The core belief you want to examine", rows: 2, hint: "Often short and absolute — 'I'm a failure', 'I'm unlovable', 'Nobody can be trusted'." },
-    { t: "scale", id: "before", label: "How strongly do you believe it right now?", min: 0, max: 10, low: "Not at all", high: "Completely" },
-    { t: "cols", id: "ev", label: "Sort the evidence — one thing per line", cols: [
-      { id: "acc", title: "Accepted", sub: "Fits the belief — I took it as proof", color: "#16a34a", n: 4 },
-      { id: "rej", title: "Ignored", sub: "Doesn't fit — I brushed it aside", color: "#dc2626", n: 4 },
-      { id: "mod", title: "Explained away", sub: "Doesn't fit — I added a '…but'", color: "#f59e0b", n: 4 },
+    { t: "beliefmap", id: "ev", belief: "belief", hint: "Often short and absolute — 'I'm a failure', 'I'm unlovable', 'Nobody can be trusted'.", sides: [
+      { title: "Information that supports my core belief", cols: [{ id: "acc", title: "Accepted", sub: "Information I took in as proof of the belief", color: "#16a34a", n: 4 }] },
+      { title: "Information that doesn't support my core belief", cols: [
+        { id: "rej", title: "Rejected", sub: "Information I didn't take in at all", color: "#dc2626", n: 4 },
+        { id: "mod", title: "Modified", sub: "Information I changed (\"…but\") before taking it in", color: "#f59e0b", n: 4 },
+      ] },
     ] },
+    { t: "scale", id: "before", label: "Before weighing the evidence — how strongly did you believe it?", min: 0, max: 10, low: "Not at all", high: "Completely" },
     { t: "text", id: "balanced", label: "Looking at all three columns together — what's a fairer, more balanced belief?", rows: 3 },
     { t: "scale", id: "after", label: "Now, how strongly do you believe the original belief?", min: 0, max: 10, low: "Not at all", high: "Completely" },
   ],
@@ -609,7 +608,7 @@ function Agree({ k, f, d, set, ro }) {
           return (
             <li key={q}><span>{q}</span>
               <div className="rpk-chips sm">
-                {[[true, "True for me"], [false, "Not true"]].map(([val, l]) => <button key={l} type="button" className={a === val ? "on" : ""} disabled={ro} aria-pressed={a === val} onClick={() => set(`${k}-${i}`, a === val ? null : val)}>{l}</button>)}
+                {[[true, (f.labels || [])[0] || "True for me"], [false, (f.labels || [])[1] || "Not true"]].map(([val, l]) => <button key={l} type="button" className={a === val ? "on" : ""} disabled={ro} aria-pressed={a === val} onClick={() => set(`${k}-${i}`, a === val ? null : val)}>{l}</button>)}
               </div>
             </li>
           );
@@ -700,7 +699,70 @@ function Cols({ k, f, d, set, ro }) {
   );
 }
 
-const FIELD = { cols: Cols, text: Text, lines: Lines, pick: Pick, scale: Scale, tf: Quiz, agree: Agree, rate3: Rate3, rate: Rate, checks: Checks };
+function YesNo({ k, f, d, set, ro }) {
+  return (
+    <div className="rpk-f">
+      <span className="rpk-l">{f.label}</span>
+      {f.groups.map((g, gi) => (
+        <div key={g.h} className="rpk-cg">
+          <h5>{g.h}</h5>
+          <ul className="rpk-rows">
+            {g.items.map((q, i) => {
+              const key = `${k}-${gi}-${i}`;
+              const a = d[key];
+              return (
+                <li key={q}><span>{q}</span>
+                  <div className="rpk-chips sm">
+                    {[[true, "Yes"], [false, "No"]].map(([val, l]) => <button key={l} type="button" className={a === val ? "on" : ""} disabled={ro} aria-pressed={a === val} onClick={() => set(key, a === val ? null : val)}>{l}</button>)}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BeliefMap({ k, f, d, set, ro }) {
+  const b = typeof d[f.belief] === "string" ? d[f.belief] : "";
+  const col = (c) => (
+    <div key={c.id} className="rpk-col" style={{ "--c": c.color }}>
+      <h5>{c.title}<small>{c.sub}</small></h5>
+      {Array.from({ length: c.n || 4 }, (_, i) => {
+        const key = `${k}-${c.id}-${i}`;
+        return <textarea key={key} rows={2} maxLength={300} disabled={ro} placeholder={i === 0 ? "Write one thing…" : ""} value={typeof d[key] === "string" ? d[key] : ""} onChange={(e) => set(key, e.target.value)} />;
+      })}
+    </div>
+  );
+  return (
+    <div className="rpk-f rpk-map">
+      <label className="rpk-belief">
+        <b>Core belief</b>
+        <textarea rows={2} maxLength={300} disabled={ro} value={b} placeholder="e.g. No one likes me." onChange={(e) => set(f.belief, e.target.value)} />
+        {f.hint && <small>{f.hint}</small>}
+      </label>
+      <svg className="rpk-arrows" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
+        <defs><marker id="rpkA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#475569" /></marker></defs>
+        <line x1="50" y1="58" x2="105" y2="4" stroke="#475569" strokeWidth="1.6" markerEnd="url(#rpkA)" vectorEffect="non-scaling-stroke" />
+        <polyline points="150,4 150,58" fill="none" stroke="#475569" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+        <line x1="150" y1="6" x2="166" y2="22" stroke="#475569" strokeWidth="1.6" markerEnd="url(#rpkA)" vectorEffect="non-scaling-stroke" />
+        <line x1="250" y1="58" x2="195" y2="4" stroke="#475569" strokeWidth="1.6" markerEnd="url(#rpkA)" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <div className="rpk-sides">
+        {f.sides.map((sd) => (
+          <section key={sd.title} className={`rpk-side n${sd.cols.length}`}>
+            <h4>{sd.title}</h4>
+            <div className="rpk-side-cols">{sd.cols.map(col)}</div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const FIELD = { beliefmap: BeliefMap, yn: YesNo, cols: Cols, text: Text, lines: Lines, pick: Pick, scale: Scale, tf: Quiz, agree: Agree, rate3: Rate3, rate: Rate, checks: Checks };
 
 function Fields({ fields, p = "", d, set, ro }) {
   return fields.map((f) => {
@@ -826,6 +888,26 @@ export const RPK_CSS = `
 .rpk-col textarea { resize: none; min-height: 0; }
 .rpk-col h5 small { font-size: 12px; font-weight: 600; color: #6b7280; }
 @media (max-width: 760px) { .rpk-cols { grid-template-columns: minmax(0, 1fr); } }
+.rpk-map { gap: 0; }
+.rpk-belief { display: flex; flex-direction: column; gap: 6px; width: min(560px, 100%); margin: 0 auto; border: 2px solid #1c1c1e; border-radius: 18px; padding: 12px 14px; background: #fff; }
+.rpk-belief b { font-size: 14px; font-weight: 800; color: #1c1c1e; }
+.rpk-belief textarea { border: 0 !important; background: transparent !important; box-shadow: none !important; text-align: center; font-size: 19px !important; font-weight: 600; resize: none; padding: 4px !important; }
+.rpk-belief small { font-size: 12px; color: #6b7280; text-align: center; }
+.rpk-arrows { display: block; width: 100%; height: 56px; }
+.rpk-sides { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 12px; }
+.rpk-side { border: 2px solid #1c1c1e; border-radius: 18px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.rpk-side h4 { margin: 0; padding: 10px 12px; text-align: center; font-size: 14px; font-weight: 800; color: #1c1c1e; border-bottom: 2px solid #1c1c1e; }
+.rpk-side-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); flex: 1; }
+.rpk-side.n2 .rpk-side-cols { --n: 2; }
+.rpk-side .rpk-col { border: 0; border-radius: 0; }
+.rpk-side.n2 .rpk-col + .rpk-col { border-left: 2px solid #1c1c1e; }
+@media (max-width: 760px) {
+  .rpk-arrows { display: none; }
+  .rpk-belief { margin-bottom: 12px; }
+  .rpk-sides { grid-template-columns: minmax(0, 1fr); }
+  .rpk-side.n2 .rpk-side-cols { --n: 1; }
+  .rpk-side.n2 .rpk-col + .rpk-col { border-left: 0; border-top: 2px solid #1c1c1e; }
+}
 .rpk-read { background: #f0faf8; border: 1px solid #cdebe5; border-radius: 20px; overflow: hidden; }
 .rpk-read-h { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; color: #0f2a24; }
 .rpk-read-h > span { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: #d5f0ea; font-size: 19px; }
