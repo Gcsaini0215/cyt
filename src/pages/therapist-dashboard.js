@@ -583,6 +583,20 @@ const DASH_CSS = `
   .ov .ov-next-cal span { font-size: 10.5px; padding: 4px 0 3px; }
   .ov .ov-next-cal b { font-size: 27px; }
 }
+/* header strip in WhatsApp green (owner pick "Tinted header strip", 2026-11-18): the top row sits on the strip, the card stays white */
+.ov .ov-card.ov-next.hero { padding-top: 0; }
+.ov .ov-next.hero .ov-next-top { margin: 0 -20px 4px; padding: 12px 20px; background: linear-gradient(90deg, #1faa52, #159447); border-radius: 0; box-shadow: inset 0 -1px 0 rgba(0,0,0,.08); }
+.ov .ov-next.hero .ov-next-k { color: #fff; text-shadow: 0 1px 1px rgba(0,60,25,.25); }
+.ov .ov-next.hero .ov-next-k > span { background: #fff; color: #128c4b; text-shadow: none; }
+.ov .ov-next.hero .ov-new-tag { background: #fff; color: #b45309; text-shadow: none; }
+.ov .ov-next.hero .ov-inv-btn { border-color: transparent; text-shadow: none; }
+.ov .ov-next.hero .ov-next-top .ov-mode, .ov .ov-next.hero .ov-next-top .ov-next-nav { background: rgba(255,255,255,.22); color: #fff; }
+.ov .ov-next.hero .ov-next-top .ov-mode svg { color: #fff !important; }
+.ov .ov-next.hero .ov-next-top .ov-next-nav button, .ov .ov-next.hero .ov-next-top .ov-next-nav b { color: #fff; }
+.ov .ov-next.hero .ov-next-top .ov-next-nav b i { color: rgba(255,255,255,.75); }
+.ov .ov-next.hero .ov-next-top .ov-next-nav button:hover { background: rgba(255,255,255,.2); }
+.ov .ov-next.hero.live .ov-next-k > span { background: #fff; color: #128c4b; }
+@media (max-width: 767px) { .ov .ov-next.hero .ov-next-top { margin: 0 -16px 4px; padding: 12px 16px; } }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
