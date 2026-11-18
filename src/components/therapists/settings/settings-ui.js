@@ -447,5 +447,9 @@ body:has(.stg-savebar.show:not(.quiet)) .cw-fab { opacity: 0; pointer-events: no
   .stg-sec-head { padding: 16px 16px 0; } .stg-sec-body { padding: 14px 16px 18px; }
   .stg-field input:not([type=file]):not([type=checkbox]):not([type=radio]), .stg-field select, .stg-field textarea { font-size: 16px; }
   .stg-savebar { border-radius: 16px; }
+  /* phones: only the first three "missing" chips, the rest as a count (each is also in the sections below) */
+  .stg-missing button:nth-child(n+4) { display: none; }
+  .stg-missing .stg-missing-more { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; color: #8e8e93; padding: 4px 6px; }
 }
+.stg-missing-more { display: none; }
 `;
