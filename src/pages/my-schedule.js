@@ -87,6 +87,7 @@ export default function MySchedule() {
   const [when, setWhen] = useState("upcoming"); // today | upcoming | past | all
   const [q, setQ] = useState("");
   const [showCancelled, setShowCancelled] = useState(false);
+  const [menu, setMenu] = useState(false); // "More": show cancelled · export CSV
   // Today's free slots + Week
   const day = useMemo(() => startOfDay(new Date()), []);
   const [weekStart, setWeekStart] = useState(() => startOfDay(new Date()));
@@ -213,130 +214,168 @@ export default function MySchedule() {
       <span className="ms-who"><b>{clientName(b)}</b><span>{[b.service, b.format, assignedOf(b) && "Assigned by CYT"].filter(Boolean).join(" · ")}</span></span>
       {money(b) > 0 && <span className="ms-amt">{inr(money(b))}</span>}
       <Chip meta={statusMeta(b.status)} />
+      <i className="feather-chevron-right ms-chev" aria-hidden="true" />
     </button>
   );
 
   return (
     <MainLayout>
       <style dangerouslySetInnerHTML={{ __html: `
-        .ms-page { font-family: inherit; }
-        .ms-title { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; color: #122019; margin: 0; }
-        .ms-title i { color: #1e7a4c; font-size: 22px; }
-        .ms-sub { font-size: 13.5px; color: #64748b; margin: 4px 0 18px; }
-        .ms-groups { display: flex; align-items: flex-end; gap: 22px; border-bottom: 1px solid #e3e8e5; margin-bottom: 14px; overflow-x: auto; }
-        .ms-group { display: inline-flex; align-items: center; gap: 8px; border: none; background: none; padding: 10px 2px; font-size: 14.5px; font-weight: 600; color: #8a978f; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
-        .ms-group.on { color: #1e7a4c; border-bottom-color: #1e7a4c; }
-        .ms-group .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
-        .ms-group-link { margin-left: auto; font-size: 13.5px; font-weight: 600; color: #8a978f; text-decoration: none; padding: 10px 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
-        .ms-group-link:hover { color: #1e7a4c; }
-        .ms-setup-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
-        .ms-sum { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1px solid #e3e8e5; border-radius: 14px; padding: 12px 14px; cursor: pointer; font-family: inherit; min-width: 0; }
-        .ms-sum:hover { border-color: #bbf7d0; }
-        .ms-sum > i { width: 38px; height: 38px; border-radius: 11px; background: #ecfdf3; color: #14532d; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
+        /* My Schedule, Apple look (2026-11-18): large title, iOS segmented tabs, app-icon tiles, grouped lists */
+        .ms-page { font-family: inherit; color: #1c1c1e; max-width: 1240px; margin: 0 auto; }
+        .ms-title { font-size: clamp(26px, 2.6vw, 32px); font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; margin: 0; }
+        .ms-sub { font-size: 14.5px; color: #6e6e73; margin: 4px 0 18px; }
+        /* hours + fees: two iOS rows with app tiles */
+        .ms-setup-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .ms-sum { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 0; border-radius: 18px; padding: 12px 14px; cursor: pointer; font-family: inherit; min-width: 0;
+          box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); transition: transform .15s ease; }
+        .ms-sum:hover { transform: translateY(-1px); }
+        .ms-sum > i { width: 36px; height: 36px; border-radius: 11px; color: #fff; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; background: linear-gradient(160deg, #5ab0ff, #1d63d8); box-shadow: 0 6px 12px -7px #1d63d8; }
+        .ms-sum + .ms-sum > i { background: linear-gradient(160deg, #4fd38b, #12804a); box-shadow: 0 6px 12px -7px #12804a; }
         .ms-sum > span { flex: 1; min-width: 0; }
-        .ms-sum small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #8a978f; }
-        .ms-sum b { display: block; font-size: 14.5px; color: #122019; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ms-sum em { font-style: normal; font-size: 12.5px; font-weight: 800; color: #14532d; flex-shrink: 0; }
-        .ms-sum.todo { background: #fffbeb; border-color: #fde68a; } .ms-sum.todo > i { background: #fef3c7; color: #b45309; } .ms-sum.todo em { color: #b45309; }
-        .ms-tabs { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-        .ms-tab { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid #e3e8e5; background: #fff; font-size: 14px; font-weight: 700; color: #475569; cursor: pointer; white-space: nowrap; font-family: inherit; position: relative; }
-        .ms-tab.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
-        .ms-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
-        .ms-subs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-        .ms-sub-tab { border: 1px solid #e3e8e5; background: #fff; border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 600; color: #334155; cursor: pointer; font-family: inherit; }
-        .ms-sub-tab.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
-        .ms-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .ms-card-s { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 16px; min-height: 88px; }
-        .ms-card-s small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #8a978f; }
-        .ms-card-s b { display: block; font-size: 24px; font-weight: 800; color: #122019; margin-top: 6px; }
-        .ms-card-s span { font-size: 12px; color: #8a978f; }
+        .ms-sum small { display: block; font-size: 12.5px; font-weight: 600; color: #8e8e93; }
+        .ms-sum b { display: block; font-size: 15px; font-weight: 600; color: #1c1c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ms-sum em { font-style: normal; font-size: 12.5px; font-weight: 700; color: #14532d; background: #e3f4e9; border-radius: 999px; padding: 4px 11px; flex-shrink: 0; }
+        .ms-sum.todo > i { background: linear-gradient(160deg, #ffc65a, #f07b12); box-shadow: 0 6px 12px -7px #f07b12; }
+        .ms-sum.todo em { color: #b45309; background: #fff1e0; }
+        /* tabs: iOS segmented control */
+        .ms-tabs { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+        .ms-segtabs { display: inline-flex; flex: 0 1 560px; background: #e5e7e6; border-radius: 12px; padding: 3px; gap: 2px; min-width: 0; }
+        .ms-tab { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 12px; border-radius: 10px; border: 0; background: none;
+          font-size: 14px; font-weight: 600; color: #3c3c43; cursor: pointer; white-space: nowrap; font-family: inherit; position: relative; transition: background .15s ease; }
+        .ms-tab i { font-size: 15px; color: #8e8e93; }
+        .ms-tab.on { background: #fff; color: #1c1c1e; box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.04); }
+        .ms-tab.on i { color: #1e8a4f; }
+        .ms-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #ff9f0a; }
+        .ms-tab:focus-visible { outline: 2px solid #1e8a4f; outline-offset: 2px; }
+        .ms-group-link { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: #e3f4e9; color: #14532d; font-size: 13.5px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+        .ms-group-link:hover { background: #d2ecdb; color: #14532d; }
+        /* numbers: white cards with app tiles */
+        .ms-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .ms-card-s { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ic lab" "num num" "sub sub"; align-items: center; column-gap: 10px; row-gap: 2px;
+          background: #fff; border: 0; border-radius: 18px; padding: 14px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); min-width: 0; }
+        .ms-card-s > i { grid-area: ic; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-size: 15px; }
+        .ms-card-s.c1 > i { background: linear-gradient(160deg, #5ab0ff, #1d63d8); } .ms-card-s.c2 > i { background: linear-gradient(160deg, #ffc65a, #f07b12); }
+        .ms-card-s.c3 > i { background: linear-gradient(160deg, #4fd38b, #12804a); } .ms-card-s.c4 > i { background: linear-gradient(160deg, #c58cff, #8a3fd6); }
+        .ms-card-s small { grid-area: lab; font-size: 13.5px; font-weight: 600; color: #1c1c1e; }
+        .ms-card-s b { grid-area: num; font-size: clamp(22px, 2.2vw, 28px); font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; margin-top: 6px; }
+        .ms-card-s span { grid-area: sub; font-size: 12.5px; color: #8e8e93; }
+        /* toolbar: search, when, and a More menu */
         .ms-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-        .ms-search { flex: 1 1 280px; max-width: 380px; position: relative; }
-        .ms-search i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .ms-search input { width: 100%; height: 42px; border: 1px solid #e3e8e5; border-radius: 10px; padding: 0 12px 0 38px; font-size: 14px; background: #fff; outline: none; box-sizing: border-box; font-family: inherit; }
-        .ms-search input:focus { border-color: #1e7a4c; }
-        .ms-seg { display: inline-flex; background: #eef1ef; border-radius: 10px; padding: 3px; }
-        .ms-seg button { border: none; background: none; padding: 8px 14px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: #8a978f; cursor: pointer; font-family: inherit; }
-        .ms-seg button.on { background: #fff; color: #1e7a4c; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-        .ms-btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #e3e8e5; background: #fff; border-radius: 10px; padding: 0 14px; height: 42px; font-size: 13.5px; font-weight: 600; color: #122019; cursor: pointer; font-family: inherit; }
-        .ms-btn.on { border-color: #1e7a4c; color: #1e7a4c; background: #f0fdf4; }
-        .ms-right { margin-left: auto; display: flex; gap: 8px; }
-        .ms-grp-title { font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #8a978f; margin: 16px 0 8px; }
-        .ms-list { display: flex; flex-direction: column; gap: 8px; }
-        .ms-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #e3e8e5; border-radius: 12px; cursor: pointer; background: #fff; text-align: left; font-family: inherit; width: 100%; }
-        .ms-row:hover { border-color: #bbf7d0; }
-        .ms-time { width: 76px; flex-shrink: 0; font-weight: 700; color: #122019; font-size: 14px; }
+        .ms-search { flex: 1 1 260px; max-width: 380px; position: relative; margin: 0; }
+        .ms-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #8e8e93; }
+        .ms-search input { width: 100%; height: 40px; border: 0 !important; border-radius: 999px; padding: 0 14px 0 38px; font-size: 14px; background: #fff; outline: none; box-sizing: border-box; font-family: inherit; box-shadow: 0 1px 2px rgba(0,0,0,.06) !important; }
+        .ms-search input:focus { box-shadow: 0 0 0 3px rgba(30,138,79,.18) !important; }
+        .ms-seg { display: inline-flex; background: #e5e7e6; border-radius: 10px; padding: 3px; gap: 2px; }
+        .ms-seg button { border: none; background: none; padding: 7px 14px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: #3c3c43; cursor: pointer; font-family: inherit; }
+        .ms-seg button.on { background: #fff; color: #1c1c1e; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+        .ms-btn { display: inline-flex; align-items: center; gap: 7px; border: 0; background: #fff; border-radius: 999px; padding: 0 14px; height: 40px; font-size: 13.5px; font-weight: 600; color: #1c1c1e; cursor: pointer; font-family: inherit; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+        .ms-btn:hover { background: #f6f7f7; }
+        .ms-btn.on { color: #14532d; background: #e3f4e9; }
+        .ms-right { margin-left: auto; position: relative; display: flex; gap: 8px; }
+        .ms-menu-bg { position: fixed; inset: 0; z-index: 40; }
+        .ms-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 41; min-width: 210px; background: rgba(255,255,255,.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+          border-radius: 14px; padding: 6px; box-shadow: 0 18px 44px -12px rgba(15,23,42,.35), 0 0 0 1px rgba(60,60,67,.1); animation: msMenu .14s ease; }
+        @keyframes msMenu { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+        .ms-menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; background: none; border-radius: 10px; font: inherit; font-size: 14px; font-weight: 600; color: #1c1c1e; cursor: pointer; text-align: left; }
+        .ms-menu button + button { box-shadow: inset 0 1px 0 rgba(60,60,67,.1); border-radius: 0 0 10px 10px; }
+        .ms-menu button:hover { background: #f2f4f3; }
+        .ms-menu button:disabled { opacity: .45; cursor: default; }
+        .ms-menu i { color: #1e8a4f; font-size: 16px; }
+        /* day groups: an iOS inset list per day */
+        .ms-grp-title { font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: #1c1c1e; margin: 18px 4px 8px; }
+        .ms-list { display: flex; flex-direction: column; gap: 0; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+        .ms-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 0; cursor: pointer; background: #fff; text-align: left; font-family: inherit; width: 100%; transition: background .12s ease; }
+        .ms-row + .ms-row { box-shadow: inset 0 1px 0 rgba(60,60,67,.1); }
+        .ms-row:hover { background: #f6faf7; }
+        .ms-time { flex-shrink: 0; min-width: 76px; text-align: center; font-weight: 700; color: #14532d; font-size: 13px; background: #e9f5ee; border-radius: 10px; padding: 7px 8px; }
         .ms-who { flex: 1; min-width: 0; }
-        .ms-who b { display: block; font-size: 14px; color: #122019; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ms-who span { font-size: 12.5px; color: #64748b; }
-        .ms-amt { font-size: 13.5px; font-weight: 700; color: #122019; }
+        .ms-who b { display: block; font-size: 15px; font-weight: 600; color: #1c1c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ms-who span { font-size: 12.5px; color: #8e8e93; }
+        .ms-amt { font-size: 14px; font-weight: 700; color: #1c1c1e; }
         .ms-chip { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-        .ms-empty { text-align: center; padding: 50px 10px; color: #8a978f; font-size: 13.5px; }
-        .ms-empty i { display: block; font-size: 30px; color: #94a3b8; margin-bottom: 10px; }
-        .ms-empty b { display: block; color: #122019; font-size: 15px; margin-bottom: 4px; }
+        .ms-chev { color: #c7c7cc; font-size: 17px; flex-shrink: 0; }
+        .ms-empty { text-align: center; padding: 44px 16px; color: #8e8e93; font-size: 13.5px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+        .ms-empty i { display: block; font-size: 30px; color: #c7c7cc; margin-bottom: 10px; }
+        .ms-empty b { display: block; color: #1c1c1e; font-size: 16px; margin-bottom: 4px; }
         .ms-empty button, .ms-empty a { margin-top: 12px; }
+        /* calendar */
         .ms-daybar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-        .ms-nav { display: inline-flex; border: 1px solid #e3e8e5; border-radius: 10px; overflow: hidden; background: #fff; }
-        .ms-nav button { border: none; background: none; padding: 0 12px; height: 40px; font-size: 13.5px; font-weight: 600; color: #122019; cursor: pointer; font-family: inherit; }
-        .ms-nav button + button { border-left: 1px solid #e3e8e5; }
-        .ms-daylabel { font-size: 16px; font-weight: 700; color: #122019; }
-        .ms-counts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-        .ms-count { border: 1px solid #e3e8e5; background: #fff; border-radius: 10px; padding: 8px 12px; font-size: 12.5px; color: #8a978f; }
-        .ms-count b { font-size: 16px; margin-right: 5px; }
+        .ms-nav { display: inline-flex; background: #e5e7e6; border-radius: 10px; padding: 3px; gap: 2px; }
+        .ms-nav button { border: none; background: none; padding: 0 12px; height: 32px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: #1c1c1e; cursor: pointer; font-family: inherit; }
+        .ms-nav button:hover { background: #fff; }
+        .ms-daylabel { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: #1c1c1e; }
         .ms-free { display: flex; flex-wrap: wrap; gap: 6px; }
-        .ms-free span { font-size: 12.5px; font-weight: 700; color: #14532d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 5px 10px; border-radius: 999px; }
-        .ms-box { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 16px; margin-top: 14px; }
-        .ms-box h3 { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #8a978f; margin: 0 0 10px; }
-        .ms-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-left: auto; }
-        .ms-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
-        .ms-grid-wrap { overflow-x: auto; border: 1px solid #e3e8e5; border-radius: 12px; background: #fff; }
+        .ms-free span { font-size: 12.5px; font-weight: 700; color: #14532d; background: #e9f5ee; padding: 6px 11px; border-radius: 999px; }
+        .ms-box { background: #fff; border: 0; border-radius: 18px; padding: 14px 16px; margin-top: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+        .ms-box h3 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; text-transform: none; color: #1c1c1e; margin: 0 0 10px; }
+        .ms-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: #6e6e73; margin-left: auto; }
+        .ms-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 4px; margin-right: 5px; vertical-align: -1px; }
+        .ms-grid-wrap { overflow-x: auto; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
         .ms-grid { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 720px; }
-        .ms-grid th { background: #f7f9f8; font-size: 12.5px; font-weight: 700; color: #122019; padding: 10px 6px; border-bottom: 1px solid #e3e8e5; text-align: center; }
-        .ms-grid th.today { background: #1e7a4c; color: #fff; }
-        .ms-grid td { padding: 3px; border-bottom: 1px solid #f1f5f3; }
-        .ms-grid td.t { font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; padding: 0 10px; width: 80px; }
-        .ms-c { height: 38px; border-radius: 8px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .ms-c.free { background: #f0fdf4; color: #16a34a; border: 1px dashed #86efac; }
-        .ms-c.booked { background: #1e7a4c; color: #fff; cursor: pointer; }
-        .ms-c.past { background: #f8fafc; color: #cbd5e1; }
-        .ms-c.off { background: repeating-linear-gradient(45deg, #fafafa, #fafafa 6px, #f3f4f6 6px, #f3f4f6 12px); }
-        .ms-panel { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 18px; }
-        .ms-panel h3 { font-size: 16px; font-weight: 700; color: #122019; margin: 0 0 4px; }
+        .ms-grid th { background: #fff; font-size: 12.5px; font-weight: 700; color: #6e6e73; padding: 12px 6px; border-bottom: 1px solid rgba(60,60,67,.1); text-align: center; }
+        .ms-grid th.today { background: #fff; color: #1e8a4f; box-shadow: inset 0 -2px 0 #1e8a4f; }
+        .ms-grid td { padding: 3px; border-bottom: 0; }
+        .ms-grid td.t { font-size: 12px; font-weight: 600; color: #8e8e93; white-space: nowrap; padding: 0 10px; width: 80px; }
+        .ms-c { height: 38px; border-radius: 10px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .ms-c.free { background: #eef8f2; color: #1e8a4f; border: 0; }
+        .ms-c.booked { background: linear-gradient(180deg, #2fb36a, #1e8a4f); color: #fff; cursor: pointer; box-shadow: 0 6px 12px -8px rgba(23,118,63,.8); }
+        .ms-c.past { background: #fafafa; color: #d1d1d6; }
+        .ms-c.off { background: #f4f5f5; }
+        /* hours + fees panels */
+        .ms-panel { background: #fff; border: 0; border-radius: 20px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+        .ms-panel h3 { font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: #1c1c1e; margin: 0 0 4px; }
         .ms-panel p.ms-sub { margin: 0 0 14px; }
-        .ms-setup { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; margin-bottom: 14px; }
-        .ms-setup button { background: none; border: none; color: #92400e; font-weight: 800; text-decoration: underline; cursor: pointer; padding: 0; font-family: inherit; font-size: 13.5px; }
-        .ms-detail { position: fixed; inset: 0; z-index: 1300; background: rgba(15,23,20,.4); display: flex; justify-content: flex-end; }
-        .ms-detail-in { background: #fff; width: 100%; max-width: 420px; height: 100%; overflow-y: auto; padding: 22px; box-shadow: -12px 0 40px rgba(15,61,34,.2); animation: msIn .2s ease; }
+        .ms-setup { background: #fff1e0; border: 0; color: #7c3d06; border-radius: 14px; padding: 12px 14px; font-size: 13.5px; margin-bottom: 14px; }
+        .ms-setup button { background: none; border: none; color: #b45309; font-weight: 800; text-decoration: underline; cursor: pointer; padding: 0; font-family: inherit; font-size: 13.5px; }
+        /* session sheet */
+        .ms-detail { position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.32); display: flex; justify-content: flex-end; }
+        .ms-detail-in { background: #f2f4f3; width: 100%; max-width: 420px; height: 100%; overflow-y: auto; padding: 22px 18px; box-shadow: -12px 0 40px rgba(0,0,0,.18); animation: msIn .22s cubic-bezier(.2,.9,.3,1); }
         @keyframes msIn { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
-        .ms-detail h4 { font-size: 20px; font-weight: 800; color: #122019; margin: 0 0 6px; }
-        .ms-kv { display: grid; grid-template-columns: 100px 1fr; gap: 10px 12px; font-size: 14px; margin: 18px 0 22px; }
-        .ms-kv span { color: #8a978f; font-weight: 600; }
+        .ms-detail h4 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; color: #1c1c1e; margin: 0 0 8px; }
+        .ms-kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0; font-size: 14px; margin: 16px 0 18px; background: #fff; border-radius: 16px; overflow: hidden; }
+        .ms-kv > * { padding: 11px 14px; box-shadow: inset 0 -1px 0 rgba(60,60,67,.08); }
+        .ms-kv > span { color: #8e8e93; font-weight: 500; }
+        .ms-kv > b, .ms-kv > a { text-align: right; font-weight: 600; color: #1c1c1e; word-break: break-word; }
         .ms-actions { display: flex; gap: 8px; }
-        .ms-actions a, .ms-actions button { flex: 1; text-align: center; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; font-family: inherit; }
-        .ms-actions a { background: #1e7a4c; color: #fff !important; border: none; }
-        .ms-actions button { background: #fff; border: 1px solid #e3e8e5; color: #334155; }
-        @media (max-width: 640px) {
-          .ms-right { margin-left: 0; width: 100%; }
-          .ms-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
-          .ms-card-s { padding: 12px; min-height: 0; }
-          .ms-card-s b { font-size: 20px; margin-top: 4px; }
+        .ms-actions a, .ms-actions button { flex: 1; text-align: center; padding: 12px; border-radius: 13px; font-weight: 700; font-size: 14.5px; text-decoration: none; cursor: pointer; font-family: inherit; }
+        .ms-actions a { background: linear-gradient(180deg, #2fb36a, #1e8a4f 55%, #17763f); color: #fff !important; border: none; }
+        .ms-actions button { background: #fff; border: 0; color: #1c1c1e; }
+        @media (prefers-reduced-motion: reduce) { .ms-sum, .ms-row, .ms-tab { transition: none; } .ms-menu, .ms-detail-in { animation: none; } }
+        @media (max-width: 1023px) { .ms-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 767px) {
+          .ms-title { display: none; } /* the app bar already says My Schedule */
+          .ms-sub { margin: 0 0 12px; font-size: 13.5px; }
+          .ms-setup-strip { grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
+          .ms-tabs { margin-bottom: 14px; }
+          .ms-segtabs { flex: 1 1 100%; }
+          .ms-tab { flex-direction: column; gap: 2px; height: 50px; padding: 0 2px; font-size: 12px; }
+          .ms-tab .dot { position: absolute; top: 6px; right: 10px; }
           .ms-group-link { display: none; }
-          .ms-setup-strip { grid-template-columns: 1fr; gap: 8px; }
-          .ms-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; overflow: visible; }
-          .ms-tab { flex-direction: column; justify-content: center; padding: 6px 2px; gap: 3px; font-size: 12.5px; height: 56px; border-radius: 14px; }
-          .ms-tab i { font-size: 17px; }
-          .ms-tab .dot { position: absolute; top: 7px; right: 10px; }
-          .ms-sub { margin-bottom: 12px; }
-          .ms-right .ms-btn { flex: 1; justify-content: center; }
-          .ms-counts { margin-left: 0; }
+          /* the four numbers: one short row you can swipe, instead of a tall 2 x 2 block */
+          .ms-cards { display: flex; gap: 8px; margin: 0 -12px 12px; padding: 2px 12px 6px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+          .ms-cards::-webkit-scrollbar { display: none; }
+          .ms-card-s { flex: 0 0 136px; scroll-snap-align: start; padding: 10px 12px; }
+          .ms-card-s > i { width: 26px; height: 26px; font-size: 13px; border-radius: 8px; }
+          .ms-card-s small { font-size: 12.5px; }
+          .ms-card-s b { font-size: 20px; margin-top: 2px; }
+          .ms-card-s span { font-size: 11.5px; }
+          .ms-bar { gap: 8px; }
+          .ms-search { flex: 1 1 100%; max-width: none; }
+          .ms-search input { font-size: 16px; }
+          .ms-seg { flex: 1; } .ms-seg button { flex: 1; padding: 7px 4px; font-size: 13px; }
+          .ms-right { margin-left: 0; }
+          .ms-more span { display: none; } .ms-more { width: 40px; justify-content: center; padding: 0; }
           .ms-amt { display: none; }
+          .ms-time { min-width: 66px; font-size: 12.5px; }
+          .ms-legend { margin-left: 0; }
           .ms-detail { align-items: flex-end; }
-          .ms-detail-in { height: auto; max-height: 85vh; border-radius: 18px 18px 0 0; max-width: none; }
+          .ms-detail-in { height: auto; max-height: 86vh; border-radius: 20px 20px 0 0; max-width: none; }
         }
       ` }} />
 
       <div className="ms-page">
-        <h1 className="ms-title"><i className="feather-calendar" /> My Schedule</h1>
+        <h1 className="ms-title">My Schedule</h1>
         <p className="ms-sub">Your bookings, today&rsquo;s sessions, weekly hours and fees.</p>
 
         <div className="ms-setup-strip">
@@ -352,13 +391,15 @@ export default function MySchedule() {
           </button>
         </div>
 
-        <div className="ms-tabs" role="tablist" aria-label="My Schedule">
+        <div className="ms-tabs">
+          <div className="ms-segtabs" role="tablist" aria-label="My Schedule">
           {TABS.map(([id, label, icon]) => (
             <button key={id} type="button" role="tab" aria-selected={view === id} className={`ms-tab ${view === id ? "on" : ""}`} onClick={() => go(id)}>
               <i className={icon} /> {label}
               {((id === "availability" && !hasHours) || (id === "fees" && !hasFees)) && therapistInfo?.user?.email && <span className="dot" title="Needs setup" />}
             </button>
           ))}
+          </div>
           <Link href="/appointments" className="ms-group-link"><i className="feather-play-circle" /> Start a session</Link>
         </div>
 
@@ -366,10 +407,10 @@ export default function MySchedule() {
         {view === "bookings" && (
           <>
             <div className="ms-cards">
-              <div className="ms-card-s"><small>Today</small><b>{todayCount}</b><span>sessions</span></div>
-              <div className="ms-card-s"><small>Next 7 days</small><b>{next7}</b><span>appointments</span></div>
-              <div className="ms-card-s"><small>Completed</small><b>{doneMonth}</b><span>this month</span></div>
-              <div className="ms-card-s"><small>Last 7 days</small><b>{inr(earned7)}</b><span>earned</span></div>
+              <div className="ms-card-s c1"><i className="feather-sun" aria-hidden="true" /><small>Today</small><b>{todayCount}</b><span>sessions</span></div>
+              <div className="ms-card-s c2"><i className="feather-calendar" aria-hidden="true" /><small>Next 7 days</small><b>{next7}</b><span>appointments</span></div>
+              <div className="ms-card-s c3"><i className="feather-check-circle" aria-hidden="true" /><small>Completed</small><b>{doneMonth}</b><span>this month</span></div>
+              <div className="ms-card-s c4"><i className="feather-trending-up" aria-hidden="true" /><small>Last 7 days</small><b>{inr(earned7)}</b><span>earned</span></div>
             </div>
 
             <div className="ms-bar">
@@ -383,10 +424,22 @@ export default function MySchedule() {
                 ))}
               </div>
               <div className="ms-right">
-                <button type="button" className={`ms-btn ${showCancelled ? "on" : ""}`} onClick={() => setShowCancelled((v) => !v)}>
-                  <i className="feather-x-circle" /> {showCancelled ? "Hide cancelled" : "Show cancelled"}
+                <button type="button" className={`ms-btn ms-more${showCancelled ? " on" : ""}`} aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)} title="More options">
+                  <i className="feather-more-horizontal" /> <span>More</span>
                 </button>
-                <button type="button" className="ms-btn" onClick={exportCsv} disabled={!listed.length}><i className="feather-download" /> Export CSV</button>
+                {menu && (
+                  <>
+                    <div className="ms-menu-bg" onClick={() => setMenu(false)} aria-hidden="true" />
+                    <div className="ms-menu" role="menu">
+                      <button type="button" role="menuitemcheckbox" aria-checked={showCancelled} onClick={() => { setShowCancelled((v) => !v); setMenu(false); }}>
+                        <i className="feather-x-circle" /> {showCancelled ? "Hide cancelled" : "Show cancelled"}
+                      </button>
+                      <button type="button" role="menuitem" disabled={!listed.length} onClick={() => { exportCsv(); setMenu(false); }}>
+                        <i className="feather-download" /> Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
