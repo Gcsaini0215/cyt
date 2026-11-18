@@ -792,4 +792,11 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls .ms-tabs { width: 100%; } .cls .ms-tabs button { flex: 1 1 0; justify-content: center; padding: 0 6px; }
   .cls .cls-main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]), .cls .cls-main select, .cls .cls-main textarea { font-size: 16px; }
 }
+
+/* 2026-11-19: no gap above the top bar on ANY screen. The touch-only fix above missed iPads with a keyboard /
+   trackpad (they count as desktop), and the bar's blur clipped its own white strip. So: no bounce, and a white
+   cover just above the screen at body level (fixed, moves with the bar when iOS shifts it, nothing clips it) */
+html:has(.cls), body:has(.cls) { overscroll-behavior-y: none; }
+html:has(.cls) { background: #fff; }
+body:has(.cls)::before { content: ""; position: fixed; left: 0; right: 0; bottom: 100%; height: 400px; background: #fff; z-index: 1200; pointer-events: none; }
 `;

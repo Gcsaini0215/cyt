@@ -886,4 +886,11 @@ a[href="/therapists/cycle"]::before { content: "FREE"; position: absolute; top: 
   .tn-bar .tn-who { padding: 4px; }
 }
 @media (prefers-reduced-motion: reduce) { .tn-clock i { animation: none; } }
+
+/* 2026-11-19: no gap above the top bar on ANY screen. The touch-only fix above missed iPads with a keyboard /
+   trackpad (they count as desktop), and the bar's blur clipped its own white strip. So: no bounce, and a white
+   cover just above the screen at body level (fixed, moves with the bar when iOS shifts it, nothing clips it) */
+html:has(.ts-area), body:has(.ts-area) { overscroll-behavior-y: none; }
+html:has(.ts-area) { background: #fff; }
+body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bottom: 100%; height: 400px; background: #fff; z-index: 1200; pointer-events: none; }
 `;
