@@ -548,6 +548,12 @@ const DASH_CSS = `
 @media (max-width: 899px) { .ov-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; } .ov-quick-it + .ov-quick-it { box-shadow: none; } .ov-quick-it { box-shadow: inset 0 -1px 0 rgba(60,60,67,.1); border-radius: 0; } }
 @media (max-width: 420px) { .ov-quick-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .ov-quick-it { transition: none; } }
+/* more green on the Next session card (2026-11-18): waiting pill and Reschedule in green tones; blue stays in the time chip and date */
+.ov .ov-next.hero .ov-btn.ov-opens { background: #eef8f2 !important; color: #14532d !important; box-shadow: inset 0 0 0 1.5px rgba(30,138,79,.45) !important; }
+.ov .ov-next.hero .ov-btn.ov-opens svg { color: #1e8a4f !important; } .ov .ov-next.hero .ov-btn.ov-opens b { color: #14532d; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens), .ov .ov-next.hero .ov-next-rbtns .ov-btn { background: #e3f4e9; color: #14532d !important; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens):hover, .ov .ov-next.hero .ov-next-rbtns .ov-btn:hover { background: #d2ecdb; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):not(.ov-opens) svg { color: #1e8a4f; }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
