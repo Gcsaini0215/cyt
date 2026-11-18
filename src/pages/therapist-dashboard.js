@@ -636,6 +636,30 @@ const DASH_CSS = `
 .ov .ov-next.hero .ov-next-top .ov-next-nav button, .ov .ov-next.hero .ov-next-top .ov-next-nav b { color: #1c1c1e; }
 .ov .ov-next.hero .ov-next-top .ov-next-nav b i { color: #8e8e93; }
 .ov .ov-next.hero .ov-next-top .ov-next-nav button:hover { background: #f2f4f3; }
+/* Your numbers: shorter cards (2026-11-19) — less padding, a smaller number, slimmer charts */
+.ov .ov-kpis .ov-kpi { padding: 12px 16px 10px !important; gap: 4px !important; }
+.ov .ov-kpis .ov-kpi-val, .ov .ov-top.no-next .ov-kpi-val { font-size: clamp(22px, 2vw, 26px) !important; margin: 0; }
+.ov .ov-kpi-ic { width: 30px; height: 30px; border-radius: 9px; } .ov .ov-kpi-ic svg { font-size: 17px; }
+.ov .ov-kpi .ov-spark, .ov .ov-top.no-next .ov-spark { height: 30px !important; }
+.ov .ov-kpi .ov-bars, .ov .ov-top.no-next .ov-bars { height: 30px !important; gap: 5px; }
+.ov .ov-kpi .ov-stars, .ov .ov-top.no-next .ov-stars { font-size: 18px !important; margin: 2px 0 !important; gap: 3px; }
+.ov .ov-kpi .ov-axis, .ov .ov-top.no-next .ov-axis { margin-top: 4px; }
+.ov .ov-kpi .ov-mbar em { display: none !important; }
+.ov .ov-kpi-cap, .ov .ov-top.no-next .ov-kpi-cap { display: none !important; }
+.ov .ov-kpi-hint { padding-top: 4px; font-size: 12.5px; }
+@media (max-width: 767px) {
+  .ov .ov-kpis .ov-kpi { padding: 11px 12px 9px !important; }
+  .ov .ov-kpis .ov-kpi-val { font-size: 21px !important; }
+  .ov .ov-kpi .ov-spark, .ov .ov-kpi .ov-bars { height: 26px !important; }
+  .ov .ov-kpi .ov-axis { display: none !important; }
+  .ov .ov-kpi .ov-stars { font-size: 16px !important; }
+}
+/* "Your numbers  [All time | This month]": a slim line that sits in the slider-dots row, so no extra gap under Next session */
+.ov .ov-kpi-head b { font-size: 15px; }
+.ov .ov-kpi-head .ov-seg { padding: 2px; }
+.ov .ov-kpi-head .ov-seg button { height: 26px; padding: 0 10px; font-size: 12px; }
+@media (min-width: 768px) { .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -30px; position: relative; z-index: 1; } }
+@media (max-width: 767px) { .ov .ov-next-dots { padding-top: 6px; } .ov .ov-top:not(.no-next) .ov-kpi-head { margin-top: -6px; } }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
