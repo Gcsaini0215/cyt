@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import Head from "next/head";
@@ -213,17 +214,26 @@ function Sheet({ title, onClose, children, wide }) {
   useEffect(() => {
     const k = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", k);
-    const prev = document.body.style.overflow; document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
+    // freeze the page behind (iOS-safe): the sheet stays in the middle of the screen
+    const b = document.body, h = document.documentElement, y = window.scrollY;
+    const prev = { pos: b.style.position, top: b.style.top, w: b.style.width, ov: b.style.overflow, hov: h.style.overflow };
+    b.style.position = "fixed"; b.style.top = `-${y}px`; b.style.width = "100%"; b.style.overflow = "hidden"; h.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", k);
+      b.style.position = prev.pos; b.style.top = prev.top; b.style.width = prev.w; b.style.overflow = prev.ov; h.style.overflow = prev.hov;
+      window.scrollTo(0, y);
+    };
   }, [onClose]);
-  return (
+  if (typeof document === "undefined") return null;
+  // rendered into <body>: a parent with transform (the portal's zoom-open) would pull a fixed box off-centre
+  return createPortal((
     <div className="tk-scrim" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`tk-sheet${wide ? " wide" : ""}`}>
         <div className="tk-sheet-h"><h3>{title}</h3><button type="button" onClick={onClose} aria-label="Close">✕</button></div>
         <div className="tk-sheet-b">{children}</div>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 function CopyBtn({ url }) {
@@ -471,8 +481,8 @@ const CSS = `
 .tk-nums { display: flex; gap: 8px; font-size: 12px; color: #475569; }
 .tk-nums i { font-style: normal; white-space: nowrap; }
 .tk-mini { height: 30px; padding: 0 10px; border-radius: 9px; border: 1px solid #cfe1d5; background: #fff; color: #14532d; font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; flex: none; }
-.tk-scrim { position: fixed; inset: 0; z-index: 3000; background: rgba(11,23,18,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.tk-sheet { width: 100%; max-width: 560px; max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: #f7faf8; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
+.tk-scrim { position: fixed; inset: 0; z-index: 100000; overscroll-behavior: contain; background: rgba(11,23,18,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.tk-sheet { width: 100%; overscroll-behavior: contain; max-width: 560px; max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: #f7faf8; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
 .tk-sheet.wide { max-width: 900px; }
 .tk-sheet-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; background: #fff; border-bottom: 1px solid #e3e9e5; }
 .tk-sheet-h h3 { margin: 0; font-size: 17px; font-weight: 800; }
