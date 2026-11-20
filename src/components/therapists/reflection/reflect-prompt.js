@@ -5,8 +5,8 @@ import SelfImprovementRoundedIcon from "@mui/icons-material/SelfImprovementRound
 /* "Take a moment to reflect" popup after a session is completed (2026-11-20, owner).
    - Dashboard: pass `bookings` — the latest session completed in the last 48 h that hasn't been asked about.
    - Appointments: End session / Mark completed fires window "cyt:session-done" { id, name, date } → asks at once.
-   Each session is asked about once (localStorage cyt_refl_seen). The therapist can switch these reminders
-   off (cyt_refl_off = "1") here or on the journal page. Waits until other popups (welcome, what's new,
+   Each session is asked about once (localStorage cyt_refl_seen). Closing the popup switches the reminders
+   off for good (cyt_refl_off = "1", 2026-11-21 owner); the journal page has the switch to turn them back on. Waits until other popups (welcome, what's new,
    install app) are closed. The journal label never carries the client's name — only the session time. */
 
 const SEEN = "cyt_refl_seen";
@@ -61,8 +61,8 @@ export default function ReflectPrompt({ bookings = null }) {
   }, [s]);
 
   if (!s || blocked) return null;
-  const close = () => { markSeen(s.id); setS(null); };
-  const off = () => { setReflectReminders(false); close(); };
+  // closed (×, Not now, tap outside) = never pop up again on this device (owner, 2026-11-21) — back on from the journal page
+  const close = () => { markSeen(s.id); setReflectReminders(false); setS(null); };
   const first = String(s.name || "").trim().split(/\s+/)[0];
   const href = `/therapists/reflection?new=1&label=${encodeURIComponent(sessionLabel(s.date))}`;
 
@@ -78,7 +78,7 @@ export default function ReflectPrompt({ bookings = null }) {
         <span className="rp-lock">🔒 Private to you · no client names</span>
         <Link href={href} className="rp-go" onClick={() => markSeen(s.id)}>Reflect now</Link>
         <button type="button" className="rp-later" onClick={close}>Not now</button>
-        <button type="button" className="rp-off" onClick={off}>Don&apos;t remind me after sessions</button>
+        <span className="rp-off">Closing turns these reminders off — switch them back on any time in your Reflection journal.</span>
       </div>
     </div>
   );
@@ -98,7 +98,7 @@ const RP_CSS = `
 .rp-go { display: block; height: 50px; line-height: 50px; border-radius: 15px; background: #14532d; color: #fff !important; font-size: 16px; font-weight: 800; text-decoration: none; box-shadow: 0 12px 22px -14px rgba(20,83,45,.9); }
 .rp-go:hover { background: #0f3f23; }
 .rp-later { display: block; width: 100%; margin-top: 8px; height: 42px; border: 0; background: none; color: #334155; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
-.rp-off { border: 0; background: none; padding: 4px; color: #94a3b8; font: inherit; font-size: 12.5px; text-decoration: underline; cursor: pointer; }
+.rp-off { display: block; margin-top: 4px; color: #94a3b8; font-size: 12px; line-height: 1.45; }
 @keyframes rpIn { from { opacity: 0; } }
 @keyframes rpUp { from { opacity: 0; transform: translateY(16px) scale(.97); } }
 @media (prefers-reduced-motion: reduce) { .rp-wrap, .rp { animation: none; } }
