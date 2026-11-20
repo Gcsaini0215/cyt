@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 /* CYT wallet card — "Gold Debit" (owner's pick, 2026-11-20): brushed gold like a premium bank card, CYT green
-   type, chip + contactless, a 16-digit number made from the account id, holder name, valid thru / member since
+   type, contactless (no chip — owner, 2026-11-20), a 16-digit number made from the account id, holder name, valid thru / member since
    and CYT's own leaf mark (never a card network's logo). The therapist card ("CYT Pro") is a member card that
    can be printed one day: name, profession, verified, member number, member since — nothing that changes day to
    day — and a back with a magnetic stripe and a QR to their profile (Flip). Purely visual, not a payment card. */
@@ -14,12 +14,6 @@ export const cardNo = (id) => {
   return d.slice(-16).replace(/(\d{4})(?=\d)/g, "$1 ");
 };
 
-const Leaf = () => (
-  <svg viewBox="0 0 64 64" aria-hidden="true">
-    <circle cx="32" cy="32" r="31" fill="currentColor" opacity=".14" />
-    <path d="M32 52V26M32 36c-7-1-12-6-13-13 7 0 12 5 13 13Zm0-6c6-1 10-5 11-11-6 0-10 4-11 11Zm0 12c-5 0-9-3-10-8 5 0 9 3 10 8Z" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 /* label: "CYT Wallet" / "CYT Pro" · kind + kindSub: top-right ("Wallet" / "Prepaid sessions")
    number · name · sub (profession) · thruLabel + thru · balance (client) · back: { qr, link, memberId } */
@@ -28,11 +22,10 @@ export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "",
   const front = (
     <div className="gd-face gd-front">
       <div className="gd-top">
-        <span className="gd-brand"><Leaf /><span><b>{label}</b><small>Choose Your Therapist</small></span></span>
+        <span className="gd-brand"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="28" height="28" /><span><b>{label}</b><small>Choose Your Therapist</small></span></span>
         {kind && <span className="gd-kind">{kind}{kindSub && <small>{kindSub}</small>}</span>}
       </div>
       <div className="gd-mid">
-        <span className="gd-chip" aria-hidden="true" />
         <svg className="gd-nfc" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.8a13 13 0 0 1 0 18.4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
         {balance && <span className="gd-bal"><small>Balance</small><b>{balance}</b></span>}
       </div>
@@ -43,7 +36,7 @@ export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "",
           {sub && <em>{sub}</em>}
           {thru && <span className="gd-thru"><small>{thruLabel}</small>{thru}</span>}
         </span>
-        <span className="gd-net" aria-hidden="true"><Leaf /><b>CYT</b></span>
+        <span className="gd-net" aria-hidden="true"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="24" height="24" /><b>CYT</b></span>
       </div>
     </div>
   );
@@ -93,7 +86,8 @@ const GD_CSS = `
 .gd-top, .gd-mid, .gd-no, .gd-row, .gd-bk, .gd-mag, .gd-fine { position: relative; z-index: 1; }
 .gd-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .gd-brand { display: inline-flex; align-items: center; gap: 8px; color: #14532d; }
-.gd-brand svg { width: 26px; height: 26px; flex: none; }
+.gd-logo { flex: none; border-radius: 50%; background: #fff; padding: 2px; box-sizing: border-box; box-shadow: 0 1px 3px rgba(80,55,0,.35); }
+.gd-brand .gd-logo { width: 28px; height: 28px; }
 .gd-brand span { display: flex; flex-direction: column; line-height: 1.1; }
 .gd-brand b { font-size: 12.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
 .gd-brand small { font-size: 9.5px; font-weight: 700; letter-spacing: .05em; opacity: .8; }
@@ -117,12 +111,14 @@ const GD_CSS = `
 .gd-thru { display: inline-flex; align-items: center; gap: 6px; font-family: ui-monospace, "Courier New", monospace; font-size: 12px; font-weight: 700; margin-top: 3px; }
 .gd-thru small { font-family: inherit; width: 36px; font-size: 7.5px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; line-height: 1.05; opacity: .7; }
 .gd-net { display: inline-flex; align-items: center; gap: 4px; color: #14532d; flex: none; }
-.gd-net svg { width: 24px; height: 24px; }
+.gd-net .gd-logo { width: 24px; height: 24px; }
 .gd-net b { font-size: 15px; font-weight: 800; font-style: italic; letter-spacing: .06em; }
 /* flip (therapist) */
 .gd-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3,.7,.2,1); }
 .gd-flip.on .gd-inner { transform: rotateY(180deg); }
-.gd-flip .gd-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.gd-flip .gd-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; transition: visibility 0s linear .32s; }
+.gd-flip.on .gd-front, .gd-flip:not(.on) .gd-back { visibility: hidden; }
+.gd-flip .gd-face::after { display: none; } /* the sheen layer ignored backface-visibility */
 .gd-back { transform: rotateY(180deg); display: flex !important; flex-direction: column; justify-content: space-between; padding: 0 0 12px !important; }
 .gd-mag { height: 34px; margin-top: 16px; background: linear-gradient(180deg, #1a1a1a, #2d2d2d 50%, #111); }
 .gd-bk { flex: 1; display: flex; align-items: center; gap: 14px; padding: 10px 18px 0; min-width: 0; }
