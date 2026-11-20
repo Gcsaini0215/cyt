@@ -49,6 +49,7 @@ import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUnch
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import { usePager, Pager } from "../components/therapists/pager";
 import { earningOf } from "../utils/earning";
+import InstallAppPopup from "../components/global/install-app-popup";
 
 /* ══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — one green system, tweak here to restyle everything
@@ -1313,6 +1314,7 @@ function DashHeader({
 function WelcomeOverlay({ name, leaving, onDismiss }) {
   return (
     <Box
+      className="tw-welcome"
       sx={{
         position: "fixed",
         inset: 0,
@@ -1728,6 +1730,7 @@ export default function TherapistDashboard() {
 
   return (
     <MainLayout>
+      <InstallAppPopup who="therapist" />
       {showWelcome && <WelcomeOverlay name={firstName} leaving={welcLeaving} onDismiss={dismissWelcome} />}
 
       <Box sx={{ pb: 6 }}>

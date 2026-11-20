@@ -40,7 +40,7 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
-import InstallAppBar from "./install-app-bar";
+// the install bar became a pop-up on My Space (components/global/install-app-popup.js)
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
    phones. Sends logged-out visitors to /login and brings them back afterwards. */
@@ -353,7 +353,7 @@ export default function ClientShell({ title, children }) {
         </div>
       </nav>
 
-      <main className={`cls-main${zoom ? " cls-zoom" : ""}`} style={zoom ? { "--ox": `${zoom.ox}px`, "--oy": `${zoom.oy}px` } : undefined}>{ready ? <><InstallAppBar />{children}</> : null}</main>
+      <main className={`cls-main${zoom ? " cls-zoom" : ""}`} style={zoom ? { "--ox": `${zoom.ox}px`, "--oy": `${zoom.oy}px` } : undefined}>{ready ? children : null}</main>
 
       <nav className={`cls-mob${barHidden && !more ? " away" : ""}`} aria-label="Quick menu" style={{ "--n": mobNav.length + 1, "--i": mobOn }} onFocus={() => setBarHidden(false)}>
         {mobOn >= 0 && <span className="cls-mob-line" aria-hidden="true" />}

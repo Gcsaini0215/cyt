@@ -6,6 +6,7 @@ import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { WalletStrip } from "../components/client/wallet";
 import DashReminders from "../components/client/dash-reminders";
+import InstallAppPopup from "../components/global/install-app-popup";
 import { DashKpis, ActivityChart, ScreeningSection, KPI_CSS } from "../components/client/dash-kpis";
 import CycleCard, { CYC_CSS } from "../components/client/cycle-card";
 import WorksheetCard from "../components/client/worksheet-card";
@@ -210,6 +211,7 @@ export default function ClientHome() {
             {bookings !== null && <ActivityChart bookings={bookings} now={now} />}
 
             <DashReminders />
+            <InstallAppPopup who="client" />
             <WalletStrip />
             {packs.length > 0 && (
               <section className="ch-sec tight">
