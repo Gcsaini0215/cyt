@@ -75,7 +75,7 @@ export default function ReflectionJournal() {
   const whoseTotal = p ? Object.values(p.whose || {}).reduce((s, n) => s + n, 0) : 0;
 
   return (
-    <div className="rj">
+    <div className="rj" data-sm-skip="">
       <style>{RJ_CSS}</style>
       <header className="rj-hero">
         <span className="rj-ic" aria-hidden="true"><SelfImprovementRoundedIcon /></span>
@@ -209,6 +209,7 @@ const RJC_CSS = `
   background: linear-gradient(135deg, #f2f4ff, #f5f1ff); border: 1px solid #dfe3f5; box-shadow: 0 10px 24px -20px rgba(15,23,42,.35); }
 .rjc:hover { border-color: #b9c2ec; }
 .rjc-ic { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg, #8f9cff, #5146d6); box-shadow: 0 10px 18px -10px #5146d6; }
+.rjc-ic svg { font-size: 26px !important; width: 26px; height: 26px; }
 .rjc-t { min-width: 0; }
 .rjc-t b { display: block; font-size: 16.5px; font-weight: 800; }
 .rjc-t span { display: block; font-size: 13.5px; color: #475569; line-height: 1.45; margin-top: 2px; }
@@ -220,6 +221,7 @@ const RJ_CSS = `
 .rj { max-width: 860px; margin: 0 auto; padding: 4px 0 40px; color: #10241a; }
 .rj-hero { display: flex; gap: 16px; align-items: flex-start; padding: 22px; border-radius: 22px; background: radial-gradient(90% 120% at 100% 0%, rgba(143,156,255,.22), transparent 60%), linear-gradient(135deg, #f6f7ff, #f3f8f4); border: 1px solid #e0e4f3; }
 .rj-ic { flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg, #8f9cff, #5146d6); box-shadow: 0 10px 18px -10px #5146d6; }
+.rj-ic svg { font-size: 28px !important; width: 28px; height: 28px; }
 .rj-hero h1 { margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
 .rj-hero p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.6; color: #475569; }
 .rj-lock { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #fff; border: 1px solid #e3e6f2; font-size: 12.5px; font-weight: 700; color: #3730a3; }
