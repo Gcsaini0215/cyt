@@ -132,9 +132,11 @@ const GD_CSS = `
 .gd-net .gd-logo { width: 24px; height: 24px; }
 .gd-net b { font-size: 15px; font-weight: 800; font-style: italic; letter-spacing: .06em; }
 /* flip (therapist) */
-.gd-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3,.7,.2,1); }
+/* symmetric easing: the card is edge-on at exactly half the time (.35s) — that's when the faces swap, so there's
+   never a moment with neither face showing (the old fast-start curve passed 90° at ~.1s → a blank white card) */
+.gd-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.45,0,.55,1); }
 .gd-flip.on .gd-inner { transform: rotateY(180deg); }
-.gd-flip .gd-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; transition: visibility 0s linear .32s; }
+.gd-flip .gd-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; transition: visibility 0s linear .35s; }
 .gd-flip.on .gd-front, .gd-flip:not(.on) .gd-back { visibility: hidden; }
 .gd-flip .gd-face::after { display: none; } /* the sheen layer ignored backface-visibility */
 .gd-back { transform: rotateY(180deg); display: flex !important; flex-direction: column; justify-content: space-between; padding: 0 0 12px !important; }
