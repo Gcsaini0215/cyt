@@ -51,6 +51,7 @@ import { usePager, Pager } from "../components/therapists/pager";
 import { earningOf } from "../utils/earning";
 import InstallAppPopup from "../components/global/install-app-popup";
 import SupervisionCard from "../components/therapists/dashboard/supervision-card";
+import { ReflectionCard } from "../components/therapists/reflection/reflection-journal";
 
 /* ══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — one green system, tweak here to restyle everything
@@ -1831,6 +1832,7 @@ export default function TherapistDashboard() {
           </div>
 
           <SupervisionCard />
+          <ReflectionCard />
 
           {/* ── insights: how the profile and the practice are doing ── */}
           <h2 className="ov-sec-h">Insights</h2>

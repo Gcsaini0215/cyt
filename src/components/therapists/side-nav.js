@@ -1,4 +1,5 @@
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import SelfImprovementRoundedIcon from "@mui/icons-material/SelfImprovementRounded";
 import HandymanRoundedIcon from "@mui/icons-material/HandymanRounded";
 import React from "react";
 import Link from "next/link";
@@ -88,6 +89,8 @@ const ALL_GROUPS = [
     items: [
       // private period + mood tracker for the therapist themself (pages/therapists/cycle.js)
       { to: "/therapists/cycle", Icon: SpaRoundedIcon, label: "Cycle & Mood" },
+      // private countertransference journal for the therapist themself (pages/therapists/reflection.js)
+      { to: "/therapists/reflection", Icon: SelfImprovementRoundedIcon, label: "Reflection journal" },
       { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings", badgeKey: "settings", match: ["/settings", "/therapists/change-password"] },
       { to: "/therapists/help", Icon: SupportAgentRoundedIcon, label: "Help & support" },
     ],
@@ -139,6 +142,7 @@ export const TILES = {
   "/therapist-questionnaires": G("#4fc3d6", "#0e7490", "rgba(14,116,144,.55)"),
   "/coupons": G("#ff8ac2", "#d6338a", "rgba(214,51,138,.55)"),
   "/therapists/cycle": G("#ff9ec7", "#d63f86", "rgba(214,63,134,.55)"),
+  "/therapists/reflection": G("#8f9cff", "#5146d6", "rgba(81,70,214,.55)"),
   "/settings": G("#b98cff", "#6a3fd6", "rgba(106,63,214,.55)"),
   "/therapists/help": G("#8e9aa6", "#4b5662", "rgba(75,86,98,.55)"),
 };
