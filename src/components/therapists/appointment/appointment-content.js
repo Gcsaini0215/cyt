@@ -23,6 +23,7 @@ import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded
 import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
 import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
 import { postData, fetchData } from "../../../utils/actions";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { startSessionNowUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
 import { joinSession } from "../../../utils/join-session";
 import RescheduleDialog from "../reschedule-dialog";
@@ -48,6 +49,9 @@ const ST = {
   [SESSION_STATUS.CANCELED]: { key: "cancel", label: "Cancelled" },
 };
 const stOf = (s) => ST[s] || ST[SESSION_STATUS.NEW];
+// a session still "New" an hour after its time isn't upcoming any more: it's waiting to be marked completed
+const DUE = { key: "due", label: "To complete" };
+const stFor = (a, now) => { const d = a?.booking_date ? new Date(a.booking_date).getTime() : 0; return a?.status === SESSION_STATUS.NEW && d && d < (now instanceof Date ? now.getTime() : Date.now()) - 60 * 60000 ? DUE : stOf(a?.status); };
 
 const safeDate = (d) => { const x = d ? new Date(d) : null; return x && !isNaN(x) ? x : null; };
 const istKey = (d) => d.toLocaleDateString("en-CA", { timeZone: TZ });
@@ -287,8 +291,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
       if (/connect your google/i.test(e.message)) setTimeout(() => { if (window.confirm("Open Settings to connect Google now?")) window.location.href = "/settings?tab=account"; }, 300);
     }
   };
-  const endSession = async (a) => {
-    if (!window.confirm(`End the session with ${personOf(a).name}?`)) return;
+  const endSession = async (a, mark = false) => {
+    if (!window.confirm(mark ? `Mark the session with ${personOf(a).name} as completed? Do this only if the session took place.` : `End the session with ${personOf(a).name}?`)) return;
     setEndingId(a._id);
     try {
       const r = await postData(EndSessionUrl, { bookingId: a._id });
@@ -324,7 +328,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
       const at = new Date(a.booking_date).getTime();
       const t = now instanceof Date ? now.getTime() : Date.now();
       if (t < at - 60 * 60 * 1000) return <button type="button" className={`apx-btn soft${big ? " big" : ""}`} disabled title="You can start from 1 hour before"><PlayArrowRoundedIcon /> Start at {opensAtText(new Date(at - 60 * 60 * 1000))}</button>;
-      if (t > at + 12 * 60 * 60 * 1000) return <span className="apx-missed">Session time over</span>;
+      if (t > at + 12 * 60 * 60 * 1000) return <button type="button" className={`apx-btn done${big ? " big" : ""}`} disabled={endingId === a._id} onClick={(e) => { e.stopPropagation(); endSession(a, true); }}><CheckCircleRoundedIcon /> {endingId === a._id ? "Saving…" : "Mark completed"}</button>;
       return <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); setIpStart(a); }}><PlayArrowRoundedIcon /> Start<span className="apx-lg"> session</span></button>;
     }
     const hasMeet = !!a.meet_link || isOnline(a.format);
@@ -333,7 +337,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
       return <button type="button" className={`apx-btn soft${big ? " big" : ""}`} disabled title={`Opens 15 minutes before the session`}>{hasMeet ? <VideocamRoundedIcon /> : <PlayArrowRoundedIcon />} {hasMeet ? "Join" : "Start"} at {opensAtText(w.opens)}</button>;
     }
     if (a.status === SESSION_STATUS.NEW && w.after) {
-      return <span className="apx-missed">Session time over</span>;
+      return <button type="button" className={`apx-btn done${big ? " big" : ""}`} disabled={endingId === a._id} onClick={(e) => { e.stopPropagation(); endSession(a, true); }}><CheckCircleRoundedIcon /> {endingId === a._id ? "Saving…" : "Mark completed"}</button>;
     }
     if (a.status === SESSION_STATUS.NEW) {
       return hasMeet
@@ -422,7 +426,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
             <thead><tr><th>When</th><th>Client</th><th>Age / gender</th><th>Service</th><th>Concern</th><th>Status</th><th /></tr></thead>
             <tbody>
               {pg.items.map(({ a, d, p }) => {
-                const st = stOf(a.status);
+                const st = stFor(a, now);
                 return (
                   <tr key={a._id} onClick={() => open(a)}>
                     <td className="when">{d ? <><b>{fmtTime(d)}</b><span>{fmtDay(d)}</span></> : "—"}</td>
@@ -444,7 +448,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
             <h2 className={g.key === "live" ? "live" : ""}>{g.title}<span>{g.total}</span></h2>
             <div className="apx-grid">
               {g.items.map(({ a, d, p }) => {
-                const st = stOf(a.status);
+                const st = stFor(a, now);
                 const soon = d && a.status === SESSION_STATUS.NEW ? relTime(d, now) : "";
                 const concern = cleanText(a.notes);
                 return (
@@ -497,7 +501,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         const a = withNoidaCharges(selected);
         const p = personOf(a);
         const d = safeDate(a.booking_date);
-        const st = stOf(a.status);
+        const st = stFor(a, now);
         const amount = a.transaction?.amount ?? a.amount;
         const payName = a.transaction?.status?.name || a.payment_status || "";
         const paidOk = /success|paid|complete/i.test(payName);
@@ -998,4 +1002,10 @@ const APX_CSS = `
   .apx .apx-card { padding: 8px; }
   .apx .apx-bar { margin: 0 -16px 14px; padding: 8px 16px; }
 }
+
+/* sessions whose time has passed but were never started (2026-11-20): "To complete" + Mark completed */
+.apx-st.due { background: #fff1e0 !important; color: #b45309 !important; }
+.apx-card.due { border-color: #fbd9a8; }
+.apx-btn.done { background: #e3f4e9; color: #14532d; border: 1px solid #b9e2c8; }
+.apx-btn.done:hover { background: #d2ecdb; }
 `;

@@ -28,6 +28,8 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
+import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
+import { WalletChip } from "./wallet";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -47,6 +49,7 @@ export const CLIENT_NAV = [
   { to: "/my-dashboard", label: "My Space", Icon: HomeRoundedIcon, Off: HomeOutlinedIcon, mob: true },
   { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon }, // phones: in "More"
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, Off: EventAvailableOutlinedIcon, mob: true },
+  { to: "/client/wallet", label: "Wallet", Icon: AccountBalanceWalletRoundedIcon }, // phones: in "More" (the balance is also in the top bar)
   { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, Off: PersonSearchOutlinedIcon, mob: true },
   { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, Off: FavoriteBorderRoundedIcon, mob: true },
   { to: "/client/ask", label: "Ask a Psychologist", Icon: QuestionAnswerRoundedIcon }, // phones: in "More"
@@ -72,6 +75,7 @@ const CLS_TILES = {
   "/client/cycle": TG("#ff9ec7", "#d63f86", "rgba(214,63,134,.5)"),
   "/client/worksheets": TG("#ff9b6b", "#e5532a", "rgba(229,83,42,.5)"),
   "/client/my-bookings": TG("#ffc65a", "#f07b12", "rgba(240,123,18,.5)"),
+  "/client/wallet": TG("#5fd39a", "#14804a", "rgba(20,128,74,.5)"),
   "/client/find": TG("#4fd6d6", "#0e8a9a", "rgba(14,138,154,.5)"),
   "/client/favrioute-therapits": TG("#ff7a8a", "#d92d4b", "rgba(217,45,75,.5)"),
   "/client/ask": TG("#5ad1ff", "#0b84c6", "rgba(11,132,198,.5)"),
@@ -282,6 +286,7 @@ export default function ClientShell({ title, children }) {
         <span className="cls-app-title">{pageTitle}</span>
         <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="cls-app-site">WWW.CHOOSEYOURTHERAPIST.IN</a>
         <div className="cls-right">
+          <WalletChip />
           <AppClock />
           <button type="button" className="cls-ic cls-refresh" aria-label="Refresh" title="Refresh" onClick={(e) => {
             e.currentTarget.classList.add("spin"); setTimeout(() => window.location.reload(), 200);
@@ -810,4 +815,11 @@ body:has(.cls)::before { content: ""; position: fixed; left: 0; right: 0; bottom
   .cls-bar { border-left: env(safe-area-inset-left, 0px) solid #fff; border-right: env(safe-area-inset-right, 0px) solid #fff; box-sizing: border-box; }
   .cls-main { margin-left: env(safe-area-inset-left, 0px); margin-right: env(safe-area-inset-right, 0px); }
 }
+
+/* wallet balance in the top bar (2026-11-20) — on every screen, phones included */
+.cls-right > a.cls-wallet { display: inline-flex !important; align-items: center; gap: 5px; width: auto !important; height: 34px !important; padding: 0 11px 0 9px !important; border-radius: 999px !important;
+  background: #e6f4ec !important; color: #14532d !important; text-decoration: none !important; font-size: 13.5px; font-weight: 800; white-space: nowrap; flex: none; }
+.cls-right > a.cls-wallet svg { font-size: 18px !important; color: #15803d; }
+.cls-right > a.cls-wallet:hover { background: #d6eedf !important; }
+@media (max-width: 380px) { .cls-right > a.cls-wallet { padding: 0 9px 0 7px !important; font-size: 12.5px; } }
 `;

@@ -4,6 +4,7 @@ import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell, { WA_HELP } from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { WalletStrip } from "../components/client/wallet";
 import { DashKpis, ActivityChart, ScreeningSection, KPI_CSS } from "../components/client/dash-kpis";
 import CycleCard, { CYC_CSS } from "../components/client/cycle-card";
 import WorksheetCard from "../components/client/worksheet-card";
@@ -207,6 +208,7 @@ export default function ClientHome() {
             <div className="ch-cyc"><CycleCard /></div>
             {bookings !== null && <ActivityChart bookings={bookings} now={now} />}
 
+            <WalletStrip />
             {packs.length > 0 && (
               <section className="ch-sec tight">
                 <h2>Your session pack{packs.length > 1 ? "s" : ""}</h2>
