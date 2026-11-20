@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Scene, SCENE_CSS } from "../components/breathe/scenes";
+import { createBreathAudio } from "../components/breathe/audio";
 
 /* /breathe — full-page guided breathing (2026-11-20, owner's request: no pop-up, nothing else on screen, only a
    Back button). /breathe lists the techniques; /breathe?p=<key> opens one. While it runs only the breathing
@@ -67,21 +68,6 @@ function stateAt(t, ms) {
   return { i: 0, prog: 0, left: t.phases[0].s, level: 0, round: 1 };
 }
 
-// soft tones: rising for in, falling for out, a low note for hold
-function useTones() {
-  const ctx = useRef(null);
-  const start = () => { try { ctx.current = ctx.current || new (window.AudioContext || window.webkitAudioContext)(); ctx.current.resume?.(); } catch (e) { ctx.current = null; } };
-  const play = (a) => {
-    const c = ctx.current; if (!c) return;
-    const o = c.createOscillator(), g = c.createGain(), now = c.currentTime;
-    const [f1, f2] = a === "in" ? [262, 392] : a === "out" ? [392, 247] : [330, 330];
-    o.type = "sine"; o.frequency.setValueAtTime(f1, now); o.frequency.exponentialRampToValueAtTime(f2, now + 0.6);
-    g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.06, now + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
-    o.connect(g); g.connect(c.destination); o.start(now); o.stop(now + 0.95);
-  };
-  return { start, play };
-}
-
 function Visual({ t, st, running }) {
   const ph = t.phases[st.i];
   const scale = 0.5 + 0.5 * st.level;
@@ -126,11 +112,12 @@ function Session({ t, onPick }) {
   const [mins, setMins] = useState(t.key === "sigh" ? 1 : 3);
   const [run, setRun] = useState("idle"); // idle | on | paused | done
   const [ms, setMs] = useState(0);
-  const [sound, setSound] = useState(true);
+  const [sound, setSound] = useState(true); // the breath + bowl sound
+  const [nature, setNature] = useState(true); // the scene's nature sound
+  const audio = useRef(null);
   const [buzz, setBuzz] = useState(false);
   const [felt, setFelt] = useState("");
   const raf = useRef(0), base = useRef(0), acc = useRef(0), lastPhase = useRef(-1), wake = useRef(null);
-  const tones = useTones();
   const cyc = cycleOf(t) * 1000;
   const rounds = Math.max(1, Math.round((mins * 60000) / cyc));
   const total = rounds * cyc;
@@ -140,30 +127,38 @@ function Session({ t, onPick }) {
   const stopLoop = () => { cancelAnimationFrame(raf.current); try { wake.current?.release?.(); } catch (e) { /* ignore */ } wake.current = null; };
   const loop = useCallback(() => {
     const now = acc.current + (performance.now() - base.current);
-    if (now >= total) { setMs(total); setRun("done"); stopLoop(); return; }
+    if (now >= total) { setMs(total); setRun("done"); stopLoop(); audio.current?.stop(); audio.current = null; return; }
     setMs(now);
     raf.current = requestAnimationFrame(loop);
   }, [total]);
-  useEffect(() => () => stopLoop(), []);
+  useEffect(() => () => { stopLoop(); audio.current?.stop(); audio.current = null; }, []);
   // a cue on each new phase
   useEffect(() => {
     if (run !== "on") return;
     const key = st.round * 100 + st.i;
     if (key === lastPhase.current) return;
     lastPhase.current = key;
-    if (sound) tones.play(ph.a);
+    audio.current?.phase(ph, ph.s * (1 - st.prog), { tech: t.key, bell: sound && st.i === 0 });
     if (buzz && navigator.vibrate) navigator.vibrate(ph.a === "hold" ? 25 : 60);
   });
   const start = async () => {
-    tones.start();
-    if (run === "done" || run === "idle") { acc.current = 0; lastPhase.current = -1; setFelt(""); }
+    if (run === "done" || run === "idle") {
+      acc.current = 0; lastPhase.current = -1; setFelt("");
+      audio.current?.stop();
+      audio.current = createBreathAudio(); // must start from this tap
+      audio.current?.start(t.scene, { breath: sound, nature });
+    } else audio.current?.resume();
     base.current = performance.now();
     setRun("on");
     try { wake.current = await navigator.wakeLock?.request("screen"); } catch (e) { /* not allowed */ }
     raf.current = requestAnimationFrame(loop);
   };
-  const pause = () => { acc.current += performance.now() - base.current; stopLoop(); setRun("paused"); };
-  const reset = () => { stopLoop(); acc.current = 0; setMs(0); setRun("idle"); };
+  const pause = () => { acc.current += performance.now() - base.current; stopLoop(); audio.current?.pause(); setRun("paused"); };
+  const reset = () => { stopLoop(); audio.current?.stop(); audio.current = null; acc.current = 0; setMs(0); setRun("idle"); };
+  const toggleSound = () => setSound((x) => { audio.current?.setBreath(!x); return !x; });
+  // one tap while it runs: all sound off / back on
+  const muteAll = () => { const on = !(sound || nature); setSound(on); setNature(on); audio.current?.setBreath(on); audio.current?.setNature(on); };
+  const toggleNature = () => setNature((x) => { audio.current?.setNature(!x); return !x; });
   const left = Math.max(0, Math.ceil((total - ms) / 1000));
   const running = run === "on";
 
@@ -188,7 +183,7 @@ function Session({ t, onPick }) {
             {run !== "idle" && <span>Round {Math.min(st.round, rounds)} of {rounds} · {Math.floor(left / 60)}:{String(left % 60).padStart(2, "0")} left</span>}
           </div>
           <div className="br-ctl">
-            {running ? <button type="button" className="br-main" onClick={pause}>Pause</button>
+            {running ? <><button type="button" className="br-main" onClick={pause}>Pause</button><button type="button" className="br-ghost br-mute" onClick={muteAll} aria-label={sound || nature ? "Turn sound off" : "Turn sound on"}>{sound || nature ? "🔊" : "🔇"}</button></>
               : <button type="button" className="br-main" onClick={start}>{run === "paused" ? "Continue" : "Start"}</button>}
             {run === "paused" && <button type="button" className="br-ghost" onClick={reset}>Restart</button>}
           </div>
@@ -198,7 +193,8 @@ function Session({ t, onPick }) {
                 {[1, 3, 5].map((m) => <button key={m} type="button" role="radio" aria-checked={mins === m} className={mins === m ? "on" : ""} onClick={() => setMins(m)}>{m} min</button>)}
               </div>
               <div className="br-tg">
-                <button type="button" aria-pressed={sound} className={sound ? "on" : ""} onClick={() => setSound((x) => !x)}>{sound ? "🔔 Sound on" : "🔕 Sound off"}</button>
+                <button type="button" aria-pressed={sound} className={sound ? "on" : ""} onClick={toggleSound}>{sound ? "🌬️ Breath sound on" : "🌬️ Breath sound off"}</button>
+                <button type="button" aria-pressed={nature} className={nature ? "on" : ""} onClick={toggleNature}>{nature ? "🍃 Nature sound on" : "🍃 Nature sound off"}</button>
                 <button type="button" aria-pressed={buzz} className={buzz ? "on" : ""} onClick={() => setBuzz((x) => !x)}>📳 Vibrate {buzz ? "on" : "off"}</button>
               </div>
               <p className="br-safe">Feel dizzy or uncomfortable? Stop and breathe normally.</p>
@@ -353,6 +349,7 @@ html, body { background: #eef4f1; }
 .br-mins button, .br-tg button { height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 .br-mins button.on { background: var(--btn); color: var(--btnInk); border-color: var(--btn); }
 .br-tg button.on { background: var(--glass2); }
+.br-mute { width: 52px; padding: 0; font-size: 20px; }
 .br-safe { margin: 4px 0 0; font-size: 12.5px; color: var(--ink2); }
 
 .br-others { width: 100%; margin-top: 30px; text-align: left; }
