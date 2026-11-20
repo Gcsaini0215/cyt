@@ -3,6 +3,7 @@ import Link from "next/link";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
+import PvcCard, { cardNo } from "../global/pvc-card";
 
 /* Therapist wallet (2026-11-20): the listing package they hold with CYT — how many days are left (counting down),
    what they paid, a warning when CYT gave it free (it can be switched off any time), Add / renew from the
@@ -47,7 +48,7 @@ export function PlanChip() {
 }
 
 // the wallet card at the top of /my-plans
-export function PlanWallet({ data, onRenew }) {
+export function PlanWallet({ data, onRenew, me = null }) {
   const L = data?.listing;
   if (!L) return null;
   const free = L.plan === "free";
@@ -56,25 +57,25 @@ export function PlanWallet({ data, onRenew }) {
   return (
     <section id="wallet" className={`pw${L.active ? "" : " off"}${free ? " free" : ""}`} aria-label="Wallet">
       <style>{PW_CSS}</style>
-      <div className="pw-top"><span><AccountBalanceWalletRoundedIcon /> CYT Wallet</span><em>Listing package</em></div>
-      {L.active ? (
-        <>
-          <div className="pw-big"><b>{L.daysLeft}</b><span>day{L.daysLeft === 1 ? "" : "s"} left</span></div>
-          <p className="pw-sub">{free ? "Free plan given by CYT" : `${L.planLabel || "Plan"}${L.amount ? ` · ${inr(L.amount)} paid` : ""}`} · valid till {day(L.till)}</p>
-          <div className="pw-bar" aria-label={`${used}% of the plan used`}><i style={{ width: `${used}%` }} /></div>
-          <div className="pw-ends"><span>Started {day(L.from)}</span><span>{L.daysLeft <= 15 ? "Ending soon" : `${100 - used}% left`}</span></div>
-        </>
-      ) : (
-        <>
-          <div className="pw-big"><b>0</b><span>days left</span></div>
+      <PvcCard tone={!L.active ? "grey" : free ? "silver" : "pro"} label="CYT Pro" tag={free ? "Free plan" : L.active ? `Listing · ${L.planLabel || "Plan"}` : "Plan ended"}
+        ribbon={free && L.active ? "FREE" : ""} big={L.active ? String(L.daysLeft) : "0"} bigLabel={L.daysLeft === 1 ? "day left" : "days left"}
+        holder={me?.user?.name || ""} number={cardNo(me?._id || me?.user?._id)} validThru={L.till ? new Date(L.till).toLocaleDateString("en-IN", { month: "2-digit", year: "2-digit", timeZone: "Asia/Kolkata" }) : ""} />
+      <div className="pw-panel">
+        {L.active ? (
+          <>
+            <p className="pw-sub">{free ? "Free plan given by CYT" : `${L.planLabel || "Plan"}${L.amount ? ` · ${inr(L.amount)} paid` : ""}`} · valid till {day(L.till)}</p>
+            <div className="pw-bar" aria-label={`${used}% of the plan used`}><i style={{ width: `${used}%` }} /></div>
+            <div className="pw-ends"><span>Started {day(L.from)}</span><span>{L.daysLeft <= 15 ? "Ending soon" : `${100 - used}% left`}</span></div>
+          </>
+        ) : (
           <p className="pw-sub">{L.till ? `Your ${L.planLabel || "plan"} ended on ${day(L.till)}` : "You don't have a package yet"}</p>
-        </>
-      )}
-      {free && L.active && (
-        <p className="pw-warn" role="note">⚠️ This free plan was activated by the CYT team. <b>It can be turned off at any time</b> — take a paid package to keep your profile live for sure.</p>
-      )}
-      <button type="button" className="pw-btn" onClick={onRenew}>{L.active && !free ? "Add more time" : "Choose a package"}</button>
-      <small className="pw-fine">Pick from the CYT packages — time you add starts after your current plan ends.</small>
+        )}
+        {free && L.active && (
+          <p className="pw-warn" role="note">⚠️ This free plan was activated by the CYT team. <b>It can be turned off at any time</b> — take a paid package to keep your profile live for sure.</p>
+        )}
+        <button type="button" className="pw-btn" onClick={onRenew}>{L.active && !free ? "Add more time" : "Choose a package"}</button>
+        <small className="pw-fine">Pick from the CYT packages — time you add starts after your current plan ends.</small>
+      </div>
     </section>
   );
 }
@@ -122,25 +123,22 @@ export function PlanConcern() {
 }
 
 const PW_CSS = `
-.pw { position: relative; overflow: hidden; border-radius: 26px; padding: 22px; margin-bottom: 16px; color: #fff; background: linear-gradient(135deg, #1e7a4c 0%, #14532d 55%, #0b3320 100%); box-shadow: 0 22px 40px -26px rgba(11,52,30,.95); }
-.pw.off { background: linear-gradient(135deg, #64748b, #334155); }
-.pw::after { content: ""; position: absolute; right: -70px; top: -70px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(236,199,125,.4), transparent 70%); pointer-events: none; }
-.pw-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.85); }
-.pw-top span { display: inline-flex; align-items: center; gap: 8px; } .pw-top svg { color: #ecc77d; }
-.pw-top em { font-style: normal; text-transform: none; letter-spacing: 0; font-weight: 700; color: rgba(255,255,255,.7); }
-.pw-big { display: flex; align-items: baseline; gap: 10px; margin: 16px 0 2px; }
-.pw-big b { font-size: clamp(44px, 7vw, 60px); font-weight: 800; letter-spacing: -.03em; line-height: 1; }
-.pw-big span { font-size: 18px; font-weight: 700; color: rgba(255,255,255,.85); }
-.pw-sub { margin: 0 0 12px; font-size: 14.5px; color: rgba(255,255,255,.85); }
-.pw-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.2); overflow: hidden; }
-.pw-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ecc77d, #f5d595); }
-.pw-ends { display: flex; justify-content: space-between; margin-top: 6px; font-size: 12.5px; color: rgba(255,255,255,.75); }
-.pw-warn { position: relative; z-index: 1; margin: 14px 0 0; padding: 10px 12px; border-radius: 14px; background: rgba(255,241,224,.95); color: #7c3d06; font-size: 13.5px; line-height: 1.5; }
-.pw-btn { position: relative; z-index: 1; margin-top: 14px; height: 46px; padding: 0 22px; border: 0; border-radius: 14px; background: #ecc77d; color: #3b2604; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
-.pw-btn:hover { background: #f5d595; }
+.pw { margin-bottom: 16px; display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 16px; align-items: center; }
+.pw .pvc { margin: 0; }
+.pw-panel { background: #fff; border-radius: 22px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
+.pw-sub { margin: 0 0 12px; font-size: 14.5px; color: #334155; font-weight: 600; }
+.pw-bar { height: 8px; border-radius: 999px; background: #e8eeeb; overflow: hidden; }
+.pw-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0f766e, #d4a24c); }
+.pw.free .pw-bar i { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.pw-ends { display: flex; justify-content: space-between; margin-top: 6px; font-size: 12.5px; color: #64748b; }
+.pw-warn { margin: 14px 0 0; padding: 10px 12px; border-radius: 14px; background: #fff1e0; color: #7c3d06; font-size: 13.5px; line-height: 1.5; }
+.pw-btn { margin-top: 14px; height: 46px; padding: 0 22px; border: 0; border-radius: 14px; background: #0f5132; color: #fff; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.pw-btn:hover { background: #0b4f4a; }
+.pw.free .pw-btn, .pw.off .pw-btn { background: #d4a24c; color: #3b2604; }
 .pw-btn.sm { margin-top: 0; height: 42px; background: #14532d; color: #fff; }
 .pw-btn:disabled { opacity: .55; cursor: default; }
-.pw-fine { display: block; margin-top: 8px; font-size: 12px; color: rgba(255,255,255,.7); }
+.pw-fine { display: block; margin-top: 8px; font-size: 12px; color: #94a3b8; }
+@media (max-width: 860px) { .pw { grid-template-columns: minmax(0, 1fr); } .pw .pvc { display: flex; justify-content: center; } }
 .pw-concern h2 { margin: 0 0 4px; font-size: 18px; font-weight: 800; }
 .pw-concern > p { margin: 0 0 12px; font-size: 14px; color: #64748b; }
 .pw-concern textarea { width: 100%; box-sizing: border-box; border: 1px solid #dfe7e4; border-radius: 14px; padding: 12px; font: inherit; font-size: 15px; resize: vertical; background: #fbfdfc; }

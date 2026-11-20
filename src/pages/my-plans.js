@@ -130,7 +130,7 @@ export default function MyPlans() {
         </div>
 
         {error && <div className="pt-err">{error}</div>}
-        <PlanWallet data={data} onRenew={() => setRenew(true)} />
+        <PlanWallet data={data} me={me} onRenew={() => setRenew(true)} />
 
         <div className="pt-stats">
           <div className="pt-stat"><small>Active plans</small><b>{data ? `${activeCount} of 3` : "—"}</b><span>Listing, Assessments, Coupons</span></div>

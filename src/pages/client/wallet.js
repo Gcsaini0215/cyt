@@ -1,11 +1,12 @@
 import React from "react";
 import Link from "next/link";
-import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import ClientShell from "../../components/client/client-shell";
 import { useWallet, inr, hasWallet } from "../../components/client/wallet";
 import { bookPath } from "../../utils/therapist-slug";
 import { imagePath } from "../../utils/url";
+import PvcCard, { cardNo } from "../../components/global/pvc-card";
+import useUserStore from "../../store/userStore";
 
 /* Client → Wallet (2026-11-20): the balance of the session packs they bought, what each completed session took,
    sessions booked from a pack (still in the balance until done), expired packs and CYT Noida clinic packages. */
@@ -43,18 +44,19 @@ function Pack({ p }) {
 
 export default function WalletPage() {
   const w = useWallet();
+  const { userInfo } = useUserStore();
   const active = (w?.packs || []).filter((p) => !p.expired);
+  const lastValid = active.map((p) => p.expires_at).sort().pop();
+  const thru = lastValid ? new Date(lastValid).toLocaleDateString("en-IN", { month: "2-digit", year: "2-digit", timeZone: TZ }) : "";
   const expired = (w?.packs || []).filter((p) => p.expired);
   return (
     <ClientShell title="Wallet">
       <style>{CSS}</style>
       <div className="wl">
-        <section className="wl-card" aria-label="Wallet balance">
-          <div className="wl-card-top"><span><AccountBalanceWalletRoundedIcon /> CYT Wallet</span><em>Prepaid sessions</em></div>
-          <b className="wl-bal">{w ? inr(w.balance) : "…"}</b>
-          <p>{!w ? "Loading your wallet…" : w.reserved > 0 ? `${inr(w.reserved)} of this is for sessions you've already booked` : hasWallet(w) ? "Ready for your next session" : "No balance yet"}</p>
-          <i className="wl-card-glow" aria-hidden="true" />
-        </section>
+        <PvcCard tone="client" label="CYT Wallet" tag="Prepaid sessions" big={w ? inr(w.balance) : "…"} bigLabel="Balance"
+          holder={userInfo?.name || ""} number={cardNo(userInfo?._id)} validThru={thru}>
+          <p className="wl-under">{!w ? "Loading your wallet…" : w.reserved > 0 ? `${inr(w.reserved)} of this is for sessions you've already booked` : hasWallet(w) ? "Ready for your next session" : "No balance yet — buy a session pack when you book"}</p>
+        </PvcCard>
 
         {w && !hasWallet(w) && (
           <section className="wl-box wl-empty">
@@ -122,6 +124,8 @@ const CSS = `
 .wl-bal { display: block; margin: 18px 0 4px; font-size: clamp(38px, 7vw, 52px); font-weight: 800; letter-spacing: -.03em; }
 .wl-card p { margin: 0; font-size: 14px; color: rgba(255,255,255,.8); }
 .wl-card-glow { position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(236,199,125,.45), transparent 70%); pointer-events: none; }
+.wl .pvc { display: flex; flex-direction: column; align-items: center; }
+.wl-under { margin: 10px 0 0; font-size: 14px; color: #475569; text-align: center; }
 .wl-h { margin: 6px 4px 10px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #6b7c73; }
 .wl-h.in { margin: 0 0 12px; }
 .wl-box { background: #fff; border-radius: 22px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); }
