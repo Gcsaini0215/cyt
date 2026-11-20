@@ -22,7 +22,7 @@ const FEELINGS = [
   {
     id: "anxious", emoji: "😰", label: "Anxious", concern: "anxiety",
     tools: [
-      { id: "breathing", props: { pattern: "box" }, title: "1-minute box breathing", desc: "Slow your breath, slow your heart.", time: "1 min" },
+      { href: "/breathe?p=box", kind: "breathing", title: "1-minute box breathing", desc: "Slow your breath, slow your heart.", time: "1 min" },
       { id: "grounding", title: "5-4-3-2-1 grounding", desc: "Come back to the present when thoughts race.", time: "2 min" },
     ],
   },
@@ -35,14 +35,14 @@ const FEELINGS = [
   {
     id: "stressed", emoji: "😫", label: "Stressed", concern: "work-stress-burnout",
     tools: [
-      { id: "breathing", props: { pattern: "box" }, title: "Box breathing", desc: "A reset between meetings.", time: "1 min" },
+      { href: "/breathe?p=box", kind: "breathing", title: "Box breathing", desc: "A reset between meetings.", time: "1 min" },
       { id: "sounds", title: "Calming sounds", desc: "Rain, waves or wind to focus or unwind.", time: "Any time" },
     ],
   },
   {
     id: "angry", emoji: "😤", label: "Angry", concern: "anger",
     tools: [
-      { id: "breathing", props: { pattern: "478" }, title: "4-7-8 calm-down breath", desc: "Cool down before you react.", time: "1 min" },
+      { href: "/breathe?p=478", kind: "breathing", title: "4-7-8 calm-down breath", desc: "Cool down before you react.", time: "1 min" },
       { id: "grounding", title: "Pause & ground", desc: "Step out of the heat of the moment.", time: "2 min" },
     ],
   },
@@ -50,7 +50,7 @@ const FEELINGS = [
     id: "sleep", emoji: "😴", label: "Can't sleep", concern: "stress",
     tools: [
       { id: "sounds", title: "Sleep sounds", desc: "Soft rain or brown noise, with a sleep timer.", time: "Any time" },
-      { id: "breathing", props: { pattern: "478" }, title: "4-7-8 breathing", desc: "A classic to wind down in bed.", time: "3 min" },
+      { href: "/breathe?p=478", kind: "breathing", title: "4-7-8 breathing", desc: "A classic to wind down in bed.", time: "3 min" },
     ],
   },
   {
@@ -158,7 +158,7 @@ export default function FeelBetter({ stats = null, week = null }) {
             {f.tools.map((t) => {
               const inner = (
                 <>
-                  <span className="fb-ic" aria-hidden="true"><i className={`feather-${t.id === "breathing" ? "wind" : t.id === "grounding" ? "anchor" : t.id === "sounds" ? "headphones" : "edit-3"}`} /></span>
+                  <span className="fb-ic" aria-hidden="true"><i className={`feather-${t.id === "breathing" || t.kind === "breathing" ? "wind" : t.id === "grounding" ? "anchor" : t.id === "sounds" ? "headphones" : "edit-3"}`} /></span>
                   <span className="fb-st"><b>{t.title}</b><small>{t.desc}</small></span>
                   <span className="fb-time">{t.time}</span>
                   <i className="feather-arrow-right fb-arr" aria-hidden="true" />
@@ -185,7 +185,7 @@ export default function FeelBetter({ stats = null, week = null }) {
             </span>
             <Link href={`/therapy-for/${f.concern}`} className="fb-pp-btn">See who can help <i className="feather-arrow-right" aria-hidden="true" /></Link>
           </div>
-          <p className="fb-more">More free tools — mood tracker, gratitude jar, calming sounds: <Link href="/wellness-toolkit">Wellness Toolkit <i className="feather-arrow-right" aria-hidden="true" /></Link></p>
+          <p className="fb-more"><Link href="/breathe">9 guided breathing exercises <i className="feather-arrow-right" aria-hidden="true" /></Link> · More free tools — mood tracker, gratitude jar, calming sounds: <Link href="/wellness-toolkit">Wellness Toolkit <i className="feather-arrow-right" aria-hidden="true" /></Link></p>
         </div>
       </div>
 

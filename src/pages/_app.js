@@ -133,6 +133,7 @@ function MyApp({ Component, pageProps }) {
     "/coupon/",
     "/update-workshop/",
     "/supervision-login",
+    "/breathe", // full-page breathing: nothing else on screen
     "/supervision_to_psychologist",
     "/trainee",
   ];
