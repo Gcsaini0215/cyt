@@ -19,14 +19,16 @@ export default function SupervisionCard() {
   const [open, setOpen] = useState(false); // the drop-down
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [ready, setReady] = useState(false); // wait for the check so the card never flashes
+  const [gone, setGone] = useState(false); // already sent before → hide from the dashboard (owner, 2026-11-20)
   const ddRef = useRef(null);
 
   useEffect(() => {
     fetchById(`${apiUrl}/therapist-comms/supervision`).then((r) => {
       if (!r?.status) return;
       if (r.data.topics?.length) setTopics(r.data.topics);
-      if (r.data.mine) { setMine(r.data.mine); setPick(r.data.mine.topics || []); setNote(r.data.mine.note || ""); setStep("done"); }
-    }).catch(() => {});
+      if (r.data.mine) setGone(true);
+    }).catch(() => {}).finally(() => setReady(true));
   }, []);
   useEffect(() => {
     if (!open) return undefined;
@@ -45,6 +47,8 @@ export default function SupervisionCard() {
     } catch (e) { setErr(e?.response?.data?.message || "Couldn't send — try again."); }
     setBusy(false);
   };
+
+  if (!ready || gone) return null;
 
   return (
     <section className="sv" aria-labelledby="sv-h">
@@ -87,7 +91,7 @@ export default function SupervisionCard() {
           {err && <p className="sv-err" role="alert">{err}</p>}
           <div className="sv-acts">
             <button type="button" className="sv-btn" disabled={busy || !pick.length} onClick={send}>{busy ? "Sending…" : "Submit my interest"}</button>
-            <button type="button" className="sv-link" onClick={() => { setStep(mine ? "done" : "intro"); setOpen(false); }}>Cancel</button>
+            <button type="button" className="sv-link" onClick={() => { setStep("intro"); setOpen(false); }}>Cancel</button>
           </div>
         </div>
       )}
@@ -95,10 +99,9 @@ export default function SupervisionCard() {
       {step === "done" && mine && (
         <div className="sv-r sv-done">
           <b>✓ You&apos;re on the list</b>
-          <span>We&apos;ll let you know when supervision and the first workshops open.</span>
+          <span>Thank you! We&apos;ll let you know when supervision and the first workshops open. This card won&apos;t show again.</span>
           <div className="sv-chips static">{(mine.topics || []).map((t) => <span key={t}>{t}</span>)}</div>
           {mine.reply && <p className="sv-reply"><b>CYT:</b> {mine.reply}</p>}
-          <button type="button" className="sv-link" onClick={() => setStep("form")}>Change topics</button>
         </div>
       )}
     </section>
