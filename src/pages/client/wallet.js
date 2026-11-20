@@ -53,8 +53,8 @@ export default function WalletPage() {
     <ClientShell title="Wallet">
       <style>{CSS}</style>
       <div className="wl">
-        <PvcCard tone="client" label="CYT Wallet" tag="Prepaid sessions" big={w ? inr(w.balance) : "…"} bigLabel="Balance"
-          holder={userInfo?.name || ""} number={cardNo(userInfo?._id)} validThru={thru}>
+        <PvcCard label="CYT Wallet" kind="Wallet" kindSub="Prepaid sessions" balance={w ? inr(w.balance) : "…"}
+          name={userInfo?.name || ""} number={cardNo(userInfo?._id)} thruLabel="Valid thru" thru={thru}>
           <p className="wl-under">{!w ? "Loading your wallet…" : w.reserved > 0 ? `${inr(w.reserved)} of this is for sessions you've already booked` : hasWallet(w) ? "Ready for your next session" : "No balance yet — buy a session pack when you book"}</p>
         </PvcCard>
 

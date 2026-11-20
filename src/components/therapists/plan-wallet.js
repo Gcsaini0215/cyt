@@ -50,6 +50,13 @@ export function PlanChip() {
 // the wallet card at the top of /my-plans
 export function PlanWallet({ data, onRenew, me = null }) {
   const L = data?.listing;
+  const [handle, setHandle] = useState("");
+  const tid = me?._id || "";
+  useEffect(() => {
+    if (!tid) return;
+    fetch(`/api/my-link?id=${tid}`).then((r) => r.json()).then((j) => { if (j?.status && j.data?.handle) setHandle(j.data.handle); }).catch(() => {});
+  }, [tid]);
+  const since = (() => { const d = data?.totals?.since || L?.from; return d ? String(new Date(d).getFullYear()) : ""; })();
   if (!L) return null;
   const free = L.plan === "free";
   const total = termOf(L);
@@ -57,9 +64,9 @@ export function PlanWallet({ data, onRenew, me = null }) {
   return (
     <section id="wallet" className={`pw${L.active ? "" : " off"}${free ? " free" : ""}`} aria-label="Wallet">
       <style>{PW_CSS}</style>
-      <PvcCard tone={!L.active ? "grey" : free ? "silver" : "pro"} label="CYT Pro" tag={free ? "Free plan" : L.active ? `Listing · ${L.planLabel || "Plan"}` : "Plan ended"}
-        ribbon={free && L.active ? "FREE" : ""} big={L.active ? String(L.daysLeft) : "0"} bigLabel={L.daysLeft === 1 ? "day left" : "days left"}
-        holder={me?.user?.name || ""} number={cardNo(me?._id || me?.user?._id)} validThru={L.till ? new Date(L.till).toLocaleDateString("en-IN", { month: "2-digit", year: "2-digit", timeZone: "Asia/Kolkata" }) : ""} />
+      <PvcCard label="CYT Pro" kind="Pro member" kindSub="✓ Verified Therapist" number={cardNo(me?._id || me?.user?._id)}
+        name={me?.user?.name || ""} sub={me?.profile_type || ""} thruLabel="Member since" thru={since}
+        back={{ qr: handle ? `/api/my-qr/${handle}.png` : "", link: handle ? `https://www.chooseyourtherapist.in/t/${handle}` : "", memberId: `CYT-PRO-${cardNo(me?._id || me?.user?._id).slice(-4)}` }} />
       <div className="pw-panel">
         {L.active ? (
           <>

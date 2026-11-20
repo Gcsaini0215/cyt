@@ -1,93 +1,141 @@
-import React from "react";
+import React, { useState } from "react";
 
-/* A wallet card that looks like a real PVC / metro card (2026-11-20, owner): card proportions (85.6 × 54 mm),
-   a gold EMV chip, the contactless mark, embossed number, holder name, valid-thru, a transit-card colour band,
-   fine guilloche lines and a glossy sheen that moves on hover. Used by the client wallet and the therapist's
-   subscription wallet. Purely visual — it isn't a payment card. */
+/* CYT wallet card — "Gold Debit" (owner's pick, 2026-11-20): brushed gold like a premium bank card, CYT green
+   type, chip + contactless, a 16-digit number made from the account id, holder name, valid thru / member since
+   and CYT's own leaf mark (never a card network's logo). The therapist card ("CYT Pro") is a member card that
+   can be printed one day: name, profession, verified, member number, member since — nothing that changes day to
+   day — and a back with a magnetic stripe and a QR to their profile (Flip). Purely visual, not a payment card. */
 
-// a stable "card number" from an account id (last 4 shown), e.g. "CYT •••• •••• 4821"
+// 16 digits from an account id, in groups of 4
 export const cardNo = (id) => {
   const hex = String(id || "").replace(/[^a-f0-9]/gi, "");
-  const n = hex ? parseInt(hex.slice(-6), 16) % 10000 : 0;
-  return `•••• •••• ${String(n).padStart(4, "0")}`;
+  let d = hex.split("").map((c) => parseInt(c, 16) % 10).join("");
+  while (d.length < 16) d = `7${d}`;
+  return d.slice(-16).replace(/(\d{4})(?=\d)/g, "$1 ");
 };
 
-// tone: "client" (green + gold) | "pro" (emerald + gold, therapist) | "silver" (free plan) | "grey" (ended)
-export default function PvcCard({ tone = "client", label = "CYT Wallet", tag = "", big, bigLabel = "", holder = "", number = "", validThru = "", ribbon = "", children = null }) {
-  return (
-    <div className={`pvc ${tone}`}>
-      <style>{PVC_CSS}</style>
-      <div className="pvc-card" role="img" aria-label={`${label}: ${big} ${bigLabel}`}>
-        <i className="pvc-guill" aria-hidden="true" />
-        <i className="pvc-band" aria-hidden="true" />
-        <i className="pvc-sheen" aria-hidden="true" />
-        {ribbon && <span className="pvc-ribbon">{ribbon}</span>}
-        <div className="pvc-top">
-          <span className="pvc-brand"><img src="/cyt-emblem.png" alt="" width="26" height="26" /><span><b>{label}</b><small>Choose Your Therapist</small></span></span>
-          {tag && !ribbon && <em className="pvc-tag">{tag}</em>}
-        </div>
-        <div className="pvc-mid">
-          <span className="pvc-chip" aria-hidden="true"><i /><i /><i /></span>
-          <svg className="pvc-nfc" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.8a13 13 0 0 1 0 18.4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
-          <span className="pvc-big"><b>{big}</b>{bigLabel && <small>{bigLabel}</small>}</span>
-        </div>
-        <div className="pvc-no">{number}</div>
-        <div className="pvc-bot">
-          <span><small>Card holder</small><b>{holder || "—"}</b></span>
-          {validThru && <span className="r"><small>Valid thru</small><b>{validThru}</b></span>}
-        </div>
+const Leaf = () => (
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <circle cx="32" cy="32" r="31" fill="currentColor" opacity=".14" />
+    <path d="M32 52V26M32 36c-7-1-12-6-13-13 7 0 12 5 13 13Zm0-6c6-1 10-5 11-11-6 0-10 4-11 11Zm0 12c-5 0-9-3-10-8 5 0 9 3 10 8Z" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* label: "CYT Wallet" / "CYT Pro" · kind + kindSub: top-right ("Wallet" / "Prepaid sessions")
+   number · name · sub (profession) · thruLabel + thru · balance (client) · back: { qr, link, memberId } */
+export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "", number = "", name = "", sub = "", thruLabel = "Valid thru", thru = "", balance = "", back = null, children = null }) {
+  const [flip, setFlip] = useState(false);
+  const front = (
+    <div className="gd-face gd-front">
+      <div className="gd-top">
+        <span className="gd-brand"><Leaf /><span><b>{label}</b><small>Choose Your Therapist</small></span></span>
+        {kind && <span className="gd-kind">{kind}{kindSub && <small>{kindSub}</small>}</span>}
       </div>
+      <div className="gd-mid">
+        <span className="gd-chip" aria-hidden="true" />
+        <svg className="gd-nfc" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.8a13 13 0 0 1 0 18.4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+        {balance && <span className="gd-bal"><small>Balance</small><b>{balance}</b></span>}
+      </div>
+      <div className="gd-no">{number}</div>
+      <div className="gd-row">
+        <span className="gd-who">
+          <b>{name || "—"}</b>
+          {sub && <em>{sub}</em>}
+          {thru && <span className="gd-thru"><small>{thruLabel}</small>{thru}</span>}
+        </span>
+        <span className="gd-net" aria-hidden="true"><Leaf /><b>CYT</b></span>
+      </div>
+    </div>
+  );
+  return (
+    <div className="gd">
+      <style>{GD_CSS}</style>
+      {back ? (
+        <>
+          <div className={`gd-card gd-flip${flip ? " on" : ""}`} role="img" aria-label={`${label} card`}>
+            <div className="gd-inner">
+              {front}
+              <div className="gd-face gd-back">
+                <div className="gd-mag" />
+                <div className="gd-bk">
+                  <span className="gd-qr">{back.qr ? <img src={back.qr} alt="QR code to my profile" width="120" height="120" /> : <i>QR</i>}</span>
+                  <span className="gd-bk-t">
+                    <b>Scan to view my profile &amp; book a session</b>
+                    <span>Verified on Choose Your Therapist</span>
+                    {back.link && <code>{back.link.replace(/^https?:\/\/(www\.)?/, "")}</code>}
+                    {back.memberId && <span className="gd-id">{back.memberId}</span>}
+                  </span>
+                </div>
+                <p className="gd-fine">This card belongs to Choose Your Therapist. If found, please hand it to the CYT team · chooseyourtherapist.in</p>
+              </div>
+            </div>
+          </div>
+          <button type="button" className="gd-fliptog" onClick={() => setFlip((x) => !x)}>{flip ? "↺ Show front" : "↻ Flip — see the back"}</button>
+        </>
+      ) : (
+        <div className="gd-card" role="img" aria-label={`${label}${balance ? `: balance ${balance}` : ""}`}>{front}</div>
+      )}
       {children}
     </div>
   );
 }
 
-const PVC_CSS = `
-.pvc { --a: #1f8a55; --b: #0f5132; --c: #062b1b; --band: linear-gradient(90deg, #ecc77d, #f6dc9f 50%, #d9a441); --ink: #fff; --ink2: rgba(255,255,255,.78); perspective: 1200px; margin-bottom: 16px; }
-.pvc.pro { --a: #0f766e; --b: #0b4f4a; --c: #052523; --band: linear-gradient(90deg, #d4a24c, #f2d28a 50%, #b98523); }
-.pvc.silver { --a: #e8edf1; --b: #b8c3cc; --c: #8a96a1; --band: linear-gradient(90deg, #f59e0b, #fbbf24 50%, #f59e0b); --ink: #1f2937; --ink2: rgba(31,41,55,.7); }
-.pvc.grey { --a: #6b7280; --b: #4b5563; --c: #1f2937; --band: linear-gradient(90deg, #9ca3af, #d1d5db 50%, #9ca3af); }
-.pvc-card { position: relative; width: 100%; max-width: 440px; aspect-ratio: 1.586; border-radius: 20px; overflow: hidden; color: var(--ink); padding: 18px 20px; box-sizing: border-box;
-  display: flex; flex-direction: column; justify-content: space-between;
-  background: radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 45%), radial-gradient(90% 80% at 0% 100%, rgba(0,0,0,.25), rgba(0,0,0,0) 60%), linear-gradient(135deg, var(--a) 0%, var(--b) 55%, var(--c) 100%);
-  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 -1px 0 rgba(0,0,0,.25) inset, 0 28px 46px -24px rgba(0,0,0,.55), 0 10px 18px -12px rgba(0,0,0,.35);
-  transform: rotateX(4deg) rotateY(-6deg); transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
-.pvc-card:hover { transform: rotateX(0) rotateY(0) translateY(-3px); }
-/* fine banknote-like lines */
-.pvc-guill { position: absolute; inset: 0; pointer-events: none; opacity: .13;
-  background: repeating-radial-gradient(circle at 85% 120%, transparent 0 9px, rgba(255,255,255,.9) 9px 10px), repeating-linear-gradient(115deg, transparent 0 14px, rgba(255,255,255,.35) 14px 15px); mix-blend-mode: overlay; }
-.pvc.silver .pvc-guill { opacity: .25; mix-blend-mode: normal; background: repeating-radial-gradient(circle at 85% 120%, transparent 0 9px, rgba(255,255,255,.95) 9px 10px); }
-/* the metro / transit colour band */
-.pvc-band { position: absolute; left: -10%; right: -10%; top: 58%; height: 14px; background: var(--band); transform: rotate(-8deg); opacity: .85; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-.pvc-sheen { position: absolute; inset: -40% -60%; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%); transform: translateX(-30%); transition: transform .9s ease; pointer-events: none; }
-.pvc-card:hover .pvc-sheen { transform: translateX(30%); }
-.pvc-ribbon { position: absolute; top: 14px; right: -34px; transform: rotate(35deg); width: 140px; text-align: center; padding: 4px 0; background: #f59e0b; color: #fff; font-size: 11px; font-weight: 900; letter-spacing: .14em; box-shadow: 0 4px 10px rgba(0,0,0,.25); z-index: 2; }
-.pvc-top, .pvc-mid, .pvc-no, .pvc-bot { position: relative; z-index: 1; }
-.pvc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.pvc-brand { display: inline-flex; align-items: center; gap: 8px; }
-.pvc-brand img { width: 26px; height: 26px; border-radius: 50%; background: #fff; padding: 2px; box-sizing: border-box; }
-.pvc-brand span { display: flex; flex-direction: column; line-height: 1.1; }
-.pvc-brand b { font-size: 13px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
-.pvc-brand small { font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--ink2); }
-.pvc-tag { font-style: normal; font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,.18); color: var(--ink); white-space: nowrap; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-.pvc.silver .pvc-tag { background: rgba(255,255,255,.6); }
-.pvc-mid { display: flex; align-items: center; gap: 12px; }
-.pvc-chip { position: relative; flex: none; width: 46px; height: 35px; border-radius: 7px; background: linear-gradient(135deg, #f7e2a3 0%, #d6a94a 45%, #f3d58c 70%, #b8862f 100%); box-shadow: inset 0 0 0 1px rgba(120,80,20,.45), 0 1px 2px rgba(0,0,0,.3); overflow: hidden; }
-.pvc-chip i { position: absolute; background: rgba(120,80,20,.45); }
-.pvc-chip i:nth-child(1) { left: 0; right: 0; top: 50%; height: 1px; }
-.pvc-chip i:nth-child(2) { top: 0; bottom: 0; left: 33%; width: 1px; } .pvc-chip i:nth-child(3) { top: 0; bottom: 0; left: 66%; width: 1px; }
-.pvc-nfc { flex: none; width: 26px; height: 26px; color: var(--ink2); transform: rotate(90deg) translateY(2px); }
-.pvc-big { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
-.pvc-big b { font-size: clamp(30px, 7vw, 40px); font-weight: 800; letter-spacing: -.02em; text-shadow: 0 1px 0 rgba(0,0,0,.25), 0 -1px 0 rgba(255,255,255,.15); }
-.pvc-big small { margin-top: 4px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
-.pvc-no { font-family: "OCR A Std", "Courier New", ui-monospace, monospace; font-size: clamp(15px, 3.6vw, 19px); letter-spacing: .18em; font-weight: 700; color: var(--ink);
-  text-shadow: 0 1px 0 rgba(0,0,0,.35), 0 -1px 0 rgba(255,255,255,.25); }
-.pvc.silver .pvc-no, .pvc.silver .pvc-big b { text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 -1px 0 rgba(0,0,0,.15); }
-.pvc-bot { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
-.pvc-bot span { display: flex; flex-direction: column; min-width: 0; }
-.pvc-bot span.r { align-items: flex-end; }
-.pvc-bot small { font-size: 8.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); }
-.pvc-bot b { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-@media (hover: none) { .pvc-card { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .pvc-card, .pvc-sheen { transition: none; transform: none; } }
+const GD_CSS = `
+.gd { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px; }
+.gd-card { position: relative; width: 100%; max-width: 440px; aspect-ratio: 1.586; border-radius: 18px; perspective: 1400px; }
+.gd-face { position: absolute; inset: 0; border-radius: 18px; overflow: hidden; color: #2a1d06; padding: 16px 20px; box-sizing: border-box;
+  display: grid; grid-template-rows: auto 1fr auto auto;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 2px, rgba(0,0,0,.03) 2px 4px), linear-gradient(135deg, #f6dc9f 0%, #d4a24c 45%, #f0d08a 70%, #b8862f 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,.55) inset, 0 -1px 0 rgba(0,0,0,.2) inset, 0 24px 40px -24px rgba(60,40,0,.65), 0 8px 14px -10px rgba(0,0,0,.35); }
+.gd-card:not(.gd-flip) .gd-face { position: relative; height: 100%; }
+.gd-face::after { content: ""; position: absolute; inset: -40% -60%; background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,.35) 50%, transparent 58%); transform: translateX(-35%); transition: transform 1s ease; pointer-events: none; }
+.gd-card:hover .gd-face::after { transform: translateX(35%); }
+.gd-top, .gd-mid, .gd-no, .gd-row, .gd-bk, .gd-mag, .gd-fine { position: relative; z-index: 1; }
+.gd-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.gd-brand { display: inline-flex; align-items: center; gap: 8px; color: #14532d; }
+.gd-brand svg { width: 26px; height: 26px; flex: none; }
+.gd-brand span { display: flex; flex-direction: column; line-height: 1.1; }
+.gd-brand b { font-size: 12.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.gd-brand small { font-size: 9.5px; font-weight: 700; letter-spacing: .05em; opacity: .8; }
+.gd-kind { font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; text-align: right; line-height: 1.3; color: #14532d; }
+.gd-kind small { display: block; font-size: 9px; letter-spacing: .1em; opacity: .85; }
+.gd-mid { display: flex; align-items: center; gap: 12px; }
+.gd-chip { width: 42px; height: 32px; border-radius: 6px; flex: none; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #fbecc0 0%, #cfa64c 45%, #f6dc9f 70%, #a8802c 100%); box-shadow: inset 0 0 0 1px rgba(110,80,20,.5), 0 1px 2px rgba(0,0,0,.25); }
+.gd-chip::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(110,80,20,.55); }
+.gd-chip::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(110,80,20,.55); }
+.gd-nfc { width: 22px; height: 22px; color: #5a4310; opacity: .75; transform: rotate(90deg); flex: none; }
+.gd-bal { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.05; }
+.gd-bal small { font-size: 8.5px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; opacity: .75; }
+.gd-bal b { font-size: clamp(22px, 5.4vw, 28px); font-weight: 800; color: #14532d; letter-spacing: -.01em; }
+.gd-no { font-family: "OCR A Std", "IBM Plex Mono", ui-monospace, "Courier New", monospace; font-size: clamp(15px, 3.8vw, 20px); font-weight: 700; letter-spacing: .14em; white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 -1px 0 rgba(0,0,0,.2); }
+.gd-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: 4px; }
+.gd-who { display: flex; flex-direction: column; min-width: 0; }
+.gd-who b { font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+.gd-who em { font-style: normal; font-size: 10.5px; font-weight: 600; opacity: .85; }
+.gd-thru { display: inline-flex; align-items: center; gap: 6px; font-family: ui-monospace, "Courier New", monospace; font-size: 12px; font-weight: 700; margin-top: 3px; }
+.gd-thru small { font-family: inherit; width: 36px; font-size: 7.5px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; line-height: 1.05; opacity: .7; }
+.gd-net { display: inline-flex; align-items: center; gap: 4px; color: #14532d; flex: none; }
+.gd-net svg { width: 24px; height: 24px; }
+.gd-net b { font-size: 15px; font-weight: 800; font-style: italic; letter-spacing: .06em; }
+/* flip (therapist) */
+.gd-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3,.7,.2,1); }
+.gd-flip.on .gd-inner { transform: rotateY(180deg); }
+.gd-flip .gd-face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.gd-back { transform: rotateY(180deg); display: flex !important; flex-direction: column; justify-content: space-between; padding: 0 0 12px !important; }
+.gd-mag { height: 34px; margin-top: 16px; background: linear-gradient(180deg, #1a1a1a, #2d2d2d 50%, #111); }
+.gd-bk { flex: 1; display: flex; align-items: center; gap: 14px; padding: 10px 18px 0; min-width: 0; }
+.gd-qr { flex: none; width: 34%; max-width: 116px; aspect-ratio: 1; background: #fff; border-radius: 10px; padding: 6px; box-sizing: border-box; display: grid; place-items: center; box-shadow: 0 4px 10px -6px rgba(0,0,0,.4); }
+.gd-qr img { width: 100%; height: 100%; display: block; }
+.gd-qr i { font-style: normal; font-size: 12px; font-weight: 800; color: #94a3b8; }
+.gd-bk-t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.gd-bk-t b { font-size: clamp(13px, 3vw, 16px); line-height: 1.2; color: #14532d; }
+.gd-bk-t span { font-size: 11px; opacity: .85; }
+.gd-bk-t code { font-family: ui-monospace, "Courier New", monospace; font-size: 10px; opacity: .85; overflow-wrap: anywhere; background: none; color: inherit; padding: 0; }
+.gd-id { font-family: ui-monospace, "Courier New", monospace; font-size: 11px !important; letter-spacing: .12em; font-weight: 700; opacity: 1 !important; }
+.gd-fine { margin: 0; padding: 0 18px; font-size: 8.5px; line-height: 1.35; opacity: .75; }
+.gd-fliptog { margin-top: 10px; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #e3d2a6; background: #fffaf0; color: #6b4f12; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.gd-fliptog:hover { background: #fbf1da; }
+@media (prefers-reduced-motion: reduce) { .gd-inner, .gd-face::after { transition: none; } }
 `;
