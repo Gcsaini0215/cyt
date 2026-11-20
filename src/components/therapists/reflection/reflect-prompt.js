@@ -63,7 +63,8 @@ export default function ReflectPrompt({ bookings = null }) {
   if (!s || blocked) return null;
   // closed (×, Not now, tap outside) = never pop up again on this device (owner, 2026-11-21) — back on from the journal page
   const close = () => { markSeen(s.id); setReflectReminders(false); setS(null); };
-  const first = String(s.name || "").trim().split(/\s+/)[0];
+  // no client name on the popup (owner, 2026-11-21) — just when the session was, e.g. "Fri 5:30 pm"
+  const when = (() => { const d = new Date(s.date); return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("en-IN", { weekday: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }).replace(",", ""); })();
   const href = `/therapists/reflection?new=1&label=${encodeURIComponent(sessionLabel(s.date))}`;
 
   return (
@@ -72,7 +73,7 @@ export default function ReflectPrompt({ bookings = null }) {
       <div className="rp">
         <button type="button" className="rp-x" onClick={close} aria-label="Not now">×</button>
         <span className="rp-ic" aria-hidden="true"><SelfImprovementRoundedIcon /></span>
-        <small className="rp-k">Session complete{first ? ` · ${first}` : ""}</small>
+        <small className="rp-k">Session complete{when ? ` · ${when}` : ""}</small>
         <h2 id="rp-h">Take 3 minutes for yourself?</h2>
         <p>What did this session stir up in you? Noting it now — feelings, the pull to act, whose feeling it is — keeps you steady for the next client.</p>
         <span className="rp-lock">🔒 Private to you · no client names</span>
