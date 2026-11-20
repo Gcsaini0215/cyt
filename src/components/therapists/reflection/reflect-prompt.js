@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import SelfImprovementRoundedIcon from "@mui/icons-material/SelfImprovementRounded";
 
@@ -60,14 +61,29 @@ export default function ReflectPrompt({ bookings = null }) {
     return () => { clearTimeout(first); clearInterval(iv); };
   }, [s]);
 
-  if (!s || blocked) return null;
+  // open: freeze the page behind (iOS-safe) so the card stays in the middle of the screen
+  const open = !!s && !blocked;
+  useEffect(() => {
+    if (!open) return undefined;
+    const b = document.body, h = document.documentElement, y = window.scrollY;
+    const prev = { pos: b.style.position, top: b.style.top, w: b.style.width, ov: b.style.overflow, hov: h.style.overflow };
+    b.style.position = "fixed"; b.style.top = `-${y}px`; b.style.width = "100%"; b.style.overflow = "hidden"; h.style.overflow = "hidden";
+    return () => {
+      b.style.position = prev.pos; b.style.top = prev.top; b.style.width = prev.w; b.style.overflow = prev.ov; h.style.overflow = prev.hov;
+      window.scrollTo(0, y);
+    };
+  }, [open]);
+
+  if (!open || typeof document === "undefined") return null;
   // closed (×, Not now, tap outside) = never pop up again on this device (owner, 2026-11-21) — back on from the journal page
   const close = () => { markSeen(s.id); setReflectReminders(false); setS(null); };
   // no client name on the popup (owner, 2026-11-21) — just when the session was, e.g. "Fri 5:30 pm"
   const when = (() => { const d = new Date(s.date); return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("en-IN", { weekday: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }).replace(",", ""); })();
   const href = `/therapists/reflection?new=1&label=${encodeURIComponent(sessionLabel(s.date))}`;
 
-  return (
+  // rendered straight into <body>: a parent with transform / animation (the portal's zoom-open) would pull a
+  // position: fixed box off-centre
+  return createPortal((
     <div className="rp-wrap" role="dialog" aria-modal="true" aria-labelledby="rp-h" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
       <style>{RP_CSS}</style>
       <div className="rp">
@@ -82,12 +98,12 @@ export default function ReflectPrompt({ bookings = null }) {
         <span className="rp-off">Closing turns these reminders off — switch them back on any time in your Reflection journal.</span>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 const RP_CSS = `
-.rp-wrap { position: fixed; inset: 0; z-index: 1400; display: grid; place-items: center; padding: 16px; background: rgba(15,23,42,.45); backdrop-filter: blur(3px); animation: rpIn .2s ease; }
-.rp { position: relative; width: 100%; max-width: 400px; box-sizing: border-box; padding: 26px 24px 18px; border-radius: 26px; text-align: center; color: #10241a;
+.rp-wrap { position: fixed; inset: 0; z-index: 100000; overscroll-behavior: contain; touch-action: none; display: grid; place-items: center; padding: 16px; background: rgba(15,23,42,.45); backdrop-filter: blur(3px); animation: rpIn .2s ease; }
+.rp { position: relative; touch-action: manipulation; max-height: calc(100dvh - 32px); overflow-y: auto; width: 100%; max-width: 400px; box-sizing: border-box; padding: 26px 24px 18px; border-radius: 26px; text-align: center; color: #10241a;
   background: radial-gradient(100% 70% at 50% 0%, rgba(143,156,255,.25), transparent 70%), #fff; box-shadow: 0 30px 60px -24px rgba(15,23,42,.5); animation: rpUp .28s cubic-bezier(.2,.8,.2,1); }
 .rp-x { position: absolute; top: 10px; right: 12px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: #f1f5f9; color: #475569; font-size: 20px; line-height: 1; cursor: pointer; }
 .rp-ic { width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 20px; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg, #8f9cff, #5146d6); box-shadow: 0 14px 24px -12px #5146d6; }
