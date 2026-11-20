@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { reflectRemindersOn, setReflectReminders } from "./reflect-prompt";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import SelfImprovementRoundedIcon from "@mui/icons-material/SelfImprovementRounded";
 import { fetchById, postData, deleteById } from "../../../utils/actions";
@@ -50,6 +52,15 @@ export default function ReflectionJournal() {
   const [openId, setOpenId] = useState("");
   const [saved, setSaved] = useState(false);
   const set = (k) => (v) => setF((p) => ({ ...p, [k]: v }));
+  const router = useRouter();
+  const [remind, setRemind] = useState(true);
+  useEffect(() => { setRemind(reflectRemindersOn()); }, []);
+  // from the "session complete" popup: open the form with the session time as the label
+  useEffect(() => {
+    if (!router.isReady || router.query.new !== "1") return;
+    setF({ ...EMPTY, label: String(router.query.label || "").slice(0, 60) });
+    router.replace("/therapists/reflection", undefined, { shallow: true });
+  }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const load = () => fetchById(API)
     .then((r) => { if (r?.status) setData(r.data); else setErr(r?.message || "Couldn't load"); })
@@ -83,6 +94,7 @@ export default function ReflectionJournal() {
           <h1>Reflection journal</h1>
           <p>A quiet place to notice what a session stirred up in you — and to take care of it. Feelings that come up with a client are normal and useful; noticing them helps you stay steady for the client and for yourself.</p>
           <span className="rj-lock"><LockRoundedIcon /> Private to you — not visible to CYT, admins or clients. Please don&apos;t write client names.</span>
+          <label className="rj-rem"><input type="checkbox" checked={remind} onChange={(e) => { setReflectReminders(e.target.checked); setRemind(e.target.checked); }} /><i className="rj-sw" aria-hidden="true" /> Remind me to reflect after each completed session</label>
         </div>
       </header>
 
@@ -226,6 +238,13 @@ const RJ_CSS = `
 .rj-hero p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.6; color: #475569; }
 .rj-lock { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #fff; border: 1px solid #e3e6f2; font-size: 12.5px; font-weight: 700; color: #3730a3; }
 .rj-lock svg { font-size: 15px; }
+.rj-rem { display: flex !important; align-items: center; gap: 10px; margin-top: 12px; font-size: 13.5px; font-weight: 700; color: #334155; cursor: pointer; position: relative; }
+.rj-rem input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rj-sw { flex: none; width: 38px; height: 22px; border-radius: 999px; background: #cbd5e1; position: relative; transition: background .2s; }
+.rj-sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+.rj-rem input:checked + .rj-sw { background: #15803d; }
+.rj-rem input:checked + .rj-sw::after { transform: translateX(16px); }
+.rj-rem input:focus-visible + .rj-sw { box-shadow: 0 0 0 3px rgba(21,128,61,.25); }
 .rj-new { display: block; width: 100%; margin: 16px 0; height: 52px; border: 0; border-radius: 16px; background: #14532d; color: #fff; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 12px 22px -14px rgba(20,83,45,.9); }
 .rj-new:hover { background: #0f3f23; }
 .rj-ok { margin: 14px 0 0; padding: 10px 14px; border-radius: 12px; background: #e7f6ec; color: #14532d; font-weight: 700; font-size: 14px; }

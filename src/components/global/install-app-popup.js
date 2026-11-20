@@ -35,7 +35,7 @@ export default function InstallAppPopup({ who = "client" }) {
     const gone = () => { setMode(null); setShow(false); };
     window.addEventListener("appinstalled", gone);
     const t = setTimeout(() => setShow(true), 2500); // let the home screen settle first
-    const iv = setInterval(() => setBlocked(!!document.querySelector(".wn-wrap, .dr-wrap, .tw-welcome")), 700);
+    const iv = setInterval(() => setBlocked(!!document.querySelector(".wn-wrap, .dr-wrap, .tw-welcome, .rp-wrap")), 700);
     return () => { clearTimeout(t); clearInterval(iv); window.removeEventListener("cyt-install-ready", pick); window.removeEventListener("appinstalled", gone); };
   }, []);
 

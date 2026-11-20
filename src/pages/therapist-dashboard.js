@@ -50,6 +50,7 @@ import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import { usePager, Pager } from "../components/therapists/pager";
 import { earningOf } from "../utils/earning";
 import InstallAppPopup from "../components/global/install-app-popup";
+import ReflectPrompt from "../components/therapists/reflection/reflect-prompt";
 import SupervisionCard from "../components/therapists/dashboard/supervision-card";
 import { ReflectionCard } from "../components/therapists/reflection/reflection-journal";
 
@@ -1375,6 +1376,7 @@ export default function TherapistDashboard() {
   const [welcLeaving, setWelcLeaving] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [nextLoading, setNextLoading] = React.useState(true); // bookings arrive before the totals
+  const [doneBookings, setDoneBookings] = React.useState(null); // → "reflect on this session?" popup
   const [refreshing, setRefreshing] = React.useState(false);
   const [lastRefreshed, setLastRefreshed] = React.useState(null);
   const [clockTime, setClockTime] = React.useState(null);
@@ -1440,6 +1442,7 @@ export default function TherapistDashboard() {
         setNextSession(early[0] || null);
       }
       setNextLoading(false);
+      if (bookingsRes.status === "fulfilled" && bookingsRes.value?.status) setDoneBookings((bookingsRes.value.data || []).filter((b) => b.status === "Completed"));
       const [workshopRes, dashRes, reviewsRes] = await othersP;
       const bookingsData = bookingsRes.status === "fulfilled" ? bookingsRes.value : {};
       const workshopData = workshopRes.status === "fulfilled" ? workshopRes.value : {};
@@ -1733,6 +1736,7 @@ export default function TherapistDashboard() {
   return (
     <MainLayout>
       <InstallAppPopup who="therapist" />
+      <ReflectPrompt bookings={doneBookings} />
       {showWelcome && <WelcomeOverlay name={firstName} leaving={welcLeaving} onDismiss={dismissWelcome} />}
 
       <Box sx={{ pb: 6 }}>

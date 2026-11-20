@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import ReflectPrompt from "../reflection/reflect-prompt";
 import { toast } from "react-toastify";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import StopRoundedIcon from "@mui/icons-material/StopRounded";
@@ -300,6 +301,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         toast.success(r.message || "Session completed");
         setAppointments((prev) => prev.map((x) => (x._id === a._id ? { ...x, status: SESSION_STATUS.COMPLETED, session_completed_at: new Date().toISOString() } : x)));
         setSelected((s) => (s && s._id === a._id ? { ...s, status: SESSION_STATUS.COMPLETED } : s));
+        // a moment to reflect, privately (components/therapists/reflection/reflect-prompt.js)
+        window.dispatchEvent(new CustomEvent("cyt:session-done", { detail: { id: a._id, name: personOf(a).name, date: a.booking_date } }));
       } else toast.error(r.message || "Couldn't end the session");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't end the session");
@@ -358,6 +361,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   return (
     <div className="apx">
       <style dangerouslySetInnerHTML={{ __html: APX_CSS }} />
+      <ReflectPrompt />
       {ipStart && <InPersonStartDialog booking={ipStart} clientName={personOf(ipStart).name} onClose={() => setIpStart(null)} onStarted={() => { toast.success("Session started"); markStarted(ipStart._id); }} />}
 
       {isRinging && (
