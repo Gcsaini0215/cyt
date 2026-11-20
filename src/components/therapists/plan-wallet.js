@@ -48,7 +48,7 @@ export function PlanChip() {
 }
 
 // card names by package (owner, 2026-11-21): the longer the plan, the higher the card — yearly = Elite
-export const CARD_TIER = { free: "Associate", "1_month": "Classic", "3_month": "Select", "6_month": "Premier", annual: "Elite" };
+export const CARD_TIER = { free: "Bonus", "1_month": "Classic", "3_month": "Select", "6_month": "Premier", annual: "Elite" };
 
 // the wallet card at the top of /my-plans
 export function PlanWallet({ data, onRenew, me = null }) {
@@ -67,7 +67,7 @@ export function PlanWallet({ data, onRenew, me = null }) {
   return (
     <section id="wallet" className={`pw${L.active ? "" : " off"}${free ? " free" : ""}`} aria-label="Wallet">
       <style>{PW_CSS}</style>
-      <PvcCard label="" mark={false} kind={`${CARD_TIER[L.plan] || "Associate"} card`} kindSub="✓ Verified Therapist" number={cardNo(me?._id || me?.user?._id)}
+      <PvcCard label="" mark={false} kind={`${CARD_TIER[L.plan] || "Bonus"} card`} kindSub="✓ Verified Therapist" number={cardNo(me?._id || me?.user?._id)}
         name={me?.user?.name || ""} sub={me?.profile_type || ""} thruLabel="Member since" thru={since}
         back={{ qr: handle ? `/api/my-qr/${handle}.png` : "", link: handle ? `https://www.chooseyourtherapist.in/t/${handle}` : "", memberId: `CYT-PRO-${cardNo(me?._id || me?.user?._id).slice(-4)}` }} />
       <div className="pw-panel">

@@ -15,18 +15,30 @@ export const cardNo = (id) => {
 };
 
 
+// engraved watermark on the right of the card: a head in profile with a leaf growing inside (mind + growth),
+// soft "calm" ripples behind it — like the security artwork on a bank card
+const Watermark = () => (
+  <svg className="gd-wm" viewBox="0 0 220 240" aria-hidden="true" focusable="false">
+    <g fill="none" stroke="currentColor" strokeWidth="1.1">
+      {[40, 58, 76, 94, 112].map((r) => <circle key={r} cx="112" cy="104" r={r} />)}
+    </g>
+    <path className="gd-wm-head" d="M150 240V196C170 176 182 141 178 106C172 51 130 19 92 23C58 27 40 56 44 89L30 117C28 121 31 124 36 124H42L40 135C39 139 42 141 46 142L45 151C44 161 50 169 62 171L76 173V240" />
+    <path className="gd-wm-leaf" d="M112 150C112 128 112 108 113 92M112 120C92 112 82 92 88 76C104 82 114 100 112 120ZM113 104C130 96 142 76 136 60C120 66 110 84 113 104Z" />
+  </svg>
+);
+
 /* label: "CYT Wallet" / "CYT Pro" · kind + kindSub: top-right ("Wallet" / "Prepaid sessions")
    number · name · sub (profession) · thruLabel + thru · balance (client) · back: { qr, link, memberId } */
 export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "", number = "", name = "", sub = "", thruLabel = "Valid thru", thru = "", balance = "", back = null, mark = true, children = null }) {
   const [flip, setFlip] = useState(false);
   const front = (
     <div className="gd-face gd-front">
+      <Watermark />
       <div className="gd-top">
         <span className="gd-brand"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="28" height="28" />{label ? <span><b>{label}</b><small>Choose Your Therapist</small></span> : <span><b className="gd-co">Choose Your Therapist</b></span>}</span>
-        {kind && <span className="gd-kind">{kind}{kindSub && <small>{kindSub}</small>}</span>}
+        {kind && <span className="gd-kind"><b>{kind}</b>{kindSub && <small>{kindSub}</small>}</span>}
       </div>
       <div className="gd-mid">
-        <svg className="gd-nfc" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.8a13 13 0 0 1 0 18.4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
         {balance && <span className="gd-bal"><small>Balance</small><b>{balance}</b></span>}
       </div>
       <div className="gd-no">{number}</div>
@@ -92,8 +104,13 @@ const GD_CSS = `
 .gd-brand b { font-size: 12.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
 .gd-brand b.gd-co { font-size: 14px; font-weight: 800; letter-spacing: .02em; text-transform: none; color: #14532d; }
 .gd-brand small { font-size: 9.5px; font-weight: 700; letter-spacing: .05em; opacity: .8; }
-.gd-kind { font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; text-align: right; line-height: 1.3; color: #14532d; }
-.gd-kind small { display: block; font-size: 9px; letter-spacing: .1em; opacity: .85; }
+.gd-kind { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex: none; }
+.gd-kind b { display: inline-block; padding: 5px 11px 4px; border-radius: 8px; font-size: 11px; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; line-height: 1.2; color: #f6dc9f;
+  background: linear-gradient(160deg, #1f6e40 0%, #0d3b21 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(246,220,159,.35), 0 3px 6px -2px rgba(60,40,0,.45); }
+.gd-kind small { font-size: 9.5px; font-weight: 800; letter-spacing: .06em; color: #14532d; white-space: nowrap; }
+.gd-wm { position: absolute; z-index: 0; right: -4%; top: 50%; height: 118%; width: auto; transform: translateY(-46%); color: #6b4c12; opacity: .2; pointer-events: none; }
+.gd-wm-head { fill: rgba(255,255,255,.18); stroke: #6b4c12; stroke-width: 2.2; stroke-linejoin: round; }
+.gd-wm-leaf { fill: rgba(20,83,45,.55); stroke: #14532d; stroke-width: 2.4; stroke-linecap: round; }
 .gd-mid { display: flex; align-items: center; gap: 12px; }
 .gd-chip { width: 42px; height: 32px; border-radius: 6px; flex: none; position: relative; overflow: hidden;
   background: linear-gradient(135deg, #fbecc0 0%, #cfa64c 45%, #f6dc9f 70%, #a8802c 100%); box-shadow: inset 0 0 0 1px rgba(110,80,20,.5), 0 1px 2px rgba(0,0,0,.25); }
