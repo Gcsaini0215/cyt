@@ -17,12 +17,12 @@ export const cardNo = (id) => {
 
 /* label: "CYT Wallet" / "CYT Pro" · kind + kindSub: top-right ("Wallet" / "Prepaid sessions")
    number · name · sub (profession) · thruLabel + thru · balance (client) · back: { qr, link, memberId } */
-export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "", number = "", name = "", sub = "", thruLabel = "Valid thru", thru = "", balance = "", back = null, children = null }) {
+export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "", number = "", name = "", sub = "", thruLabel = "Valid thru", thru = "", balance = "", back = null, mark = true, children = null }) {
   const [flip, setFlip] = useState(false);
   const front = (
     <div className="gd-face gd-front">
       <div className="gd-top">
-        <span className="gd-brand"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="28" height="28" /><span><b>{label}</b><small>Choose Your Therapist</small></span></span>
+        <span className="gd-brand"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="28" height="28" />{label ? <span><b>{label}</b><small>Choose Your Therapist</small></span> : <span><b className="gd-co">Choose Your Therapist</b></span>}</span>
         {kind && <span className="gd-kind">{kind}{kindSub && <small>{kindSub}</small>}</span>}
       </div>
       <div className="gd-mid">
@@ -36,7 +36,7 @@ export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "",
           {sub && <em>{sub}</em>}
           {thru && <span className="gd-thru"><small>{thruLabel}</small>{thru}</span>}
         </span>
-        <span className="gd-net" aria-hidden="true"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="24" height="24" /><b>CYT</b></span>
+        {mark && <span className="gd-net" aria-hidden="true"><img className="gd-logo" src="/cyt-emblem.png" alt="" width="24" height="24" /><b>CYT</b></span>}
       </div>
     </div>
   );
@@ -45,7 +45,7 @@ export default function PvcCard({ label = "CYT Wallet", kind = "", kindSub = "",
       <style>{GD_CSS}</style>
       {back ? (
         <>
-          <div className={`gd-card gd-flip${flip ? " on" : ""}`} role="img" aria-label={`${label} card`}>
+          <div className={`gd-card gd-flip${flip ? " on" : ""}`} role="img" aria-label={`${label || "Choose Your Therapist"}${kind ? ` ${kind}` : ""} card`}>
             <div className="gd-inner">
               {front}
               <div className="gd-face gd-back">
@@ -90,6 +90,7 @@ const GD_CSS = `
 .gd-brand .gd-logo { width: 28px; height: 28px; }
 .gd-brand span { display: flex; flex-direction: column; line-height: 1.1; }
 .gd-brand b { font-size: 12.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.gd-brand b.gd-co { font-size: 14px; font-weight: 800; letter-spacing: .02em; text-transform: none; color: #14532d; }
 .gd-brand small { font-size: 9.5px; font-weight: 700; letter-spacing: .05em; opacity: .8; }
 .gd-kind { font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; text-align: right; line-height: 1.3; color: #14532d; }
 .gd-kind small { display: block; font-size: 9px; letter-spacing: .1em; opacity: .85; }
