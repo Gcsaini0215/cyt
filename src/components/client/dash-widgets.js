@@ -18,6 +18,7 @@ import { CONCERNS } from "../../utils/therapist-directory";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { withNoidaCharges, hasNoidaInvoice } from "../../utils/noida-booking";
+import { T as BREATHS } from "../breathe/techniques";
 
 /* Small everyday widgets for the client home: tip of the day, journey stats, mood check-in,
    a one-minute breathing exercise (both in the "Calm corner"), recent sessions and the first-visit start card. */
@@ -207,17 +208,30 @@ export function BreathCard({ bare = false }) {
   );
 }
 
-/* tip of the day + the breathing exercise in one card; the exercise opens on a tap */
+/* Calm corner (2026-11-20): the same breathing experience as the home page's /breathe — 9 techniques with
+   nature scenes and sounds, plus grounding, calming sounds and an SOS reset — opening full page at /client/calm.
+   7 days free from the first visit, then ₹100 a month (the chip shows where the client stands). */
+const CALM_TOOLS = [["grounding", "⚓", "Grounding"], ["sounds", "🎧", "Calming sounds"], ["sos", "🆘", "30-sec SOS"]];
 export function CalmCorner({ now }) {
-  const [open, setOpen] = useState(false);
+  const [st, setSt] = useState(null);
+  useEffect(() => { fetchById(`${apiUrl}/calm/status`).then((r) => r?.status && setSt(r.data)).catch(() => {}); }, []);
+  const chip = !st ? null : st.state === "new" ? "7 days free" : st.state === "trial" ? `Free · ${st.daysLeft} day${st.daysLeft === 1 ? "" : "s"} left` : st.state === "active" ? "Active" : "🔒 ₹100 / month";
   return (
     <div className="dw-card dw-calm">
-      <div className="dw-h"><b>Calm corner</b></div>
+      <div className="dw-h"><b>Calm corner</b>{chip && <span className={`dw-calm-chip ${st.state}`}>{chip}</span>}</div>
+      <p className="dw-calm-sub">Breathe with a calming nature scene — pick one, it opens full screen.</p>
+      <div className="dw-calm-orbs">
+        {BREATHS.map((x) => (
+          <Link key={x.key} href={`/client/calm?p=${x.key}`} style={{ "--c1": x.c[0], "--c2": x.c[1] }}>
+            <i aria-hidden="true" /><span>{x.name.replace(" breathing", "").replace(" (humming bee)", "")}</span>
+          </Link>
+        ))}
+      </div>
+      <div className="dw-calm-tools">
+        {CALM_TOOLS.map(([k, ic, l]) => <Link key={k} href={`/client/calm?t=${k}`}><span aria-hidden="true">{ic}</span>{l}</Link>)}
+      </div>
       <TipLine now={now} />
-      <button type="button" className={`dw-calm-tog${open ? " on" : ""}`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <AirRoundedIcon /><span>One-minute breathing</span><ExpandMoreRoundedIcon className="chev" />
-      </button>
-      {open && <BreathCard bare />}
+      <Link href="/client/calm" className="dw-calm-go">Open Calm corner <ArrowForwardRoundedIcon /></Link>
     </div>
   );
 }
@@ -362,7 +376,23 @@ export const DW_CSS = `
 .dw-ic svg { font-size: 17px; } .dw-ic.go { background: #f0faf3; border-color: #cfe9d8; color: #14532d !important; }
 
 
-.dw-calm .dw-tip { margin-top: 0; }
+.dw-calm .dw-tip { margin-top: 12px; }
+.dw-calm .dw-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dw-calm-chip { font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #e3f4e9; color: #15803d; white-space: nowrap; }
+.dw-calm-chip.expired { background: #fff1e0; color: #b45309; }
+.dw-calm-sub { margin: 2px 0 12px; font-size: 13px; color: #64748b; }
+.dw-calm-orbs { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; margin: 0 -2px; scrollbar-width: none; }
+.dw-calm-orbs::-webkit-scrollbar { display: none; }
+.dw-calm-orbs a { flex: none; width: 74px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none !important; color: #334155 !important; font-size: 11.5px; font-weight: 700; text-align: center; line-height: 1.2; }
+.dw-calm-orbs i { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0%, var(--c1) 45%, var(--c2) 100%); box-shadow: 0 8px 18px -8px var(--c2), 0 0 0 1px rgba(255,255,255,.7); animation: dwCalmOrb 5s ease-in-out infinite; }
+.dw-calm-orbs a:nth-child(2n) i { animation-delay: -1.5s; } .dw-calm-orbs a:nth-child(3n) i { animation-delay: -3s; }
+@keyframes dwCalmOrb { 50% { transform: scale(.86); } }
+.dw-calm-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.dw-calm-tools a { display: flex; align-items: center; justify-content: center; gap: 6px; height: 40px; border-radius: 12px; background: #f3f7f5; color: #1f3d30 !important; font-size: 12.5px; font-weight: 800; text-decoration: none !important; white-space: nowrap; }
+.dw-calm-tools a:hover { background: #e7f2ec; }
+.dw-calm-go { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 14px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
+.dw-calm-go svg { font-size: 18px; }
+@media (prefers-reduced-motion: reduce) { .dw-calm-orbs i { animation: none; } }
 .dw-calm-tog { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #e4ece7; background: #f6faf7; color: #14532d; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; text-align: left; }
 .dw-calm-tog > svg { font-size: 20px; color: #16a34a; } .dw-calm-tog span { flex: 1; }
 .dw-calm-tog .chev { color: #64748b; transition: transform .2s; } .dw-calm-tog.on .chev { transform: rotate(180deg); }

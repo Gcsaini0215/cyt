@@ -1,0 +1,361 @@
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { Scene, SCENE_CSS } from "./scenes";
+import { createBreathAudio } from "./audio";
+import { T } from "./techniques";
+
+export { T };
+
+/* The full-page guided breathing app — used by the public /breathe page and the client's Calm corner
+   (/client/calm, a pass with a 7-day trial). Was pages/breathe.js. /breathe — full-page guided breathing (2026-11-20, owner's request: no pop-up, nothing else on screen, only a
+   Back button). /breathe lists the techniques; /breathe?p=<key> opens one. While it runs only the breathing
+   visual, the cue and a pause button show. Gentle tones on each phase (can be muted), vibration on phones (opt-in),
+   the screen stays awake while it runs. Standard techniques, our own wording.
+   Each technique sits in its own soft, animated nature scene (components/breathe/scenes.js); pastel orb colours. */
+
+export const BY = Object.fromEntries(T.map((t) => [t.key, t]));
+const WORD = { in: "Breathe in", hold: "Hold", out: "Breathe out" };
+const cycleOf = (t) => t.phases.reduce((n, p) => n + p.s, 0);
+const ease = (x) => 0.5 - Math.cos(Math.PI * x) / 2;
+const pattern = (t) => t.phases.map((p) => p.s).join(" · ");
+
+// where we are: phase index, progress in it (0..1), seconds left, lung level (0 = empty, 1 = full)
+function stateAt(t, ms) {
+  const cyc = cycleOf(t) * 1000;
+  const inCycle = ms % cyc;
+  let acc = 0, level = 0;
+  for (let i = 0; i < t.phases.length; i++) {
+    const p = t.phases[i], len = p.s * 1000;
+    const to = p.to ?? (p.a === "in" ? 1 : p.a === "out" ? 0 : level);
+    if (inCycle < acc + len) {
+      const prog = (inCycle - acc) / len;
+      return { i, prog, left: Math.ceil((len - (inCycle - acc)) / 1000), level: level + (to - level) * ease(prog), round: Math.floor(ms / cyc) + 1 };
+    }
+    level = to; acc += len;
+  }
+  return { i: 0, prog: 0, left: t.phases[0].s, level: 0, round: 1 };
+}
+
+function Visual({ t, st, running }) {
+  const ph = t.phases[st.i];
+  const scale = 0.5 + 0.5 * st.level;
+  const orb = (
+    <div className="br-orb" style={{ transform: `scale(${scale})` }}>
+      <i className="br-glow" style={{ opacity: 0.35 + 0.5 * st.level }} />
+      <i className="br-core" />
+    </div>
+  );
+  if (t.visual === "square" || t.visual === "triangle") {
+    const sq = t.visual === "square";
+    const pts = sq ? [[20, 280], [20, 20], [280, 20], [280, 280]] : [[30, 270], [150, 30], [270, 270]];
+    const a = pts[st.i % pts.length], b = pts[(st.i + 1) % pts.length];
+    const x = a[0] + (b[0] - a[0]) * st.prog, y = a[1] + (b[1] - a[1]) * st.prog;
+    return (
+      <div className="br-vis">
+        <svg viewBox="0 0 300 300" className="br-path" aria-hidden="true">
+          <polygon points={pts.map((p) => p.join(",")).join(" ")} fill="none" stroke="var(--line)" strokeWidth="3" strokeLinejoin="round" />
+          <line x1={a[0]} y1={a[1]} x2={x} y2={y} stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+          <circle cx={x} cy={y} r="11" fill="#fff" />
+          <circle cx={x} cy={y} r="20" fill="rgba(255,255,255,.25)" />
+        </svg>
+        <div className="br-inner">{orb}</div>
+      </div>
+    );
+  }
+  return (
+    <div className="br-vis">
+      {t.visual === "hum" && ph.hum && running && <div className="br-ripples" aria-hidden="true"><i /><i /><i /></div>}
+      {orb}
+      {t.visual === "nostril" && (
+        <>
+          <span className={`br-side l${ph.side === "L" ? " on" : ""}`}>Left</span>
+          <span className={`br-side r${ph.side === "R" ? " on" : ""}`}>Right</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Session({ t, onPick, locked }) {
+  const [mins, setMins] = useState(t.key === "sigh" ? 1 : 3);
+  const [run, setRun] = useState("idle"); // idle | on | paused | done
+  const [ms, setMs] = useState(0);
+  const [sound, setSound] = useState(true); // the breath + bowl sound
+  const [nature, setNature] = useState(true); // the scene's nature sound
+  const audio = useRef(null);
+  const [buzz, setBuzz] = useState(false);
+  const [felt, setFelt] = useState("");
+  const raf = useRef(0), base = useRef(0), acc = useRef(0), lastPhase = useRef(-1), wake = useRef(null);
+  const cyc = cycleOf(t) * 1000;
+  const rounds = Math.max(1, Math.round((mins * 60000) / cyc));
+  const total = rounds * cyc;
+  const st = stateAt(t, Math.min(ms, total - 1));
+  const ph = t.phases[st.i];
+
+  const stopLoop = () => { cancelAnimationFrame(raf.current); try { wake.current?.release?.(); } catch (e) { /* ignore */ } wake.current = null; };
+  const loop = useCallback(() => {
+    const now = acc.current + (performance.now() - base.current);
+    if (now >= total) { setMs(total); setRun("done"); stopLoop(); audio.current?.stop(); audio.current = null; return; }
+    setMs(now);
+    raf.current = requestAnimationFrame(loop);
+  }, [total]);
+  useEffect(() => () => { stopLoop(); audio.current?.stop(); audio.current = null; }, []);
+  // a cue on each new phase
+  useEffect(() => {
+    if (run !== "on") return;
+    const key = st.round * 100 + st.i;
+    if (key === lastPhase.current) return;
+    lastPhase.current = key;
+    audio.current?.phase(ph, ph.s * (1 - st.prog), { tech: t.key, bell: sound && st.i === 0 });
+    if (buzz && navigator.vibrate) navigator.vibrate(ph.a === "hold" ? 25 : 60);
+  });
+  const start = async () => {
+    if (run === "done" || run === "idle") {
+      acc.current = 0; lastPhase.current = -1; setFelt("");
+      audio.current?.stop();
+      audio.current = createBreathAudio(); // must start from this tap
+      audio.current?.start(t.scene, { breath: sound, nature });
+    } else audio.current?.resume();
+    base.current = performance.now();
+    setRun("on");
+    try { wake.current = await navigator.wakeLock?.request("screen"); } catch (e) { /* not allowed */ }
+    raf.current = requestAnimationFrame(loop);
+  };
+  const pause = () => { acc.current += performance.now() - base.current; stopLoop(); audio.current?.pause(); setRun("paused"); };
+  const reset = () => { stopLoop(); audio.current?.stop(); audio.current = null; acc.current = 0; setMs(0); setRun("idle"); };
+  const toggleSound = () => setSound((x) => { audio.current?.setBreath(!x); return !x; });
+  // one tap while it runs: all sound off / back on
+  const muteAll = () => { const on = !(sound || nature); setSound(on); setNature(on); audio.current?.setBreath(on); audio.current?.setNature(on); };
+  const toggleNature = () => setNature((x) => { audio.current?.setNature(!x); return !x; });
+  const left = Math.max(0, Math.ceil((total - ms) / 1000));
+  const running = run === "on";
+
+  return (
+    <div className={`br-s${running ? " running" : ""}`} style={{ "--c1": t.c[0], "--c2": t.c[1], "--c3": t.c[2] }}>
+      {run !== "done" ? (
+        <>
+          <div className="br-head">
+            <h1>{t.name}</h1>
+            {!running && <p>{t.about}</p>}
+            {!running && <span className="br-pat">{t.phases.map((p, i) => <em key={i}>{p.label || WORD[p.a]} {p.s}s</em>)}</span>}
+          </div>
+          <Visual t={t} st={run === "idle" ? { ...st, level: 0.35, prog: 0 } : st} running={running} />
+          <div className="br-cue" aria-live="polite">
+            {run === "idle" ? <b>Ready when you are</b> : <>
+              <b>{ph.label || WORD[ph.a]}</b>
+              <span className="br-num">{st.left}</span>
+              {ph.hint && <small>{ph.hint}</small>}
+            </>}
+          </div>
+          <div className="br-meta">
+            {run !== "idle" && <span>Round {Math.min(st.round, rounds)} of {rounds} · {Math.floor(left / 60)}:{String(left % 60).padStart(2, "0")} left</span>}
+          </div>
+          <div className="br-ctl">
+            {running ? <><button type="button" className="br-main" onClick={pause}>Pause</button><button type="button" className="br-ghost br-mute" onClick={muteAll} aria-label={sound || nature ? "Turn sound off" : "Turn sound on"}>{sound || nature ? "🔊" : "🔇"}</button></>
+              : <button type="button" className="br-main" onClick={start}>{run === "paused" ? "Continue" : "Start"}</button>}
+            {run === "paused" && <button type="button" className="br-ghost" onClick={reset}>Restart</button>}
+          </div>
+          {!running && run === "idle" && (
+            <div className="br-opts">
+              <div className="br-mins" role="radiogroup" aria-label="How long">
+                {[1, 3, 5].map((m) => <button key={m} type="button" role="radio" aria-checked={mins === m} className={mins === m ? "on" : ""} onClick={() => setMins(m)}>{m} min</button>)}
+              </div>
+              <div className="br-tg">
+                <button type="button" aria-pressed={sound} className={sound ? "on" : ""} onClick={toggleSound}>{sound ? "🌬️ Breath sound on" : "🌬️ Breath sound off"}</button>
+                <button type="button" aria-pressed={nature} className={nature ? "on" : ""} onClick={toggleNature}>{nature ? "🍃 Nature sound on" : "🍃 Nature sound off"}</button>
+                <button type="button" aria-pressed={buzz} className={buzz ? "on" : ""} onClick={() => setBuzz((x) => !x)}>📳 Vibrate {buzz ? "on" : "off"}</button>
+              </div>
+              <p className="br-safe">Feel dizzy or uncomfortable? Stop and breathe normally.</p>
+            </div>
+          )}
+          {!running && <Others current={t.key} onPick={onPick} locked={locked} />}
+        </>
+      ) : (
+        <div className="br-done">
+          <span className="br-done-ic" aria-hidden="true">🌿</span>
+          <h1>Well done</h1>
+          <p>You gave yourself {mins} calm minute{mins === 1 ? "" : "s"}. How do you feel now?</p>
+          <div className="br-felt">
+            {[["better", "😌", "Calmer"], ["same", "😐", "About the same"], ["worse", "😟", "Still not okay"]].map(([k, e, l]) => (
+              <button key={k} type="button" className={felt === k ? "on" : ""} onClick={() => setFelt(k)}><span aria-hidden="true">{e}</span>{l}</button>
+            ))}
+          </div>
+          {felt === "better" && <p className="br-say">Lovely. Come back any time — even one minute helps.</p>}
+          {felt === "same" && <p className="br-say">That's okay. Try another technique, or a few more minutes of this one.</p>}
+          {felt === "worse" && (
+            <div className="br-help">
+              <p>You don&apos;t have to handle this alone. Talking to someone can really help.</p>
+              <a href="tel:18008914416" className="br-call">Call Tele-MANAS · 1800-89-14416 (free, 24×7)</a>
+              <Link href="/therapy-for/anxiety" className="br-talk">Talk to a psychologist →</Link>
+            </div>
+          )}
+          <div className="br-ctl">
+            <button type="button" className="br-main" onClick={start}>Again</button>
+          </div>
+          <Others current={t.key} onPick={onPick} locked={locked} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Others({ current, onPick, locked = () => false }) {
+  return (
+    <div className="br-others">
+      <p>Other breathing exercises</p>
+      <div className="br-strip">
+        {T.filter((x) => x.key !== current).map((x) => (
+          <button key={x.key} type="button" onClick={() => onPick(x.key)} style={{ "--c1": x.c[0], "--c2": x.c[1] }}>
+            <i aria-hidden="true" /><b>{x.name}</b><small>{x.best}</small>{locked(x.key) && <span className="br-lock" aria-label="Locked">🔒</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* basePath: where ?p=<technique> lives · home: where Back goes with no history
+   locked(key): this technique isn't open here · onLocked(key): what a tap on a locked one does
+   lockedView: shown instead of a locked technique opened by URL · top / bottom: above / below the list
+   extraView: another full-page view (e.g. a Calm corner tool) instead of breathing */
+export function BreatheApp({ basePath, home = "/", locked = () => false, onLocked = null, lockedView = null, top = null, bottom = null, extraView = null, intro = "Pick one and follow the circle. A minute or two is enough to feel a difference." }) {
+  const router = useRouter();
+  const key = typeof router.query.p === "string" ? router.query.p : "";
+  const t = BY[key] || null;
+  const pick = (k) => {
+    if (locked(k) && onLocked) { onLocked(k); return; }
+    router.push({ pathname: basePath, query: { p: k } }, undefined, { shallow: true, scroll: true });
+  };
+  const back = () => { if (typeof window !== "undefined" && window.history.length > 1) router.back(); else router.push(home); };
+  const shut = !!t && locked(t.key);
+  const lit = t && !shut && !extraView;
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: CSS + SCENE_CSS }} />
+      <main className={`br${lit && t.night ? " night" : ""}`} style={lit ? { "--c1": t.c[0], "--c2": t.c[1], "--c3": t.c[2] } : undefined}>
+        <Scene kind={lit ? t.scene : "lake"} />
+        <button type="button" className="br-back" onClick={back} aria-label="Go back">← Back</button>
+        {extraView || (t ? (shut ? lockedView : <Session key={t.key} t={t} onPick={pick} locked={locked} />) : (
+          <div className="br-list">
+            {top}
+            <h1>Breathe</h1>
+            <p>{intro}</p>
+            <div className="br-grid">
+              {T.map((x) => (
+                <button key={x.key} type="button" onClick={() => pick(x.key)} style={{ "--c1": x.c[0], "--c2": x.c[1] }}>
+                  <i aria-hidden="true" />
+                  <b>{x.name}</b>
+                  <small>{x.best}</small>
+                  <em>{pattern(x)}</em>
+                  {locked(x.key) && <span className="br-lock" aria-label="Locked">🔒</span>}
+                </button>
+              ))}
+            </div>
+            {bottom}
+          </div>
+        ))}
+      </main>
+    </>
+  );
+}
+
+export const CSS = `
+html, body { background: #eef4f1; }
+.br { --c1: #bfe7e1; --c2: #7cc4b8; --c3: #2f5f59; --ink: #22302f; --ink2: rgba(34,48,47,.72); --glass: rgba(255,255,255,.5); --glass2: rgba(255,255,255,.72); --line: rgba(34,48,47,.14); --btn: #2b3b39; --btnInk: #fff;
+  position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden; color: var(--ink); font-family: inherit; background: #eef4f1;
+  padding: calc(64px + env(safe-area-inset-top, 0px)) 20px calc(28px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; }
+.br * { box-sizing: border-box; }
+.br.night { --ink: #fff; --ink2: rgba(255,255,255,.82); --glass: rgba(255,255,255,.12); --glass2: rgba(255,255,255,.2); --line: rgba(255,255,255,.22); --btn: #fff; --btnInk: #2c2f63; background: #2c2f63; }
+.br-back { position: fixed; z-index: 5; top: calc(14px + env(safe-area-inset-top, 0px)); left: 14px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--glass2); color: var(--ink); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.br-back:hover { background: var(--glass); }
+.br-list, .br-s { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; }
+.br-head, .br-cue { text-shadow: 0 1px 12px rgba(255,255,255,.55); }
+.br.night .br-head, .br.night .br-cue { text-shadow: 0 1px 12px rgba(0,0,0,.35); }
+.br-list h1 { margin: 6px 0 6px; font-size: clamp(34px, 5vw, 52px); font-weight: 800; letter-spacing: -.03em; color: var(--ink); }
+.br-list > p { margin: 0 0 22px; font-size: 16px; color: var(--ink2); max-width: 52ch; }
+.br-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.br-grid button { text-align: left; display: flex; flex-direction: column; gap: 4px; padding: 18px; border-radius: 22px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: inherit; cursor: pointer;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: transform .18s ease, background .18s ease; }
+.br-grid button:hover { transform: translateY(-3px); background: var(--glass); }
+.br-grid i, .br-strip i { width: 44px; height: 44px; border-radius: 50%; margin-bottom: 8px; background: radial-gradient(circle at 35% 30%, #fff 0%, var(--c1) 40%, var(--c2) 100%); box-shadow: 0 0 24px var(--c1); animation: brMini 5s ease-in-out infinite; }
+@keyframes brMini { 50% { transform: scale(.8); } }
+.br-grid b { font-size: 17px; font-weight: 800; }
+.br-grid small { font-size: 13px; color: var(--ink2); }
+.br-grid em { margin-top: 6px; font-style: normal; font-size: 12.5px; font-weight: 800; letter-spacing: .06em; color: var(--ink2); }
+
+.br-s { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.br-head h1 { margin: 0; font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -.02em; color: var(--ink); }
+.br-head p { margin: 8px auto 0; max-width: 48ch; font-size: 15px; line-height: 1.55; color: var(--ink2); }
+.br-pat { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 12px; }
+.br-pat em { font-style: normal; font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--glass); }
+.br-s.running .br-head h1 { font-size: 18px; opacity: .7; }
+
+.br-vis { position: relative; width: min(74vw, 340px); aspect-ratio: 1; margin: 26px auto 10px; display: grid; place-items: center; }
+.br-s.running .br-vis { width: min(84vw, 400px); margin-top: 6vh; }
+.br-orb { position: relative; width: 78%; aspect-ratio: 1; transition: transform .12s linear; will-change: transform; }
+.br-glow { position: absolute; inset: -22%; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.9) 0%, var(--c1) 35%, transparent 70%); }
+.br-core { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0%, var(--c1) 45%, var(--c2) 100%);
+  box-shadow: inset 0 -16px 36px rgba(0,0,0,.08), 0 24px 60px -16px var(--c2), 0 0 0 1px rgba(255,255,255,.6); opacity: .94; }
+.br-path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.br-inner { position: absolute; inset: 22%; display: grid; place-items: center; }
+.br-inner .br-orb { width: 100%; }
+.br-side { position: absolute; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 8px 12px; border-radius: 999px;
+  background: var(--glass); color: var(--ink2); transition: all .3s ease; }
+.br-side.l { left: -6px; } .br-side.r { right: -6px; }
+.br-side.on { background: var(--btn); color: var(--btnInk); box-shadow: 0 6px 20px -6px rgba(0,0,0,.35); }
+.br-ripples { position: absolute; inset: 0; display: grid; place-items: center; }
+.br-ripples i { position: absolute; width: 60%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); animation: brRipple 2.4s ease-out infinite; }
+.br-ripples i:nth-child(2) { animation-delay: .8s; } .br-ripples i:nth-child(3) { animation-delay: 1.6s; }
+@keyframes brRipple { from { transform: scale(.9); opacity: .8; } to { transform: scale(1.7); opacity: 0; } }
+
+.br-cue { min-height: 110px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.br-cue b { font-size: clamp(24px, 4vw, 32px); font-weight: 800; letter-spacing: -.01em; }
+.br-num { font-size: 44px; font-weight: 300; line-height: 1.1; font-variant-numeric: tabular-nums; opacity: .9; }
+.br-cue small { font-size: 14px; color: var(--ink2); }
+.br-meta { min-height: 22px; font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.br-ctl { display: flex; gap: 10px; justify-content: center; margin: 14px 0 6px; }
+.br-main { min-width: 160px; height: 52px; padding: 0 26px; border-radius: 999px; border: 0; background: var(--btn); color: var(--btnInk); font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; box-shadow: 0 14px 30px -14px rgba(0,0,0,.35); transition: transform .15s ease; }
+.br-main:active { transform: scale(.97); }
+.br-ghost { height: 52px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.br-opts { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 8px; }
+.br-mins, .br-tg { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.br-mins button, .br-tg button { height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.br-mins button.on { background: var(--btn); color: var(--btnInk); border-color: var(--btn); }
+.br-tg button.on { background: var(--glass2); }
+.br-mute { width: 52px; padding: 0; font-size: 20px; }
+.br-safe { margin: 4px 0 0; font-size: 12.5px; color: var(--ink2); }
+
+.br-others { width: 100%; margin-top: 30px; text-align: left; }
+.br-others > p { margin: 0 0 10px; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
+.br-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+.br-strip::-webkit-scrollbar { display: none; }
+.br-strip button { flex: none; width: 160px; text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: inherit; cursor: pointer; }
+.br-strip i { width: 32px; height: 32px; margin-bottom: 6px; }
+.br-strip b { font-size: 14px; font-weight: 800; }
+.br-strip small { font-size: 12px; color: var(--ink2); }
+
+.br-done { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 6vh; }
+.br-done-ic { font-size: 54px; }
+.br-done h1 { margin: 8px 0 4px; font-size: 36px; font-weight: 800; color: var(--ink); }
+.br-done > p { max-width: 100%; text-align: center; margin: 0 0 18px; font-size: 16px; color: var(--ink2); }
+.br-felt { width: 100%; max-width: 380px; display: flex; gap: 8px; justify-content: center; }
+.br-felt button { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 8px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+.br-felt button span { font-size: 30px; }
+.br-felt button.on { background: var(--btn); color: var(--btnInk); }
+.br-say { margin: 16px 0 0; font-size: 15px; color: var(--ink2); }
+.br-help { width: 100%; box-sizing: border-box; text-align: center; margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 18px; border-radius: 18px; background: var(--glass2); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); max-width: 420px; }
+.br-help p { margin: 0; font-size: 15px; }
+.br-call { color: var(--ink) !important; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.br-talk { display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: 12px; background: #ecc77d; color: #3b2604 !important; font-weight: 800; text-decoration: none !important; }
+
+@media (max-width: 760px) { .br-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .br-grid button { padding: 14px; } .br-grid b { font-size: 15px; } }
+@media (prefers-reduced-motion: reduce) { .br-blob, .br-grid i, .br-strip i { animation: none; } }
+.br-grid button, .br-strip button { position: relative; }
+.br-lock { position: absolute; top: 10px; right: 10px; font-size: 12px; line-height: 1; padding: 5px 7px; border-radius: 999px; background: var(--glass2); }
+.br-panel { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 22px; border-radius: 26px; background: var(--glass2); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.6); box-shadow: 0 30px 60px -30px rgba(15,23,42,.35); color: var(--ink); }
+.br-panel h1, .br-panel h2 { margin: 0 0 6px; color: var(--ink); letter-spacing: -.02em; }
+.br-panel p { color: var(--ink2); }
+`;
