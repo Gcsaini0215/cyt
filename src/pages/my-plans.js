@@ -5,6 +5,7 @@ import MainLayout from "../components/therapists/main-layout";
 import { PT_CSS } from "../components/therapists/portal-ui";
 import { usePager, Pager } from "../components/therapists/pager";
 import PackageModal from "../components/therapist/package-modal";
+import { PlanWallet, PlanConcern, loadPlans } from "../components/therapists/plan-wallet";
 import useTherapistStore from "../store/therapistStore";
 import { fetchById } from "../utils/actions";
 import { apiUrl } from "../utils/url";
@@ -129,6 +130,7 @@ export default function MyPlans() {
         </div>
 
         {error && <div className="pt-err">{error}</div>}
+        <PlanWallet data={data} onRenew={() => setRenew(true)} />
 
         <div className="pt-stats">
           <div className="pt-stat"><small>Active plans</small><b>{data ? `${activeCount} of 3` : "—"}</b><span>Listing, Assessments, Coupons</span></div>
@@ -173,9 +175,10 @@ export default function MyPlans() {
             <div className="pt-empty"><b>Nothing here yet</b>When you buy a package or an upgrade, it shows up here with the date and payment ID.</div>
           )}
         </div>
+        <PlanConcern />
       </div>
 
-      {renew && <PackageModal initialEmail={me?.user?.email || ""} onClose={() => { setRenew(false); load(); }} />}
+      {renew && <PackageModal initialEmail={me?.user?.email || ""} onClose={() => { setRenew(false); load(); loadPlans(true); }} />}
     </MainLayout>
   );
 }

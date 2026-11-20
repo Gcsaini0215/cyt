@@ -9,6 +9,7 @@ import { drawerGroupsFor, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
 import NewBookingPopup from "./new-booking-popup";
 import NotifBell from "./notif-bell";
+import { PlanChip } from "./plan-wallet";
 import { useNavBadges, NavBadge, NavTag, useAssessmentsUpgrade, useOwnedUpgrades, listingOf, shareProfile, NX_CSS } from "./nav-extras";
 import { profilePct } from "../../utils/profile-checks";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
@@ -320,6 +321,7 @@ export default function DashboardTopNav() {
         </div>
 
         <div className="tn-right">
+          <PlanChip />
           <AppClock />
           <button type="button" className="tn-icon-btn tn-refresh" aria-label="Refresh" title="Refresh" onClick={(e) => {
             const b = e.currentTarget; b.classList.add("spin"); setTimeout(() => window.location.reload(), 200);
@@ -909,4 +911,11 @@ body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bo
   .tn-bar.tn-bar { border-left: env(safe-area-inset-left, 0px) solid #fff; border-right: env(safe-area-inset-right, 0px) solid #fff; box-sizing: border-box; }
   .ts-area { margin-left: env(safe-area-inset-left, 0px); margin-right: env(safe-area-inset-right, 0px); }
 }
+
+/* subscription wallet chip (2026-11-20): days left on the listing package — every screen */
+.tn-right > a.tn-wallet { display: inline-flex !important; align-items: center; gap: 5px; width: auto !important; height: 34px !important; padding: 0 11px 0 9px !important; margin-right: 4px;
+  border-radius: 999px !important; background: #e6f4ec !important; color: #14532d !important; text-decoration: none !important; font-size: 13.5px; font-weight: 800; white-space: nowrap; flex: none; }
+.tn-right > a.tn-wallet svg { font-size: 18px !important; color: #15803d; }
+.tn-right > a.tn-wallet.soon { background: #fff1e0 !important; color: #b45309 !important; } .tn-right > a.tn-wallet.soon svg { color: #d97706; }
+.tn-right > a.tn-wallet.off { background: #fde8e8 !important; color: #b42318 !important; } .tn-right > a.tn-wallet.off svg { color: #dc2626; }
 `;
