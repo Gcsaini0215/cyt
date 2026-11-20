@@ -26,7 +26,6 @@ export default function App() {
   const [show, setShow] = React.useState(false);
   const [stripIdx, setStripIdx] = React.useState(0);
   const [bar, setBar] = React.useState(BASE_BAR);
-  const [barClosed, setBarClosed] = React.useState(false);
   const barPause = React.useRef(false);
   const [userType, setUserType] = React.useState(0);
   const [activeDropdown, setActiveDropdown] = React.useState("");
@@ -121,7 +120,6 @@ export default function App() {
 
   // a running festival offer goes first (cached for this visit)
   useEffect(() => {
-    try { if (sessionStorage.getItem("cyt-bar-closed") === "1") setBarClosed(true); } catch { /* storage blocked */ }
     const withOffer = (o) => (o?.open ? [{ key: "offer", tag: `${o.title || "Festival"} offer`, icon: "feather-gift", emoji: "🪔",
       text: `Book 1 session, get 1 FREE · book till ${barDay(o.bookBy)}`, short: `Book 1, get 1 FREE · till ${barDay(o.bookBy)}`, cta: "Book now", href: "/festival-therapy" }, ...BASE_BAR] : BASE_BAR);
     let cached = null;
@@ -140,8 +138,6 @@ export default function App() {
     const t = setInterval(() => { if (!barPause.current) setStripIdx((i) => (i + 1) % bar.length); }, 5000);
     return () => clearInterval(t);
   }, [bar.length]);
-  const closeBar = () => { setBarClosed(true); try { sessionStorage.setItem("cyt-bar-closed", "1"); } catch { /* ignore */ } };
-  const barNow = bar[stripIdx % bar.length];
 
   // current page highlighted in the menu
   const path = router?.pathname || "";
@@ -173,17 +169,7 @@ export default function App() {
           <a className="strip-call" href={`tel:${PHONE}`}><i className="feather-phone"></i> +91 80777 57951</a>
         </div>
       </div>
-      {!barClosed && barNow && (
-        <div className="top-bar-m">
-          <a className="tbm-link" href={barNow.href} key={barNow.key}
-            {...(barNow.ext ? { target: "_blank", rel: "noopener noreferrer" } : { onClick: (e) => { e.preventDefault(); router.push(barNow.href); } })}>
-            <span className="tbm-ic" aria-hidden="true">{barNow.emoji || <i className={barNow.icon} />}</span>
-            <span className="tbm-text">{barNow.short}</span>
-            <i className="feather-arrow-right tbm-go" aria-hidden="true" />
-          </a>
-          <button type="button" className="tbm-x" onClick={closeBar} aria-label="Hide this bar"><i className="feather-x" aria-hidden="true" /></button>
-        </div>
-      )}
+      {/* phones / tablets: no green bar above the header (owner, 2026-11-21) */}
 
       {/* Header */}
       <header ref={headerRef} className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
@@ -458,21 +444,6 @@ export default function App() {
         @media (prefers-reduced-motion: reduce) { .strip-item { transition: none; } }
         @media (max-width: 991px) { .top-strip-desktop { display: none; } }
 
-        /* phones / tablets: one line above the header that scrolls away with the page; x hides it for the visit */
-        .top-bar-m { display: none; }
-        @media (max-width: 991px) {
-          .top-bar-m { position: relative; z-index: 10002; display: flex; align-items: stretch; height: 34px;
-            background: linear-gradient(90deg, #0b2418, #14532d); border-bottom: 1px solid rgba(236,199,125,.35); }
-          .tbm-link { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 6px 0 14px; color: #fff !important; text-decoration: none !important;
-            font-size: 12.5px; font-weight: 700; animation: tbmIn .45s ease both; }
-          .tbm-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(236,199,125,.18); color: #ecc77d; font-size: 11px; }
-          .tbm-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-          .tbm-go { flex: none; color: #ecc77d; font-size: 13px; }
-          .tbm-x { flex: none; width: 38px; border: 0; background: none; color: rgba(255,255,255,.7); font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-          .tbm-x:hover { color: #fff; }
-          @keyframes tbmIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-        }
-        @media (max-width: 991px) and (prefers-reduced-motion: reduce) { .tbm-link { animation: none; } }
 
         .rbt-header.rbt-header-10 {
           position: sticky;
