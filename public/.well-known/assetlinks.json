@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.chooseyourtherapist.therapist",
+      "sha256_cert_fingerprints": [
+        "EF:EC:DD:DC:76:7F:DC:D1:FC:7D:C9:F0:79:3A:C4:40:4A:22:79:5C:7A:FB:31:E4:88:FA:72:E9:A0:E4:9B:A6"
+      ]
+    }
+  }
+]
