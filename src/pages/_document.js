@@ -1,8 +1,11 @@
 import { Html, Head, Main, NextScript } from 'next/document';
+import { appMeta } from '../utils/app-manifest';
 
 const GTM_ID = 'GTM-WTX77RFB';
 
-export default function Document() {
+export default function Document(props) {
+  // therapist portal pages install the "CYT Therapist" app, everything else the client "CYT" app
+  const app = appMeta(props?.__NEXT_DATA__?.page || '');
   return (
     <Html lang="en" suppressHydrationWarning>
       <Head>
@@ -10,8 +13,9 @@ export default function Document() {
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
         <link rel="icon" href="/icons/cyt-icon-192.png" type="image/png" sizes="192x192" />
         <link rel="icon" href="/icons/cyt-icon-96.png" type="image/png" sizes="96x96" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href={app.appleIcon} sizes="180x180" />
+        <link rel="manifest" href={app.manifest} />
+        <meta name="apple-mobile-web-app-title" content={app.title} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />

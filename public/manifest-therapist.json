@@ -1,0 +1,28 @@
+{
+  "id": "/therapist-app",
+  "short_name": "CYT Therapist",
+  "name": "CYT Therapist — Choose Your Therapist",
+  "description": "For CYT therapists: your sessions, clients, schedule, payouts and toolkit in one app.",
+  "lang": "en-IN",
+  "start_url": "/therapist-app?src=tapp",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#14532d",
+  "background_color": "#14532d",
+  "categories": ["health", "medical", "business"],
+  "icons": [
+    { "src": "/icons/cyt-therapist-96.png", "type": "image/png", "sizes": "96x96", "purpose": "any" },
+    { "src": "/icons/cyt-therapist-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/icons/cyt-therapist-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/icons/cyt-therapist-maskable-192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "/icons/cyt-therapist-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Appointments", "short_name": "Sessions", "url": "/appointments?src=tapp-shortcut", "icons": [{ "src": "/icons/cyt-therapist-96.png", "sizes": "96x96" }] },
+    { "name": "My Schedule", "short_name": "Schedule", "url": "/my-schedule?src=tapp-shortcut", "icons": [{ "src": "/icons/cyt-therapist-96.png", "sizes": "96x96" }] },
+    { "name": "Toolkit", "short_name": "Toolkit", "url": "/therapists/toolkit?src=tapp-shortcut", "icons": [{ "src": "/icons/cyt-therapist-96.png", "sizes": "96x96" }] },
+    { "name": "Payouts", "short_name": "Payouts", "url": "/therapists/payouts?src=tapp-shortcut", "icons": [{ "src": "/icons/cyt-therapist-96.png", "sizes": "96x96" }] }
+  ]
+}

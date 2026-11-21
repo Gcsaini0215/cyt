@@ -18,6 +18,7 @@ import { reportAiArrival } from "../utils/ai-referral";
 import useClientPresence from "../utils/client-presence";
 import Head from "next/head";
 import { THERAPIST_SHELL_ROUTES } from "@/components/therapists/shell-routes";
+import { syncAppMeta } from "../utils/app-manifest";
 // the therapist portal shell loads only on therapist pages, not with every public page (2026-11-16 speed)
 const TherapistShell = dynamic(() => import("@/components/therapists/main-layout").then((m) => m.TherapistShell));
 
@@ -55,6 +56,9 @@ function MyApp({ Component, pageProps }) {
     window.addEventListener("wheel", stop, { once: true, passive: true });
     return () => { stop(); window.removeEventListener("load", run); };
   }, []);
+
+  // which app "Install" gives: the CYT Therapist app on therapist portal pages, the client app elsewhere
+  useEffect(() => { syncAppMeta(router.pathname); }, [router.pathname]);
 
   // logged-in client online now? — Admin → Client 360 "Live now"
   useClientPresence(router);

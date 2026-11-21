@@ -63,8 +63,8 @@ export default function InstallAppPopup({ who = "client" }) {
       <div className="iap">
         <button type="button" className="iap-x" onClick={close} aria-label="Not now">×</button>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="iap-ic" src="/icons/cyt-icon-192.png" alt="" width="76" height="76" />
-        <h3 id="iap-h">Get the CYT app</h3>
+        <img className="iap-ic" src={who === "therapist" ? "/icons/cyt-therapist-192.png" : "/icons/cyt-icon-192.png"} alt="" width="76" height="76" />
+        <h3 id="iap-h">{who === "therapist" ? "Get the CYT Therapist app" : "Get the CYT app"}</h3>
         <p className="iap-sub">Free · no download from a store · under 1 MB</p>
         <ul className="iap-perks">{perks.map((x) => <li key={x}>{x}</li>)}</ul>
 
@@ -78,7 +78,7 @@ export default function InstallAppPopup({ who = "client" }) {
             <ol>
               <li>Tap <span className="iap-share" aria-label="Share"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2 7.5 6.5l1.4 1.4L11 5.8V15h2V5.8l2.1 2.1 1.4-1.4L12 2Zm-6 8v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h-2v10H8V10H6Z" /></svg></span> <b>Share</b> {p?.chrome ? "(top right, next to the address bar)" : p?.ipad ? "(top right)" : "(bottom of the screen)"}</li>
               <li>Tap <b>Add to Home Screen</b> <span className="iap-plus">＋</span></li>
-              <li>Tap <b>Add</b> — CYT appears on your home screen</li>
+              <li>Tap <b>Add</b> — {who === "therapist" ? "CYT Therapist" : "CYT"} appears on your home screen</li>
             </ol>
             <button type="button" className="iap-go" onClick={close}>Got it</button>
           </div>
