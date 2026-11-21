@@ -690,7 +690,15 @@ const DASH_CSS = `
   .ov .ov-next.hero .ov-new-tag { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; padding: 3px 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
-`;
+/* light gold Next session card (owner, 2026-11-21): the green strip stays, the body turns a soft warm gold */
+.ov .ov-card.ov-next.hero { background: linear-gradient(180deg, #fffaf0 0%, #fdf3dc 100%) !important; border: 1px solid #f0dfb4 !important;
+  box-shadow: 0 1px 2px rgba(120,80,10,.06), 0 18px 38px -26px rgba(120,80,10,.45) !important; }
+.ov .ov-card.ov-next.hero.live { box-shadow: 0 0 0 2px #34c759, 0 0 0 7px rgba(52,199,89,.16), 0 18px 38px -26px rgba(120,80,10,.45) !important; }
+.ov .ov-next.hero .ov-nd { background: rgba(255,255,255,.72); box-shadow: inset 0 0 0 1px rgba(214,178,98,.28); }
+.ov .ov-next.hero .ov-pill, .ov .ov-next.hero .ov-more { background: rgba(255,255,255,.78) !important; box-shadow: 0 0 0 1px rgba(214,178,98,.3) !important; }
+.ov .ov-next.hero .ov-pill:hover { background: #fff !important; }
+.ov .ov-next.hero .ov-next-sub { color: #7a6a4f; }
+`
 
 const UI = {
   page: "#f8faf9",
