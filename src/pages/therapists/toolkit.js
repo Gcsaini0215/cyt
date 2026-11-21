@@ -115,6 +115,12 @@ export default function ToolkitPage() {
         )}
         {err && <div className="tk-box">{err}</div>}
 
+        <Link href="/therapists/brain-explorer" className="tk-brain">
+          <span aria-hidden="true">🧠</span>
+          <div><b>Brain Explorer <em>New</em></b><small>Tap any part of the brain — what it does, what changes in anxiety, depression or trauma, and how to explain it to your client.</small></div>
+          <i aria-hidden="true">›</i>
+        </Link>
+
         <section className="tk-lib" aria-label="Worksheets">
           {LIBRARY.filter((w) => w.ready).map(card)}
         </section>
@@ -376,6 +382,12 @@ function SendPanel({ tool, clients, onClose, onMade }) {
 }
 
 const CSS = `
+.tk-brain { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; padding: 14px 18px; border-radius: 20px; text-decoration: none !important; color: #1c1c1e !important; background: linear-gradient(120deg, #fff0f5, #f3f0ff); border: 1px solid #f3d3e1; box-shadow: 0 10px 24px -20px rgba(214,51,108,.6); }
+.tk-brain > span { flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; background: #fff; box-shadow: 0 6px 14px -8px rgba(214,51,108,.6); }
+.tk-brain b { display: flex; align-items: center; gap: 8px; font-size: 16px; } .tk-brain b em { font-style: normal; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #d6336c; color: #fff; }
+.tk-brain small { display: block; margin-top: 2px; font-size: 13.5px; color: #6e6e73; line-height: 1.45; }
+.tk-brain > div { flex: 1; min-width: 0; } .tk-brain > i { font-style: normal; font-size: 26px; color: #c7c7cc; }
+
 .tk { color: #0f1f17; }
 .tk-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
 .tk-h h1 { margin: 0; font-size: 26px; font-weight: 800; }

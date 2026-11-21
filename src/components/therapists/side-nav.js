@@ -1,6 +1,7 @@
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
 import SelfImprovementRoundedIcon from "@mui/icons-material/SelfImprovementRounded";
 import HandymanRoundedIcon from "@mui/icons-material/HandymanRounded";
+import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -44,6 +45,7 @@ const ALL_GROUPS = [
       { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
       // CBT worksheets clients fill online + share links that book this therapist (pages/therapists/toolkit.js)
       { to: "/therapists/toolkit", Icon: HandymanRoundedIcon, label: "Toolkit" },
+      { to: "/therapists/brain-explorer", Icon: PsychologyRoundedIcon, label: "Brain Explorer" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },
       { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications", badgeKey: "inbox" },
@@ -130,6 +132,7 @@ export const TILES = {
   "/appointments": G("#ffc65a", "#f07b12", "rgba(240,123,18,.55)"),
   "/my-schedule": G("#4fd6d6", "#0e8a9a", "rgba(14,138,154,.55)"),
   "/therapists/toolkit": G("#ff9b6b", "#e5532a", "rgba(229,83,42,.55)"),
+  "/therapists/brain-explorer": G("#ff8ab4", "#d6336c", "rgba(214,51,108,.5)"),
   "/therapists/notifications": G("#ff8aa6", "#e0335e", "rgba(224,51,94,.55)"),
   "/therapists/reviews": G("#ffd66b", "#e09a12", "rgba(224,154,18,.55)"),
   "/therapists/my-link": G("#7f9cff", "#3b4fd1", "rgba(59,79,209,.55)"),
