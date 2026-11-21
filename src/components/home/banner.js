@@ -368,6 +368,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         /* phones: the Noida button moves to the bottom bar that slides up on scroll (MobileActionBar
            with noida) — it stays in the HTML here so the link and its text still count for search */
         @media (max-width: 767px) { .cyt-hero .cyt-cta2 { display: none !important; } }
+        /* desktop: no Noida / WhatsApp lines under the search (owner, 2026-11-21) */
+        @media (min-width: 1024px) { .cyt-hero .cyt-hero-ctas { display: none !important; } }
         .cyt-cta2-badge { position: absolute; top: -10px; right: -8px; padding: 3px 8px; border-radius: 999px; background: #c2410c; color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; line-height: 1.3; box-shadow: 0 4px 10px -2px rgba(194,65,12,.45); animation: cytBadgePop 2.4s ease-in-out infinite; }
         @keyframes cytBadgePop { 0%, 80%, 100% { transform: scale(1); } 88% { transform: scale(1.12); } }
         .cyt-wa { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; padding: 6px 0; font-size: 14px; color: #475569; cursor: pointer; text-align: left; }
