@@ -115,6 +115,7 @@ export function HistoryCard({ tool, history, current = null, forTherapist = fals
             <li key={`${h.day}-${i}`}>
               <div className="hx-row">
                 <b className="hx-day">{dayLabel(h.day)}</b>
+                {tool === "beliefs" && typeof h.data?.belief === "string" && h.data.belief.trim() && <q className="hx-q">{h.data.belief.trim().slice(0, 90)}</q>}
                 <span className="hx-ms">{(h.metrics || []).map((m) => <em key={m.k}>{m.label} <b>{fmt(m)}</b></em>)}</span>
                 {!forTherapist && <span className={`hx-tag${h.sent ? " sent" : ""}`}>{h.sent ? `Sent${therapistName ? ` to ${therapistName.split(" ")[0]}` : ""}` : "Saved"}</span>}
                 {h.data && <button type="button" className="hx-view" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i}>{open === i ? "Hide" : "View"}</button>}
@@ -163,6 +164,7 @@ const HX_CSS = `
 .hx-list > li { border-top: 1px solid #eef2f0; }
 .hx-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; flex-wrap: wrap; }
 .hx-day { flex: none; min-width: 56px; font-size: 14px; color: #1c1c1e; }
+.hx-q { flex: 1 1 100%; order: 3; font-size: 14px; font-weight: 700; color: #0f2a24; }
 .hx-ms { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .hx-ms em { font-style: normal; font-size: 12.5px; color: #475569; background: #f2f5f4; border-radius: 999px; padding: 3px 9px; }
 .hx-ms em b { color: #0f2a24; }

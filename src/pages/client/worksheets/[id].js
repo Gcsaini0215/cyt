@@ -6,7 +6,7 @@ import { AbcdMulti, toLogs } from "../../../components/toolkit/abcd";
 import { ActivityForm, withActivity } from "../../../components/toolkit/activity";
 import { WhatIfForm, withWhatIf } from "../../../components/toolkit/whatif";
 import { WhyCard, toolOf } from "../../../components/toolkit/registry";
-import { PackForm, isPack, withPack } from "../../../components/toolkit/rp-pack";
+import { PackForm, isPack, withPack, packFilled } from "../../../components/toolkit/rp-pack";
 import { HistoryCard } from "../../../components/toolkit/history";
 import { fetchById, putData } from "../../../utils/actions";
 import { apiUrl } from "../../../utils/url";
@@ -78,6 +78,22 @@ export default function WorksheetPage() {
     setBusy(false);
   };
 
+  // Core Beliefs: keep this belief (Saved days) and start the next one on an empty form (owner, 2026-11-21)
+  const next = async () => {
+    clearTimeout(timer.current); latest.current = { data: null, step: 0 };
+    setBusy(true);
+    try {
+      const r = await save({ data: dataRef.current || data, next: true });
+      if (r?.status) {
+        dataRef.current = {}; setData({});
+        setW((x) => ({ ...x, status: r.data.status, flag: false, history: r.data.history || x.history }));
+        setSaved("Saved ✓ — next belief");
+        if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+      } else setSaved(r?.message || "Couldn't save — try again");
+    } catch (e) { setSaved(e?.response?.data?.message || "Couldn't save — try again"); }
+    setBusy(false);
+  };
+
   const blank = (tool) => (isPack(tool) ? {} : tool === "activity" ? withActivity({}) : tool === "whatif" ? withWhatIf({}) : { logs: toLogs({}) });
   const reset = async () => {
     clearTimeout(timer.current); latest.current = { data: null, step: 0 };
@@ -96,6 +112,10 @@ export default function WorksheetPage() {
 
   const th = w?.therapist;
   const sent = w && (w.status === "submitted" || w.status === "reviewed");
+  // a pack worksheet started over with "Save & add a new one": the empty form on screen isn't the one that was sent
+  const fresh = !!w && isPack(w.tool) && !packFilled(data);
+  const sentNow = sent && !fresh;
+  const multi = w?.tool === "beliefs";
   return (
     <ClientShell title="Worksheet">
       <style>{CSS}</style>
@@ -130,16 +150,22 @@ export default function WorksheetPage() {
             {w.note && <div className="ws-note"><b>{th ? `${th.name.split(" ")[0]} says:` : "Note:"}</b> {w.note}</div>}
             {w.status === "reviewed" && w.feedback && <div className="ws-fb"><b>{th?.name || "Your therapist"} reviewed it:</b><p>{w.feedback}</p></div>}
             <WhyCard tool={w.tool} open={!sent && w.status !== "draft"} />
-            <HistoryCard tool={w.tool} history={w.history} current={data} therapistName={th?.name || ""} onSend={th ? send : null} sending={busy} />
+            <HistoryCard tool={w.tool} history={w.history} current={data} therapistName={th?.name || ""} onSend={th && !fresh ? send : null} sending={busy} />
             {(() => { const finish = (
                 <div className="ws-send">
                   {w.status === "reviewed" && w.feedback ? <div className="ws-fb"><b>{th?.name || "Your therapist"}&apos;s feedback:</b><p>{w.feedback}</p></div> : null}
-                  {sent ? (
+                  {sentNow ? (
                     <p className="ws-ok">✓ Sent to {th?.name || "your therapist"} on {new Date(w.submittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}. {w.status === "reviewed" ? "They've reviewed it." : "They'll go through it with you."} You can still edit and send again.</p>
                   ) : null}
                   {th ? (
-                    <button type="button" className="ws-sendbtn" disabled={busy} onClick={send}>{busy ? "Sending…" : sent ? `Send the update to ${th.name.split(" ")[0]}` : `Send to ${th.name}`}</button>
+                    <button type="button" className="ws-sendbtn" disabled={busy} onClick={send}>{busy ? "Sending…" : sentNow ? `Send the update to ${th.name.split(" ")[0]}` : `Send to ${th.name}`}</button>
                   ) : null}
+                  {multi && !fresh && (
+                    <div className="ws-next">
+                      <button type="button" className="ws-nextbtn" disabled={busy} onClick={next}>＋ Save &amp; add a new belief</button>
+                      <small>This belief stays under <b>Your progress → Saved days</b>.{th ? (sentNow ? ` ${th.name.split(" ")[0]} keeps what you sent.` : ` Send it first if you want ${th.name.split(" ")[0]} to see it.`) : ""}</small>
+                    </div>
+                  )}
                   <p className="ws-priv">🔒 Only you{th ? ` and ${th.name}` : ""} can see this. {th ? "They see it only after you press Send." : ""}</p>
                   {th?.live && <Link href={bookPath(th)} className="ws-talk">Worksheets work best when you talk them through — book a session with {th.name} →</Link>}
                 </div>
@@ -191,6 +217,12 @@ const CSS = `
 @media (max-width: 560px) { .ws-sendbtn { width: 100%; } }
 .ws-send { margin-top: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .ws-ok { margin: 0; padding: 10px 12px; border-radius: 12px; background: #e9f8ef; color: #14532d; font-size: 14px; font-weight: 600; }
+.ws-next { display: flex; flex-direction: column; gap: 6px; }
+.ws-nextbtn { align-self: flex-start; min-height: 46px; padding: 0 20px; border-radius: 14px; border: 1.5px solid #14532d; background: #fff; color: #14532d; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.ws-nextbtn:hover:not(:disabled) { background: #f0f8f3; }
+.ws-nextbtn:disabled { opacity: .6; cursor: default; }
+.ws-next small { font-size: 12.5px; color: #64748b; }
+@media (max-width: 560px) { .ws-nextbtn { align-self: stretch; } }
 .ws-priv { margin: 0; font-size: 12.5px; color: #64748b; }
 .ws-lockbtn { display: inline-flex; align-items: center; text-decoration: none !important; color: #fff !important; background: #14532d !important; }
 .ws-talk { font-size: 14px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
