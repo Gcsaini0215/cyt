@@ -507,7 +507,7 @@ export default function ChatApp({ role }) {
                       <div className="lc-quick">{QUICK.map((x) => <button type="button" key={x} onClick={() => setText(x)}>{x}</button>)}</div>
                     )}
                     <form className="lc-comp" onSubmit={(e) => { e.preventDefault(); send(); }}>
-                      <textarea rows={1} value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
+                      <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
                         onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
                       <button type="submit" disabled={!text.trim() || sending} aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
@@ -770,6 +770,7 @@ const CSS = AV_CSS + `
 
 /* the page doesn't scroll on the Messages screen — the chat box is sized to fit (JS above) */
 html.lc-lock, html.lc-lock body { overflow: hidden !important; overscroll-behavior: none; }
+html.lc-lock, html.lc-lock body { background: #fff !important; }
 /* the portals open pages with a zoom (transform) — a transformed parent would trap the full-screen conversation */
 html.lc-lock .ts-page.ts-zoom, html.lc-lock .cls-main.cls-zoom, html.lc-lock .ts-page, html.lc-lock .cls-main { animation: none !important; transform: none !important; }
 .lc-app { height: calc(100dvh - 150px); }

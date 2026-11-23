@@ -311,6 +311,7 @@ export default function ChatNotifier() {
           <span className="lcn-x" role="presentation" onClick={(e) => { e.stopPropagation(); setToast(null); }}>×</span>
         </button>
       )}
+      {showFab && open && sheet && <div className="lcf-under" aria-hidden="true" />}
       {showFab && open && (
         <div className={`lcf-panel ${who}${sheet ? " sheet" : ""}`} style={sheet ? undefined : anchor} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
           {who === "therapist" ? (
@@ -342,8 +343,9 @@ export default function ChatNotifier() {
                       <div className="lcf-sug" role="list">
                         {SUGGEST.map((q) => <button type="button" role="listitem" key={q} onClick={() => pick(q)}>{q}</button>)}
                       </div>
+                      {pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
                       <form className="lcf-own" onSubmit={(e) => { e.preventDefault(); if (own.trim()) pick(own.trim().slice(0, 500)); }}>
-                        <input value={own} onChange={(e) => setOwn(e.target.value)} maxLength={500} placeholder="Or type your question…" aria-label="Your question" />
+                        <input autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-question" value={own} onChange={(e) => setOwn(e.target.value)} maxLength={500} placeholder="Or type your question…" aria-label="Your question" />
                         <button type="submit" disabled={!own.trim()} aria-label="Next"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
                       </form>
                     </>
@@ -354,7 +356,7 @@ export default function ChatNotifier() {
                       <WidgetLogin onDone={() => { setAuthTick((n) => n + 1); window.dispatchEvent(new Event("cyt-auth-changed")); }} />
                     </>
                   )}
-                  {pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
+                  {pending && pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
                 </div>
                 </>
               ) : (
@@ -468,7 +470,9 @@ const CSS = `
 .lcf-panel.sheet .lcf-h { flex: none; }
 .lcf-panel.sheet .lsm { flex: 1; min-height: 0; }
 .lcf-panel.sheet .lsm-msgs { flex: 1; height: auto; min-height: 120px; }
-.lcf-panel.sheet .lcf-guest { flex: 1; }
+.lcf-panel.sheet .lcf-guest { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.lcf-panel.sheet .lcf-own { margin-top: auto; padding-top: 8px; }
+.lcf-under { position: fixed; z-index: 2147482999; left: 0; right: 0; top: 0; height: 100vh; height: 100lvh; background: #fff; }
 /* phone sheet: it is already full screen — no full-screen icon; the typing box sits off the bottom edge (owner, 2026-11-24) */
 .lcf-panel.sheet .lcf-ic.full { display: none; }
 .lcf-panel.sheet { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }

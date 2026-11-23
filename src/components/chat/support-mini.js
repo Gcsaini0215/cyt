@@ -135,7 +135,7 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent }) 
       </div>
       {err && <p className="lsm-err">{err}</p>}
       <form className="lsm-comp" onSubmit={send}>
-        <textarea rows={1} value={text} maxLength={2000} placeholder="Type your message…" aria-label="Message"
+        <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder="Type your message…" aria-label="Message"
           onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(110, e.target.scrollHeight)}px`; }}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) send(e); }} />
         <button type="submit" disabled={!text.trim() || busy} aria-label="Send"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
