@@ -594,6 +594,7 @@ const CSS = AV_CSS + `
 .lc-row.last.me .lc-bub::before { right: -7px; width: 20px; background: #2fb457; border-bottom-left-radius: 16px; }
 .lc-row.last.me .lc-bub::after { right: -26px; width: 26px; background: #fff; border-bottom-left-radius: 10px; }
 .lc-bub > * { position: relative; z-index: 1; }
+.lc-bub > .lc-del { position: absolute; top: 50%; left: -32px; transform: translateY(-50%); z-index: 2; }
 .lc-bub.del { background: #fff !important; border: 1px dashed #c7c7cc; color: #8e8e93 !important; }
 .lc-row.last .lc-bub.del::before, .lc-row.last .lc-bub.del::after { display: none; }
 .lc-bub.flag { box-shadow: 0 0 0 2px #ff3b30; }
