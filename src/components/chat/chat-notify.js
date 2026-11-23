@@ -154,10 +154,11 @@ export default function ChatNotifier() {
   }, [router.asPath]);
 
   // back from logging in to chat (?chat=1): open the widget once
+  // a new page closes the widget; signing in inside it keeps it open (the chat starts right there)
+  useEffect(() => { setOpen(false); }, [router.asPath]);
   useEffect(() => {
-    setOpen(false);
     if (router.isReady && router.query.chat === "1" && who === "client") setOpen(true);
-  }, [router.asPath, router.isReady, who]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [router.isReady, who]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = () => {
     if (!open && who === "therapist") fetchById(`${apiUrl}/live-chat/threads`).then((r) => setThreads(Array.isArray(r?.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
