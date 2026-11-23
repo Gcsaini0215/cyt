@@ -830,7 +830,8 @@ a[href="/therapists/cycle"]::before { content: "FREE"; position: absolute; top: 
   .tn-bar.tn-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 120px; background: #fff; pointer-events: none; }
   /* iPhone: the blur (backdrop-filter) clipped the white strip above the bar, so the page still showed through on
      scroll-up. The bar is solid white here anyway — no blur, and a white shadow upwards that nothing clips */
-  .tn-bar.tn-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: #fff; box-shadow: 0 -160px 0 0 #fff; }
+  .tn-bar.tn-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: #fff; box-shadow: none; }
+  .tn-bar.tn-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 120px; background: #fff; pointer-events: none; }
 }
 
 /* ═══ Desktop (mouse / trackpad screens): the same app look as the iPad (2026-11-17) ═══
@@ -922,8 +923,7 @@ body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bo
   html:has(.ts-area), body:has(.ts-area) { overscroll-behavior-y: none; }
   html:has(.ts-area) { background: #fff; }
   .tn-bar.tn-bar { position: fixed; top: 0; background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
-    box-shadow: 0 -200px 0 0 #fff, 0 6px 20px -16px rgba(4,30,16,.35) !important; }
-  .tn-bar.tn-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 200px; background: #fff; pointer-events: none; }
+    box-shadow: 0 6px 20px -16px rgba(4,30,16,.35) !important; }
 }
 
 /* top bar on every screen (owner, 2026-11-23 — the iPad app still showed a blurred strip between the clock / battery line
@@ -934,8 +934,11 @@ body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bo
 html.cyt-sa { --tn-sat: env(safe-area-inset-top, 0px); --tn-h: calc(56px + var(--tn-sat)); background: #fff; }
 @media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { html.cyt-sa { --tn-h: calc(60px + var(--tn-sat)); } }
 @media (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 1401px) { html.cyt-sa { --tn-h: calc(64px + var(--tn-sat)); } }
-html.cyt-sa .tn-bar.tn-bar { box-sizing: border-box; height: var(--tn-h); padding-top: var(--tn-sat); box-shadow: 0 -300px 0 0 #fff, 0 6px 20px -16px rgba(4,30,16,.35) !important; }
-html.cyt-sa .tn-bar.tn-bar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 300px; background: #fff; pointer-events: none; }
+html.cyt-sa .tn-bar.tn-bar { box-sizing: border-box; height: var(--tn-h); padding-top: var(--tn-sat); box-shadow: 0 6px 20px -16px rgba(4,30,16,.35) !important; }
+/* same as the client app (its status-bar strip looks right on iPhone / iPad — owner, 2026-11-24): white page behind,
+   a plain white layer above the screen top, no big shadow / extra layers reaching up under the status bar */
+html:has(.ts-area), html:has(.ts-area) body { background: #fff !important; }
+body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bottom: 100%; height: 400px; background: #fff; z-index: 1200; pointer-events: none; }
 html.cyt-sa, html.cyt-sa body { overscroll-behavior-y: none; }
 
 /* subscription wallet chip (2026-11-20): days left on the listing package — every screen */
