@@ -28,9 +28,9 @@ const QUICK = ["Please book a session so we can talk properly.", "I've shared a 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function Avatar({ p, size = 44 }) {
-  const src = photoOf(p?.photo);
+  const src = p?.support ? "/icons/cyt-icon-192.png" : photoOf(p?.photo);
   return (
-    <span className="lc-av" style={{ width: size, height: size }}>
+    <span className={`lc-av${p?.support ? " cyt" : ""}`} style={{ width: size, height: size }}>
       {src ? <img src={src} alt="" /> : <b>{initials(p?.name)}</b>}
       {p?.online && <i className="lc-on" aria-label="Online" />}
     </span>
@@ -269,6 +269,7 @@ export default function ChatApp({ role }) {
   const st = conv?.state;
   const other = conv?.thread?.other;
   const bookHref = conv?.thread?.therapistId ? `/book/${conv.thread.therapistId}` : "/client/find";
+  const isSupport = !!conv?.thread?.support;
 
   return (
     <div className={`lc${active ? " has-active" : ""}`} data-sm-skip="">
@@ -329,7 +330,7 @@ export default function ChatApp({ role }) {
                     <b>{other.name} <span aria-hidden="true">›</span></b>
                     <small>{other.online ? "Online now" : role === "client" && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
-                  {role === "client" ? <Link href={bookHref} className="lc-book">Book</Link> : <span className="lc-hspace" aria-hidden="true" />}
+                  {role === "client" ? <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link> : <span className="lc-hspace" aria-hidden="true" />}
                 </header>
 
                 <div className="lc-msgs" ref={scroller}>
@@ -612,6 +613,7 @@ const CSS = AV_CSS + `
 .lc-foot { background: rgba(249,249,249,.94); text-align: center; color: #aeaeb2; }
 .lc-app .lc-av { background: linear-gradient(180deg, #a5abb8, #858b98); color: #fff; } .lc-app .lc-av b { font-weight: 600; letter-spacing: .02em; }
 .lc-on { background: #34c759; }
+.lc-app .lc-av.cyt { background: #fff; box-shadow: inset 0 0 0 1px rgba(60,60,67,.14); } .lc-av.cyt img { object-fit: contain; padding: 5px; box-sizing: border-box; }
 
 /* phones + iPad portrait: one pane at a time */
 @media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
