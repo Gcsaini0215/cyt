@@ -192,7 +192,7 @@ export default function PackageModal({ initialEmail = "", onClose }) {
 
             <ul className="pm-terms">
               <li><b>Listing charge:</b> the package is a fee to list your profile on Choose Your Therapist for the chosen period. Plans don&rsquo;t auto-renew; fees are non-refundable once live.</li>
-              <li><b>70:30 on every booking:</b> for each session booked through CYT, 70% of the fee goes to you and 30% to CYT.</li>
+              <li><b>Your share of every booking:</b> for each session booked through CYT you keep 70% of the fee to start (30% to CYT), and up to 93% as you earn achievements.</li>
               <li>Packages are for listing and visibility — bookings depend on your profile, availability and client demand.</li>
             </ul>
             <label className={`pm-check ${agreed ? "on" : ""}`}>

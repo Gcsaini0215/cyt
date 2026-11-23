@@ -55,7 +55,7 @@ export default function Payouts() {
         <div className="pt-head">
           <div>
             <h1>Payouts</h1>
-            <p>Your {pct}% of every session a client pays for (CYT keeps {100 - pct}%), and the payouts sent to you.</p>
+            <p>Your share of every session a client pays for — {pct}% now (CYT keeps {100 - pct}%); each completed session keeps the % it was completed at — and the payouts sent to you.</p>
           </div>
           <Link href="/therapists/help?kind=question" className="pt-btn outline">Question about a payout?</Link>
         </div>
@@ -63,7 +63,7 @@ export default function Payouts() {
         {error && <div className="pt-err">{error}</div>}
 
         <div className="pt-stats">
-          <div className="pt-stat"><small>Earned · your {pct}%</small><b>{data ? inr(t.earned) : "—"}</b><span>From completed sessions</span></div>
+          <div className="pt-stat"><small>Earned · your share</small><b>{data ? inr(t.earned) : "—"}</b><span>From completed sessions</span></div>
           <div className="pt-stat"><small>Waiting for payout</small><b>{data ? inr(t.awaiting) : "—"}</b><span>Sessions done, payout not started</span></div>
           <div className="pt-stat"><small>Paid out · all time</small><b>{data ? inr(t.paid) : "—"}</b><span>{t.lastPaidAt ? `Last payout ${day(t.lastPaidAt)}` : "No payouts yet"}</span></div>
           <div className="pt-stat"><small>This financial year</small><b>{data ? inr(t.thisYear) : "—"}</b><span>Since 1 April</span></div>
@@ -78,7 +78,7 @@ export default function Payouts() {
               <>
               <div className="po-tbl-wrap">
                 <table className="po-tbl">
-                  <thead><tr><th>Session</th><th>Client</th><th className="r">Client paid</th><th className="r">CYT {100 - pct}%</th><th className="r">You earn</th><th>Payout</th></tr></thead>
+                  <thead><tr><th>Session</th><th>Client</th><th className="r">Client paid</th><th className="r">CYT</th><th className="r">You earn</th><th>Payout</th></tr></thead>
                   <tbody>
                     {epg.items.map((e) => {
                       const st = e.payout ? (e.payout.status === "paid" ? ["ok", "Paid"] : ["warn", "Processing"]) : e.status === "Completed" ? ["due", "Waiting"] : ["mut", "Session upcoming"];
@@ -88,7 +88,7 @@ export default function Payouts() {
                           <td>{e.client}<small>{e.service}</small></td>
                           <td className="r">{inr(e.paid)}</td>
                           <td className="r mut">− {inr(e.platform)}</td>
-                          <td className="r"><b className="earn">{inr(e.share)}</b></td>
+                          <td className="r"><b className="earn">{inr(e.share)}</b><small>{e.pct || 70}%{e.projected ? " today" : ""}</small></td>
                           <td><span className={`pt-chip ${st[0]}`}>{st[1]}</span>{e.payout?.at && <small>{shortDay(e.payout.at)}</small>}</td>
                         </tr>
                       );
