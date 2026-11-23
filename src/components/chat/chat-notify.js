@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { apiUrl, imagePath } from "../../utils/url";
 import { getToken, getDecodedToken } from "../../utils/jwt";
 import { postData, fetchById } from "../../utils/actions";
+import SupportMini, { SM_CSS } from "./support-mini";
 
 /* Message alerts (2026-11-23, owner):
    - In the app: a soft three-note chime (our own, made with Web Audio — not Apple's tone) + a banner at the top,
@@ -71,9 +72,16 @@ export async function syncPush() {
 const photoSrc = (p) => (!p || /pngegg|default/i.test(p) ? "" : /^(https?:|data:)/.test(p) ? p : `${imagePath}/${p}`);
 const ini = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
 
-/* the app-wide listener, mounted once in _app for signed-in clients and therapists (2026-11-23, owner):
-   a floating chat button on every portal page (above the dock on phones / iPad, in the corner on desktop) with an
-   unread badge and a small panel of recent chats; new-message pop-ups come out right above that button. */
+/* the app-wide listener + floating chat, mounted once in _app (2026-11-23, owner):
+   - on every page of the website (not login / booking / payment screens, and not the Messages pages themselves),
+     sitting just above any bottom bar (portal dock, mobile action bar, profile "Book" bar) or in the corner on desktop;
+   - signed out: "Log in to chat", and back to the same page with the chat open;
+   - clients: the CYT Care Team chat right inside the widget (the team answers in admin → Live Chats → Care Team);
+   - therapists: their latest chats;
+   - new-message pop-ups come out of the button, wherever it is. */
+const HIDE_ON = /^\/(login|register|therapist-app|book\/|therapist-checkout|payment|checkout|noida-reception|offline|therapists\/messages|client\/messages)/;
+const BARS = ".tn-mob-nav, .cls-mob, .mab, .ph-sticky, .mobile-bottom-nav";
+
 export default function ChatNotifier() {
   const router = useRouter();
   const [toast, setToast] = useState(null);
@@ -81,26 +89,31 @@ export default function ChatNotifier() {
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState(null);
   const [bottom, setBottom] = useState(24);
-  const [shell, setShell] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [who, setWho] = useState(null); // null (loading) | "guest" | "client" | "therapist"
   const timer = useRef(null);
   const role = useRef(null);
   const base = () => (role.current === "therapist" ? "/therapists/messages" : "/client/messages");
-  const onMessages = /\/(therapists|client)\/messages/.test(router.asPath);
+  const path = router.asPath.split("#")[0];
+  const hidden = HIDE_ON.test(path);
 
   const loadUnread = () => fetchById(`${apiUrl}/live-chat/unread`).then((r) => r?.status && setUnread(r.data.count || 0)).catch(() => {});
 
   useEffect(() => {
     const d = getDecodedToken();
-    if (!d || (d.role !== 0 && d.role !== 1) || typeof EventSource === "undefined") return undefined;
+    const live = d && (!d.exp || d.exp * 1000 > Date.now());
+    if (!live || (d.role !== 0 && d.role !== 1)) { setWho("guest"); return undefined; }
     role.current = d.role === 1 ? "therapist" : "client";
-    setReady(true);
+    setWho(role.current);
+    if (typeof EventSource === "undefined") return undefined;
     syncPush();
     loadUnread();
     const es = new EventSource(`${apiUrl}/live-chat/stream?token=${encodeURIComponent(getToken() || "")}`);
     es.addEventListener("message", (e) => {
       const { threadId, message } = JSON.parse(e.data || "{}");
-      if (!message || message.fromRole === role.current || message.fromRole === "system") return;
+      if (!message) return;
+      // the Care Team chat open inside the widget shows it right there
+      if (window.__lcMini && window.__lcMini(threadId, message)) return;
+      if (message.fromRole === role.current || message.fromRole === "system") return;
       // the chat that's open and visible already shows it
       if (window.__lcActive === threadId && document.visibilityState === "visible") return;
       setUnread((n) => n + 1);
@@ -114,32 +127,42 @@ export default function ChatNotifier() {
     return () => { es.close(); clearTimeout(timer.current); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // only on portal pages (therapist / client shell), sitting just above the bottom dock when there is one
+  // sit just above whatever bar is at the bottom of this page
   useEffect(() => {
     const place = () => {
-      setShell(!!document.querySelector(".ts-area, .cls"));
-      const dock = [...document.querySelectorAll(".tn-mob-nav, .cls-mob")].find((x) => x.offsetHeight && getComputedStyle(x).display !== "none" && !x.classList.contains("away"));
-      setBottom(dock ? Math.round(window.innerHeight - dock.getBoundingClientRect().top + 14) : 24);
+      const bars = [...document.querySelectorAll(BARS)].filter((x) => x.offsetHeight && getComputedStyle(x).display !== "none" && getComputedStyle(x).visibility !== "hidden" && !x.classList.contains("away"));
+      const tops = bars.map((x) => x.getBoundingClientRect().top).filter((t) => t > window.innerHeight * 0.5 && t < window.innerHeight);
+      setBottom(tops.length ? Math.round(window.innerHeight - Math.min(...tops) + 14) : 24);
     };
     place();
     const iv = setInterval(place, 800);
     window.addEventListener("resize", place);
     return () => { clearInterval(iv); window.removeEventListener("resize", place); };
   }, [router.asPath]);
-  useEffect(() => { setOpen(false); if (onMessages) loadUnread(); }, [router.asPath]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // back from logging in to chat (?chat=1): open the widget once
+  useEffect(() => {
+    setOpen(false);
+    if (router.isReady && router.query.chat === "1" && who === "client") setOpen(true);
+  }, [router.asPath, router.isReady, who]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = () => {
-    if (!open) fetchById(`${apiUrl}/live-chat/threads`).then((r) => setThreads(Array.isArray(r?.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
+    if (!open && who === "therapist") fetchById(`${apiUrl}/live-chat/threads`).then((r) => setThreads(Array.isArray(r?.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
     setOpen((o) => !o); setToast(null);
   };
-
-  if (typeof document === "undefined" || !ready) return null;
-  const showFab = shell && !onMessages;
-  if (!showFab && !toast) return null;
   const go = (href) => { setOpen(false); setToast(null); router.push(href); };
+  const loginHref = () => {
+    const here = path.replace(/([?&])chat=1(&|$)/, "$1").replace(/[?&]$/, "");
+    const back = `${here}${here.includes("?") ? "&" : "?"}chat=1`;
+    return `/login?next=${encodeURIComponent(back)}`;
+  };
+
+  if (typeof document === "undefined" || !who) return null;
+  const showFab = !hidden;
+  if (!showFab && !toast) return null;
   return createPortal((
     <div className="lcf" style={{ "--lcf-b": `${bottom}px` }}>
-      <style>{CSS}</style>
+      <style>{CSS + SM_CSS}</style>
       {toast && (
         <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} onClick={() => go(toast.href)}>
           <span className="lcn-ic" aria-hidden="true">💬</span>
@@ -148,23 +171,46 @@ export default function ChatNotifier() {
         </button>
       )}
       {showFab && open && (
-        <div className="lcf-panel" role="dialog" aria-label="Recent messages">
-          <div className="lcf-h"><b>Messages</b><button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button></div>
-          {threads === null ? <p className="lcf-muted">Loading…</p> : !threads.length ? <p className="lcf-muted">No messages yet.</p> : (
-            <ul>{threads.slice(0, 4).map((t) => (
-              <li key={t._id}><button type="button" className={t.unread ? "unread" : ""} onClick={() => go(`${base()}?t=${t._id}`)}>
+        <div className={`lcf-panel ${who}`} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
+          {who === "therapist" ? (
+            <>
+              <div className="lcf-h"><b>Messages</b><button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button></div>
+              {threads === null ? <p className="lcf-muted">Loading…</p> : !threads.length ? <p className="lcf-muted">No messages yet.</p> : (
+                <ul>{threads.slice(0, 4).map((t) => (
+                  <li key={t._id}><button type="button" className={t.unread ? "unread" : ""} onClick={() => go(`${base()}?t=${t._id}`)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <span className="lcf-av">{photoSrc(t.other?.photo) ? <img src={photoSrc(t.other.photo)} alt="" /> : ini(t.other?.name)}</span>
+                    <span className="lcf-m"><b>{t.other?.name}</b><small>{t.lastFrom === role.current ? "You: " : ""}{t.preview}</small></span>
+                    {t.unread > 0 && <em>{t.unread}</em>}
+                  </button></li>
+                ))}</ul>
+              )}
+              <button type="button" className="lcf-all" onClick={() => go(base())}>Open Messages ›</button>
+            </>
+          ) : (
+            <>
+              <div className="lcf-h team">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <span className={`lcf-av${t.other?.support ? " cyt" : ""}`}>{t.other?.support ? <img src="/icons/cyt-icon-96.png" alt="" /> : photoSrc(t.other?.photo) ? <img src={photoSrc(t.other.photo)} alt="" /> : ini(t.other?.name)}</span>
-                <span className="lcf-m"><b>{t.other?.name}</b><small>{t.lastFrom === role.current ? "You: " : ""}{t.preview}</small></span>
-                {t.unread > 0 && <em>{t.unread}</em>}
-              </button></li>
-            ))}</ul>
+                <span className="lcf-av cyt"><img src="/icons/cyt-icon-96.png" alt="" /></span>
+                <span className="lcf-m"><b>CYT Care Team</b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
+                <button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button>
+              </div>
+              {who === "guest" ? (
+                <div className="lcf-guest">
+                  <p className="lcf-hi">Hi 👋 Not sure which therapist is right for you? Chat with our care team — we&apos;ll help you choose.</p>
+                  <ul><li>Real people, not a bot</li><li>Private and secure</li><li>Free — no booking needed to ask</li></ul>
+                  <button type="button" className="lcf-all" onClick={() => go(loginHref())}>Log in to start chatting</button>
+                  <small>New here? Logging in creates your free account with just your email.</small>
+                </div>
+              ) : (
+                <SupportMini page={path.slice(0, 180)} onOpenAll={(tid) => go(`/client/messages?t=${tid}`)} />
+              )}
+            </>
           )}
-          <button type="button" className="lcf-all" onClick={() => go(base())}>Open Messages ›</button>
         </div>
       )}
       {showFab && (
-        <button type="button" className={`lcf-btn${open ? " on" : ""}`} onClick={toggle} aria-label={unread ? `Messages, ${unread} unread` : "Messages"} aria-expanded={open}>
+        <button type="button" className={`lcf-btn${open ? " on" : ""}`} onClick={toggle} aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
         </button>
@@ -174,7 +220,7 @@ export default function ChatNotifier() {
 }
 
 const CSS = `
-.lcf { position: fixed; z-index: 1300; right: 0; bottom: 0; width: 0; height: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
+.lcf { position: fixed; z-index: 9997; right: 0; bottom: 0; width: 0; height: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
 .lcf-btn { position: fixed; right: 18px; bottom: var(--lcf-b); width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
   display: grid; place-items: center; background: linear-gradient(160deg, #3bd16a, #1f9a4f); box-shadow: 0 14px 30px -10px rgba(16,110,55,.7), 0 0 0 1px rgba(255,255,255,.6) inset;
   transition: transform .18s ease, bottom .25s ease; }
@@ -195,6 +241,14 @@ const CSS = `
 .lcf-panel li button.unread b { font-weight: 800; } .lcf-panel li button.unread small { color: #3c3c43; }
 .lcf-panel li em { flex: none; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #0a84ff; color: #fff; font-style: normal; font-size: 11.5px; font-weight: 800; display: grid; place-items: center; }
 .lcf-muted { margin: 6px 6px 10px; font-size: 13.5px; color: #8e8e93; }
+.lcf-panel.client, .lcf-panel.guest { width: min(370px, calc(100vw - 24px)); right: 12px; }
+.lcf-h.team { justify-content: flex-start; gap: 10px; padding: 0 2px 10px; border-bottom: 1px solid rgba(60,60,67,.1); margin-bottom: 6px; }
+.lcf-h.team .lcf-m b { font-size: 15.5px; } .lcf-h.team .lcf-m small { color: #34a853; font-weight: 600; } .lcf-h.team > button { margin-left: auto; }
+.lcf-guest { padding: 4px 2px 2px; }
+.lcf-hi { margin: 4px 0 10px; padding: 9px 12px; border-radius: 18px; background: #e9e9eb; font-size: 14.5px; line-height: 1.4; color: #000; }
+.lcf-guest ul { margin: 0 0 12px; padding-left: 18px; font-size: 13.5px; color: #3c3c43; display: grid; gap: 3px; }
+.lcf-guest small { display: block; margin-top: 8px; text-align: center; font-size: 12px; color: #8e8e93; }
+@media (max-width: 600px) { .lcf-btn { right: 14px; width: 54px; height: 54px; } .lcf-panel, .lcn.at-fab { right: 12px; } }
 .lcf-all { width: 100%; height: 42px; margin-top: 6px; border: 0; border-radius: 13px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
 .lcn { position: fixed; z-index: 100001; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 24px));
   display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 20px; text-align: left; cursor: pointer; font: inherit; color: #1c1c1e;
