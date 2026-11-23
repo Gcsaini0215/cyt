@@ -131,23 +131,25 @@ export default function ChatNotifier() {
 
   // sit just above whatever bar is at the bottom of this page
   useEffect(() => {
-    // measured from where each bar RESTS (its CSS bottom + height), not where it is right now: docks that slide away
-    // on scroll and come back never catch the button mid-way — it stays put above them (owner, 2026-11-23)
+    // above a bottom bar only while that bar is on screen; otherwise right down in the corner (owner, 2026-11-23).
+    // While the page scrolls (docks slide away / back) it follows the bar every frame, so it never sits on it.
     const place = () => {
-      let need = 24;
+      let need = 16;
+      const vh = window.innerHeight;
       for (const x of document.querySelectorAll(BARS)) {
         const cs = getComputedStyle(x);
         if (!x.offsetHeight || cs.display === "none" || cs.visibility === "hidden" || cs.position !== "fixed") continue;
-        const b = parseFloat(cs.bottom);
-        if (!Number.isFinite(b) || b > 200) continue;
-        need = Math.max(need, Math.round(b + x.offsetHeight + 14));
+        const top = x.getBoundingClientRect().top;
+        if (top >= vh - 4 || top < vh * 0.5) continue; // slid away, or not a bottom bar
+        need = Math.max(need, Math.round(vh - top + 12));
       }
       setBottom((v) => (v === need ? v : need));
     };
     place();
-    const iv = setInterval(place, 800);
-    let raf = 0;
-    const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(place); };
+    const iv = setInterval(place, 600);
+    let raf = 0, until = 0;
+    const follow = () => { place(); if (performance.now() < until) raf = requestAnimationFrame(follow); };
+    const onScroll = () => { until = performance.now() + 700; cancelAnimationFrame(raf); raf = requestAnimationFrame(follow); };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", place);
     return () => { clearInterval(iv); cancelAnimationFrame(raf); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", place); };
@@ -160,6 +162,30 @@ export default function ChatNotifier() {
     if (router.isReady && router.query.chat === "1" && who === "client") setOpen(true);
   }, [router.isReady, who]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* phones: the open widget is a full-screen sheet sized to the part of the screen you can actually see, so when
+     the keyboard opens the messages and the typing box stay in view (owner, 2026-11-23) */
+  const [sheet, setSheet] = useState(false);
+  const rootRef = useRef(null);
+  useEffect(() => {
+    const isPhone = window.matchMedia("(max-width: 600px)").matches;
+    setSheet(open && isPhone);
+    if (!open || !isPhone) return undefined;
+    const vv = window.visualViewport;
+    const fit = () => {
+      const el = rootRef.current; if (!el) return;
+      el.style.setProperty("--vvh", `${Math.round(vv ? vv.height : window.innerHeight)}px`);
+      el.style.setProperty("--vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`);
+    };
+    fit();
+    vv?.addEventListener("resize", fit); vv?.addEventListener("scroll", fit); window.addEventListener("resize", fit);
+    const b = document.body, y = window.scrollY, prev = b.style.cssText;
+    b.style.position = "fixed"; b.style.top = `-${y}px`; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%"; b.style.overflow = "hidden";
+    return () => {
+      vv?.removeEventListener("resize", fit); vv?.removeEventListener("scroll", fit); window.removeEventListener("resize", fit);
+      b.style.cssText = prev; window.scrollTo(0, y);
+    };
+  }, [open]);
+
   const toggle = () => {
     if (!open && who === "therapist") fetchById(`${apiUrl}/live-chat/threads`).then((r) => setThreads(Array.isArray(r?.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
     setOpen((o) => !o); setToast(null);
@@ -170,7 +196,7 @@ export default function ChatNotifier() {
   const showFab = !hidden;
   if (!showFab && !toast) return null;
   return createPortal((
-    <div className="lcf" style={{ "--lcf-b": `${bottom}px` }}>
+    <div className="lcf" ref={rootRef} style={{ "--lcf-b": `${bottom}px` }}>
       <style>{CSS + SM_CSS}</style>
       {toast && (
         <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} onClick={() => go(toast.href)}>
@@ -180,7 +206,7 @@ export default function ChatNotifier() {
         </button>
       )}
       {showFab && open && (
-        <div className={`lcf-panel ${who}`} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
+        <div className={`lcf-panel ${who}${sheet ? " sheet" : ""}`} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
           {who === "therapist" ? (
             <>
               <div className="lcf-h"><b>Messages</b><button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button></div>
@@ -217,7 +243,7 @@ export default function ChatNotifier() {
           )}
         </div>
       )}
-      {showFab && (
+      {showFab && !sheet && (
         <button type="button" className={`lcf-btn${open ? " on" : ""}`} onClick={toggle} aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
@@ -231,7 +257,7 @@ const CSS = `
 .lcf { position: fixed; z-index: 9997; right: 0; bottom: 0; width: 0; height: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
 .lcf-btn { position: fixed; right: 18px; bottom: var(--lcf-b); width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
   display: grid; place-items: center; background: linear-gradient(160deg, #3bd16a, #1f9a4f); box-shadow: 0 14px 30px -10px rgba(16,110,55,.7), 0 0 0 1px rgba(255,255,255,.6) inset;
-  transition: transform .18s ease, bottom .25s ease; }
+  transition: transform .18s ease; }
 .lcf-btn:hover { transform: translateY(-2px) scale(1.03); }
 .lcf-btn.on { background: #1c1c1e; }
 .lcf-btn em { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; animation: lcfPop .3s ease; }
@@ -261,6 +287,16 @@ const CSS = `
 .lcf-guest ul { margin: 0 0 12px; padding-left: 18px; font-size: 13.5px; color: #3c3c43; display: grid; gap: 3px; }
 .lcf-guest small { display: block; margin-top: 8px; text-align: center; font-size: 12px; color: #8e8e93; }
 @media (max-width: 600px) { .lcf-btn { right: 14px; width: 54px; height: 54px; } .lcf-panel, .lcn.at-fab { right: 12px; } }
+/* with no bar it sits in the corner, clear of the iPhone home indicator */
+.lcf-btn { bottom: max(var(--lcf-b), calc(16px + env(safe-area-inset-bottom, 0px))); }
+/* phone sheet: fills exactly the visible screen (it shrinks above the keyboard) */
+.lcf-panel.sheet { position: fixed; z-index: 100003; left: 0; right: 0; top: var(--vvt, 0px); bottom: auto; width: auto; height: var(--vvh, 100dvh); max-height: none;
+  border-radius: 0; display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; overflow-y: auto; animation: lcfSheet .25s ease; background: #fff; }
+.lcf-panel.sheet .lcf-h { flex: none; }
+.lcf-panel.sheet .lsm { flex: 1; min-height: 0; }
+.lcf-panel.sheet .lsm-msgs { flex: 1; height: auto; min-height: 120px; }
+.lcf-panel.sheet .lcf-guest { flex: 1; }
+@keyframes lcfSheet { from { opacity: 0; transform: translateY(24px); } }
 .lcf-all { width: 100%; height: 42px; margin-top: 6px; border: 0; border-radius: 13px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
 .lcn { position: fixed; z-index: 100001; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 24px));
   display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 20px; text-align: left; cursor: pointer; font: inherit; color: #1c1c1e;
