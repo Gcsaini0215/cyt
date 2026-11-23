@@ -167,7 +167,7 @@ export default function ChatApp({ role }) {
   // nudge once to turn on phone notifications (needs a tap)
   useEffect(() => { try { setAskPush(pushState() === "default" && localStorage.getItem("cyt_lc_pushask") !== "1"); } catch { /* ignore */ } }, []);
 
-  const loadThreads = useCallback(() => fetchById(`${API}/threads`).then((r) => r?.status && setThreads(r.data.threads)).catch(() => setThreads((t) => t || [])), []);
+  const loadThreads = useCallback(() => fetchById(`${API}/threads`).then((r) => r?.status && setThreads(Array.isArray(r.data?.threads) ? r.data.threads : [])).catch(() => setThreads((t) => t || [])), []);
   useEffect(() => {
     fetchById(`${API}/consent`).then((r) => setConsent(!!r?.data?.agreed)).catch(() => setConsent(false));
     loadThreads();
@@ -303,12 +303,12 @@ export default function ChatApp({ role }) {
                 </div>
               ) : shown.map((t) => (
                 <button type="button" key={t._id} className={`lc-item${t._id === active ? " on" : ""}${t.unread ? " unread" : ""}`} onClick={() => { setActive(t._id); router.replace({ pathname: router.pathname, query: { t: t._id } }, undefined, { shallow: true }); }}>
-                  <Avatar p={t.other} />
+                  <i className="lc-dot" aria-label={t.unread ? `${t.unread} unread` : undefined} />
+                  <Avatar p={t.other} size={50} />
                   <span className="lc-item-m">
-                    <span className="lc-item-t"><b>{t.other.name}</b><time>{listTime(t.lastMessageAt)}</time></span>
+                    <span className="lc-item-t"><b>{t.other.name}</b><time>{listTime(t.lastMessageAt)} <span aria-hidden="true">›</span></time></span>
                     <span className="lc-item-p">{t.lastFrom === role ? "You: " : ""}{t.preview || "…"}</span>
                   </span>
-                  {t.unread > 0 && <em className="lc-badge">{t.unread > 9 ? "9+" : t.unread}</em>}
                 </button>
               ))}
             </div>
@@ -324,39 +324,47 @@ export default function ChatApp({ role }) {
               <>
                 <header className="lc-conv-h">
                   <button type="button" className="lc-back" onClick={() => { setActive(null); router.replace({ pathname: router.pathname }, undefined, { shallow: true }); }} aria-label="Back to chats">‹</button>
-                  <Avatar p={other} size={40} />
                   <div className="lc-conv-who">
-                    <b>{other.name}</b>
+                    <Avatar p={other} size={44} />
+                    <b>{other.name} <span aria-hidden="true">›</span></b>
                     <small>{other.online ? "Online now" : role === "client" && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
-                  {role === "client" && <Link href={bookHref} className="lc-book">Book</Link>}
+                  {role === "client" ? <Link href={bookHref} className="lc-book">Book</Link> : <span className="lc-hspace" aria-hidden="true" />}
                 </header>
 
                 <div className="lc-msgs" ref={scroller}>
                   {conv.messages.length === 0 && <p className="lc-start">Say hello 👋 — {role === "client" ? "keep it short and simple." : "your reply goes to the client right away."}</p>}
-                  {conv.messages.map((m, i) => {
-                    const prev = conv.messages[i - 1];
-                    const sep = !prev || dayKey(prev.createdAt) !== dayKey(m.createdAt);
-                    const mine = m.fromRole === role;
-                    const canDel = mine && !m.deleted && Date.now() - new Date(m.createdAt).getTime() < 10 * 60000;
-                    return (
-                      <React.Fragment key={m._id}>
-                        {sep && <div className="lc-day"><span>{dayLabel(m.createdAt)}</span></div>}
-                        {m.fromRole === "system" ? (
-                          <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : "🕐 "}{m.body}</span></div>
-                        ) : (
-                          <div className={`lc-row${mine ? " me" : ""}`}>
-                            <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}`}>
-                              {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
-                              {m.deleted ? <i>This message was deleted</i> : <p>{m.body}</p>}
-                              <span className="lc-meta">{timeOf(m.createdAt)}{mine && !m.deleted && <b className={m.readAt ? "read" : ""}>{m.readAt ? "✓✓" : "✓"}</b>}</span>
-                              {canDel && <button type="button" className="lc-del" onClick={() => remove(m)} aria-label="Delete for everyone">×</button>}
+                  {(() => {
+                    const ms = conv.messages;
+                    const lastMine = [...ms].reverse().find((x) => x.fromRole === role && !x.deleted);
+                    const gap = (a, b) => Math.abs(new Date(b.createdAt) - new Date(a.createdAt));
+                    const near = (a, b) => !!(a && b && a.fromRole === b.fromRole && a.fromRole !== "system" && dayKey(a.createdAt) === dayKey(b.createdAt) && gap(a, b) < 5 * 60000);
+                    return ms.map((m, i) => {
+                      const prev = ms[i - 1], next = ms[i + 1];
+                      const stamp = !prev || dayKey(prev.createdAt) !== dayKey(m.createdAt) || gap(prev, m) > 30 * 60000;
+                      const mine = m.fromRole === role;
+                      const first = stamp || !near(prev, m);
+                      const last = !near(m, next);
+                      const canDel = mine && !m.deleted && Date.now() - new Date(m.createdAt).getTime() < 10 * 60000;
+                      return (
+                        <React.Fragment key={m._id}>
+                          {stamp && <div className="lc-day"><b>{dayLabel(m.createdAt)}</b> {timeOf(m.createdAt)}</div>}
+                          {m.fromRole === "system" ? (
+                            <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
+                          ) : (
+                            <div className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}`}>
+                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}`} title={timeOf(m.createdAt)}>
+                                {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
+                                {m.deleted ? <i>This message was deleted</i> : <p>{m.body}</p>}
+                                {canDel && <button type="button" className="lc-del" onClick={() => remove(m)} aria-label="Delete for everyone">×</button>}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
+                          )}
+                          {lastMine && m._id === lastMine._id && <div className="lc-receipt">{m.readAt ? <><b>Read</b> {timeOf(m.readAt)}</> : "Delivered"}</div>}
+                        </React.Fragment>
+                      );
+                    });
+                  })()}
                 </div>
 
                 {st?.note && (
@@ -375,7 +383,7 @@ export default function ChatApp({ role }) {
                       <textarea rows={1} value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
                         onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
-                      <button type="submit" disabled={!text.trim() || sending} aria-label="Send">{sending ? "…" : "➤"}</button>
+                      <button type="submit" disabled={!text.trim() || sending} aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
                     </form>
                     <small className="lc-foot">Not for emergencies — call 112 or Tele-MANAS 14416.</small>
                   </>
@@ -396,7 +404,7 @@ export function MessagesWidget({ role }) {
   const [threads, setThreads] = useState(null);
   const href = role === "therapist" ? "/therapists/messages" : "/client/messages";
   useEffect(() => {
-    const load = () => fetchById(`${API}/threads`).then((r) => r?.status && setThreads(r.data.threads)).catch(() => setThreads([]));
+    const load = () => fetchById(`${API}/threads`).then((r) => r?.status && setThreads(Array.isArray(r.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
     load();
     const token = getToken();
     if (!token || typeof EventSource === "undefined") return undefined;
@@ -546,6 +554,64 @@ const CSS = AV_CSS + `
 .lc-days button { height: 34px; min-width: 46px; border-radius: 999px; border: 1px solid #d4e5da; background: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .lc-days button.on { background: #14532d; border-color: #14532d; color: #fff; }
 .lc-save { width: 100%; height: 48px; border-radius: 14px; border: 0; background: #14532d; color: #fff; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+/* ═══ iPhone Messages look (owner, 2026-11-23) ═══ */
+.lc, .lc-sheet, .lc-consent { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.lc-app { border-radius: 24px; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 20px 44px -28px rgba(0,0,0,.35); }
+.lc-list { background: #fff; border-right: 1px solid rgba(60,60,67,.12); }
+.lc-list-h h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; }
+.lc-gear { background: #f2f2f7; color: #1c1c1e; }
+.lc-search { background: rgba(118,118,128,.12); border-radius: 11px; height: 36px; }
+.lc-items { padding: 0 0 12px; }
+.lc-item { position: relative; border-radius: 0; padding: 10px 14px 10px 22px; gap: 11px; }
+.lc-item::after { content: ""; position: absolute; left: 83px; right: 0; bottom: 0; height: 1px; background: rgba(60,60,67,.12); }
+.lc-item:hover { background: #f2f2f7; } .lc-item.on { background: #e9e9ee; }
+.lc-dot { position: absolute; left: 7px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: transparent; }
+.lc-item.unread .lc-dot { background: #0a84ff; }
+.lc-item-m { align-self: stretch; justify-content: center; }
+.lc-item-t b { font-size: 16px; font-weight: 600; }
+.lc-item-t time { font-size: 14px; color: #8e8e93; } .lc-item-t time span { color: #c7c7cc; font-size: 17px; margin-left: 2px; }
+.lc-item-p { font-size: 14.5px; line-height: 1.3; color: #8e8e93; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.lc-item.unread .lc-item-t b { font-weight: 700; } .lc-item.unread .lc-item-p { color: #3c3c43; font-weight: 500; }
+.lc-conv { background: #fff; }
+.lc-conv-h { position: relative; justify-content: space-between; padding: 8px 12px 6px; background: rgba(249,249,249,.94); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(60,60,67,.14); }
+.lc-conv-who { align-items: center; text-align: center; gap: 2px; }
+.lc-conv-who b { font-size: 12.5px; font-weight: 600; color: #1c1c1e; } .lc-conv-who b span { color: #c7c7cc; }
+.lc-conv-who small { font-size: 11px; color: #8e8e93; }
+.lc-back, .lc-hspace { width: 64px; flex: none; }
+.lc-back { justify-content: flex-start !important; color: #0a84ff; font-size: 34px; font-weight: 300; }
+.lc-book { min-width: 64px; justify-content: center; background: none; color: #0a84ff !important; padding: 0; font-size: 15.5px; font-weight: 600; }
+.lc-msgs { padding: 10px 14px 6px; gap: 0; }
+.lc-day { display: block; text-align: center; margin: 14px 0 8px; font-size: 11.5px; color: #8e8e93; }
+.lc-day b { font-weight: 600; color: #8e8e93; }
+.lc-row { margin-top: 2px; } .lc-row.first { margin-top: 8px; }
+.lc-bub { max-width: min(72%, 520px); padding: 7px 13px; border-radius: 19px; background: #e9e9eb; color: #000; box-shadow: none; }
+.lc-row.me .lc-bub { background: linear-gradient(180deg, #3bd16a, #2fb457); color: #fff; border-radius: 19px; }
+.lc-bub p { font-size: 16px; line-height: 1.32; letter-spacing: -.01em; }
+/* the little tail on the last bubble of a group */
+.lc-row.last .lc-bub::before, .lc-row.last .lc-bub::after { content: ""; position: absolute; bottom: 0; height: 18px; }
+.lc-row.last:not(.me) .lc-bub::before { left: -7px; width: 20px; background: #e9e9eb; border-bottom-right-radius: 16px; }
+.lc-row.last:not(.me) .lc-bub::after { left: -26px; width: 26px; background: #fff; border-bottom-right-radius: 10px; }
+.lc-row.last.me .lc-bub::before { right: -7px; width: 20px; background: #2fb457; border-bottom-left-radius: 16px; }
+.lc-row.last.me .lc-bub::after { right: -26px; width: 26px; background: #fff; border-bottom-left-radius: 10px; }
+.lc-bub > * { position: relative; z-index: 1; }
+.lc-bub.del { background: #fff !important; border: 1px dashed #c7c7cc; color: #8e8e93 !important; }
+.lc-row.last .lc-bub.del::before, .lc-row.last .lc-bub.del::after { display: none; }
+.lc-bub.flag { box-shadow: 0 0 0 2px #ff3b30; }
+.lc-tag { font-size: 10.5px; opacity: .65; }
+.lc-receipt { text-align: right; margin: 3px 4px 4px; font-size: 11px; color: #8e8e93; } .lc-receipt b { font-weight: 600; }
+.lc-sys { margin: 10px 0; } .lc-sys span { max-width: 80%; background: none; border: 0; padding: 0 8px; color: #8e8e93; font-size: 12px; }
+.lc-sys.crisis span { background: #fff1f0; border-radius: 14px; padding: 9px 12px; color: #c41e16; }
+.lc-note, .lc-note.closed { background: #f2f2f7; color: #3c3c43; border-radius: 14px; }
+.lc-quick button { border-color: rgba(60,60,67,.18); color: #0a84ff; background: #fff; }
+.lc-comp { position: relative; padding: 8px 10px 6px; background: rgba(249,249,249,.94); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid rgba(60,60,67,.12); }
+.lc-comp textarea { border: 1px solid rgba(60,60,67,.25) !important; border-radius: 19px !important; background: #fff !important; padding: 8px 44px 8px 14px !important; font-size: 16px; min-height: 38px; }
+.lc-comp textarea:focus { border-color: rgba(60,60,67,.35) !important; }
+.lc-comp button { position: absolute; right: 15px; bottom: 11px; width: 30px; height: 30px; display: grid; place-items: center; background: #34c759; }
+.lc-comp button:disabled { background: #c7c7cc; }
+.lc-foot { background: rgba(249,249,249,.94); text-align: center; color: #aeaeb2; }
+.lc-app .lc-av { background: linear-gradient(180deg, #a5abb8, #858b98); color: #fff; } .lc-app .lc-av b { font-weight: 600; letter-spacing: .02em; }
+.lc-on { background: #34c759; }
+
 /* phones + iPad portrait: one pane at a time */
 @media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
   .lc-app { grid-template-columns: minmax(0, 1fr); height: calc(100dvh - 170px); border-radius: 18px; }

@@ -912,6 +912,17 @@ body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bo
   .ts-area { margin-left: env(safe-area-inset-left, 0px); margin-right: env(safe-area-inset-right, 0px); }
 }
 
+/* installed app on any screen, incl. an iPad with a keyboard / trackpad (it counts as "desktop" and got the see-through
+   blurred bar): the bar is solid white with no blur, the status-bar strip above it stays white, and the page can't be
+   pulled down to show behind it — nothing scrolls into view above the bar (owner, 2026-11-23) */
+@media (display-mode: standalone) {
+  html:has(.ts-area), body:has(.ts-area) { overscroll-behavior-y: none; }
+  html:has(.ts-area) { background: #fff; }
+  .tn-bar.tn-bar { position: fixed; top: 0; background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+    box-shadow: 0 -200px 0 0 #fff, 0 6px 20px -16px rgba(4,30,16,.35) !important; }
+  .tn-bar.tn-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 200px; background: #fff; pointer-events: none; }
+}
+
 /* subscription wallet chip (2026-11-20): days left on the listing package — every screen */
 .tn-right > a.tn-wallet { display: inline-flex !important; align-items: center; gap: 5px; width: auto !important; height: 34px !important; padding: 0 11px 0 9px !important; margin-right: 4px;
   border-radius: 999px !important; background: #e6f4ec !important; color: #14532d !important; text-decoration: none !important; font-size: 13.5px; font-weight: 800; white-space: nowrap; flex: none; }

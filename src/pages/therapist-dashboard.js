@@ -691,6 +691,9 @@ const DASH_CSS = `
   .ov .ov-next.hero .ov-new-tag { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; padding: 3px 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
+/* "Your numbers" line: it is pulled up into the slider-dots row only when there IS a slider. With a single
+   session there are no dots, and the pull-up made it overlap the card (iPad landscape, owner 2026-11-23). */
+.ov .ov-top:not(.no-next):not(:has(.ov-next-slider)) .ov-kpi-head { margin-top: 12px !important; }
 /* light gold Next session card (owner, 2026-11-21): the green strip stays, the body turns a soft warm gold */
 .ov .ov-card.ov-next.hero { background: linear-gradient(180deg, #fffaf0 0%, #fdf3dc 100%) !important; border: 1px solid #f0dfb4 !important;
   box-shadow: 0 1px 2px rgba(120,80,10,.06), 0 18px 38px -26px rgba(120,80,10,.45) !important; }
