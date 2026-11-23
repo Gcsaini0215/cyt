@@ -187,7 +187,9 @@ export default function ChatApp({ role }) {
       el.style.height = `${Math.max(300, Math.round(vh - top - gap))}px`;
     };
     fit();
-    const t1 = setTimeout(fit, 120), t2 = setTimeout(fit, 600);
+    // after the box has its final height, show the newest message
+    const toEnd = () => { fit(); const sc = scroller.current; if (sc) sc.scrollTop = sc.scrollHeight; };
+    const t1 = setTimeout(toEnd, 120), t2 = setTimeout(toEnd, 600);
     window.addEventListener("resize", fit);
     window.visualViewport?.addEventListener("resize", fit);
     return () => {

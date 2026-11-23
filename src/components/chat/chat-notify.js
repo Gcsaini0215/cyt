@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/router";
-import { apiUrl } from "../../utils/url";
+import { apiUrl, imagePath } from "../../utils/url";
 import { getToken, getDecodedToken } from "../../utils/jwt";
-import { postData } from "../../utils/actions";
+import { postData, fetchById } from "../../utils/actions";
 
 /* Message alerts (2026-11-23, owner):
    - In the app: a soft three-note chime (our own, made with Web Audio — not Apple's tone) + a banner at the top,
@@ -68,52 +68,145 @@ export async function syncPush() {
   } catch { /* fine */ }
 }
 
-// the app-wide listener, mounted once in _app for signed-in clients and therapists
+const photoSrc = (p) => (!p || /pngegg|default/i.test(p) ? "" : /^(https?:|data:)/.test(p) ? p : `${imagePath}/${p}`);
+const ini = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
+
+/* the app-wide listener, mounted once in _app for signed-in clients and therapists (2026-11-23, owner):
+   a floating chat button on every portal page (above the dock on phones / iPad, in the corner on desktop) with an
+   unread badge and a small panel of recent chats; new-message pop-ups come out right above that button. */
 export default function ChatNotifier() {
   const router = useRouter();
   const [toast, setToast] = useState(null);
+  const [unread, setUnread] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [threads, setThreads] = useState(null);
+  const [bottom, setBottom] = useState(24);
+  const [shell, setShell] = useState(false);
+  const [ready, setReady] = useState(false);
   const timer = useRef(null);
   const role = useRef(null);
-  const path = useRef(router.asPath);
-  path.current = router.asPath;
+  const base = () => (role.current === "therapist" ? "/therapists/messages" : "/client/messages");
+  const onMessages = /\/(therapists|client)\/messages/.test(router.asPath);
+
+  const loadUnread = () => fetchById(`${apiUrl}/live-chat/unread`).then((r) => r?.status && setUnread(r.data.count || 0)).catch(() => {});
 
   useEffect(() => {
     const d = getDecodedToken();
     if (!d || (d.role !== 0 && d.role !== 1) || typeof EventSource === "undefined") return undefined;
     role.current = d.role === 1 ? "therapist" : "client";
+    setReady(true);
     syncPush();
+    loadUnread();
     const es = new EventSource(`${apiUrl}/live-chat/stream?token=${encodeURIComponent(getToken() || "")}`);
     es.addEventListener("message", (e) => {
       const { threadId, message } = JSON.parse(e.data || "{}");
       if (!message || message.fromRole === role.current || message.fromRole === "system") return;
       // the chat that's open and visible already shows it
       if (window.__lcActive === threadId && document.visibilityState === "visible") return;
+      setUnread((n) => n + 1);
       playChime();
       if (navigator.vibrate) try { navigator.vibrate(60); } catch { /* ignore */ }
-      const base = role.current === "therapist" ? "/therapists/messages" : "/client/messages";
-      setToast({ threadId, name: message.fromName || (role.current === "therapist" ? "Your client" : "Your therapist"), body: message.body, href: `${base}?t=${threadId}` });
+      setToast({ threadId, name: message.fromName || (role.current === "therapist" ? "Your client" : "Your therapist"), body: message.body, href: `${base()}?t=${threadId}` });
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setToast(null), 6000);
     });
+    es.addEventListener("read", loadUnread);
     return () => { es.close(); clearTimeout(timer.current); };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!toast || typeof document === "undefined") return null;
+  // only on portal pages (therapist / client shell), sitting just above the bottom dock when there is one
+  useEffect(() => {
+    const place = () => {
+      setShell(!!document.querySelector(".ts-area, .cls"));
+      const dock = [...document.querySelectorAll(".tn-mob-nav, .cls-mob")].find((x) => x.offsetHeight && getComputedStyle(x).display !== "none" && !x.classList.contains("away"));
+      setBottom(dock ? Math.round(window.innerHeight - dock.getBoundingClientRect().top + 14) : 24);
+    };
+    place();
+    const iv = setInterval(place, 800);
+    window.addEventListener("resize", place);
+    return () => { clearInterval(iv); window.removeEventListener("resize", place); };
+  }, [router.asPath]);
+  useEffect(() => { setOpen(false); if (onMessages) loadUnread(); }, [router.asPath]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggle = () => {
+    if (!open) fetchById(`${apiUrl}/live-chat/threads`).then((r) => setThreads(Array.isArray(r?.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
+    setOpen((o) => !o); setToast(null);
+  };
+
+  if (typeof document === "undefined" || !ready) return null;
+  const showFab = shell && !onMessages;
+  if (!showFab && !toast) return null;
+  const go = (href) => { setOpen(false); setToast(null); router.push(href); };
   return createPortal((
-    <button type="button" className="lcn" onClick={() => { setToast(null); router.push(toast.href); }}>
+    <div className="lcf" style={{ "--lcf-b": `${bottom}px` }}>
       <style>{CSS}</style>
-      <span className="lcn-ic" aria-hidden="true">💬</span>
-      <span className="lcn-m"><b>{toast.name}</b><small>{toast.body}</small></span>
-      <span className="lcn-x" role="presentation" onClick={(e) => { e.stopPropagation(); setToast(null); }}>×</span>
-    </button>
+      {toast && (
+        <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} onClick={() => go(toast.href)}>
+          <span className="lcn-ic" aria-hidden="true">💬</span>
+          <span className="lcn-m"><b>{toast.name}</b><small>{toast.body}</small></span>
+          <span className="lcn-x" role="presentation" onClick={(e) => { e.stopPropagation(); setToast(null); }}>×</span>
+        </button>
+      )}
+      {showFab && open && (
+        <div className="lcf-panel" role="dialog" aria-label="Recent messages">
+          <div className="lcf-h"><b>Messages</b><button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button></div>
+          {threads === null ? <p className="lcf-muted">Loading…</p> : !threads.length ? <p className="lcf-muted">No messages yet.</p> : (
+            <ul>{threads.slice(0, 4).map((t) => (
+              <li key={t._id}><button type="button" className={t.unread ? "unread" : ""} onClick={() => go(`${base()}?t=${t._id}`)}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <span className={`lcf-av${t.other?.support ? " cyt" : ""}`}>{t.other?.support ? <img src="/icons/cyt-icon-96.png" alt="" /> : photoSrc(t.other?.photo) ? <img src={photoSrc(t.other.photo)} alt="" /> : ini(t.other?.name)}</span>
+                <span className="lcf-m"><b>{t.other?.name}</b><small>{t.lastFrom === role.current ? "You: " : ""}{t.preview}</small></span>
+                {t.unread > 0 && <em>{t.unread}</em>}
+              </button></li>
+            ))}</ul>
+          )}
+          <button type="button" className="lcf-all" onClick={() => go(base())}>Open Messages ›</button>
+        </div>
+      )}
+      {showFab && (
+        <button type="button" className={`lcf-btn${open ? " on" : ""}`} onClick={toggle} aria-label={unread ? `Messages, ${unread} unread` : "Messages"} aria-expanded={open}>
+          {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
+          {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
+        </button>
+      )}
+    </div>
   ), document.body);
 }
 
 const CSS = `
+.lcf { position: fixed; z-index: 1300; right: 0; bottom: 0; width: 0; height: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
+.lcf-btn { position: fixed; right: 18px; bottom: var(--lcf-b); width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
+  display: grid; place-items: center; background: linear-gradient(160deg, #3bd16a, #1f9a4f); box-shadow: 0 14px 30px -10px rgba(16,110,55,.7), 0 0 0 1px rgba(255,255,255,.6) inset;
+  transition: transform .18s ease, bottom .25s ease; }
+.lcf-btn:hover { transform: translateY(-2px) scale(1.03); }
+.lcf-btn.on { background: #1c1c1e; }
+.lcf-btn em { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; animation: lcfPop .3s ease; }
+.lcf-x { font-size: 28px; line-height: 1; font-weight: 300; }
+.lcf-panel { position: fixed; right: 18px; bottom: calc(var(--lcf-b) + 70px); width: min(340px, calc(100vw - 36px)); background: rgba(255,255,255,.97); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 22px; box-shadow: 0 24px 60px -20px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.05); padding: 12px; animation: lcfUp .25s cubic-bezier(.2,.9,.3,1.1); transform-origin: bottom right; }
+.lcf-h { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 8px; } .lcf-h b { font-size: 18px; font-weight: 800; color: #1c1c1e; }
+.lcf-h button { width: 28px; height: 28px; border: 0; border-radius: 50%; background: #f2f2f7; color: #6e6e73; font-size: 18px; cursor: pointer; }
+.lcf-panel ul { list-style: none; margin: 0; padding: 0; }
+.lcf-panel li button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 6px; border: 0; border-radius: 14px; background: none; text-align: left; cursor: pointer; font: inherit; color: #1c1c1e; }
+.lcf-panel li button:hover { background: #f2f2f7; }
+.lcf-av { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: linear-gradient(180deg, #a5abb8, #858b98); color: #fff; font-size: 14px; font-weight: 600; }
+.lcf-av img { width: 100%; height: 100%; object-fit: cover; } .lcf-av.cyt { background: #fff; box-shadow: inset 0 0 0 1px rgba(60,60,67,.14); } .lcf-av.cyt img { object-fit: contain; padding: 4px; box-sizing: border-box; }
+.lcf-m { flex: 1; min-width: 0; display: flex; flex-direction: column; } .lcf-m b { font-size: 14.5px; font-weight: 600; } .lcf-m small { font-size: 13px; color: #8e8e93; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcf-panel li button.unread b { font-weight: 800; } .lcf-panel li button.unread small { color: #3c3c43; }
+.lcf-panel li em { flex: none; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #0a84ff; color: #fff; font-style: normal; font-size: 11.5px; font-weight: 800; display: grid; place-items: center; }
+.lcf-muted { margin: 6px 6px 10px; font-size: 13.5px; color: #8e8e93; }
+.lcf-all { width: 100%; height: 42px; margin-top: 6px; border: 0; border-radius: 13px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
 .lcn { position: fixed; z-index: 100001; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 24px));
   display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 20px; text-align: left; cursor: pointer; font: inherit; color: #1c1c1e;
-  background: rgba(255,255,255,.94); backdrop-filter: saturate(1.6) blur(16px); -webkit-backdrop-filter: saturate(1.6) blur(16px);
+  background: rgba(255,255,255,.96); backdrop-filter: saturate(1.6) blur(16px); -webkit-backdrop-filter: saturate(1.6) blur(16px);
   box-shadow: 0 18px 40px -16px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.05); animation: lcnIn .35s cubic-bezier(.2,.9,.3,1.2); }
+/* with the floating button on screen, the pop-up comes out of the button instead of the top of the screen */
+.lcn.at-fab { top: auto; left: auto; right: 18px; bottom: calc(var(--lcf-b) + 70px); transform: none; width: min(340px, calc(100vw - 36px)); animation: lcnUp .35s cubic-bezier(.2,.9,.3,1.2); transform-origin: bottom right; }
+.lcn.at-fab::after { content: ""; position: absolute; right: 22px; bottom: -7px; width: 14px; height: 14px; background: #fff; transform: rotate(45deg); border-radius: 0 0 4px 0; box-shadow: 4px 4px 8px -6px rgba(0,0,0,.25); }
+@keyframes lcnUp { from { opacity: 0; transform: translateY(16px) scale(.9); } }
+@keyframes lcfUp { from { opacity: 0; transform: translateY(12px) scale(.94); } }
+@keyframes lcfPop { from { transform: scale(.4); } }
+@media (prefers-reduced-motion: reduce) { .lcf-panel, .lcf-btn em { animation: none; } }
 .lcn-ic { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; background: linear-gradient(160deg, #5ad08a, #1f8a52); }
 .lcn-m { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .lcn-m b { font-size: 14.5px; } .lcn-m small { font-size: 13.5px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
