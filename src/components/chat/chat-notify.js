@@ -101,7 +101,7 @@ export default function ChatNotifier() {
   const clampY = (y) => {
     const topBar = [...document.querySelectorAll(".tn-bar, .cls-bar, .rbt-header, header")].map((h) => h.getBoundingClientRect()).filter((r) => r.top <= 1 && r.height < 160).reduce((m, r) => Math.max(m, r.bottom), 0);
     const min = Math.max(12, topBar + 10);
-    const max = window.innerHeight - bottom - 58;
+    const max = window.innerHeight - bottom - 80;
     return Math.round(Math.min(Math.max(y, min), Math.max(min, max)));
   };
   const onDown = (e) => {
@@ -176,14 +176,14 @@ export default function ChatNotifier() {
     // above a bottom bar only while that bar is on screen; otherwise right down in the corner (owner, 2026-11-23).
     // While the page scrolls (docks slide away / back) it follows the bar every frame, so it never sits on it.
     const place = () => {
-      let need = 16;
+      let need = 26; // room for the round text
       const vh = window.innerHeight;
       for (const x of document.querySelectorAll(BARS)) {
         const cs = getComputedStyle(x);
         if (!x.offsetHeight || cs.display === "none" || cs.visibility === "hidden" || cs.position !== "fixed") continue;
         const top = x.getBoundingClientRect().top;
         if (top >= vh - 4 || top < vh * 0.5) continue; // slid away, or not a bottom bar
-        need = Math.max(need, Math.round(vh - top + 12));
+        need = Math.max(need, Math.round(vh - top + 26));
       }
       setBottom((v) => (v === need ? v : need));
     };
@@ -268,7 +268,7 @@ export default function ChatNotifier() {
   if (typeof document === "undefined" || !who) return null;
   const fabY = pos ? clampY(pos.y) : null;
   const btnStyle = drag ? { left: drag.x, top: drag.y, right: "auto", bottom: "auto", transition: "none" }
-    : pos ? { top: fabY, bottom: "auto", ...(pos.side === "left" ? { left: 14, right: "auto" } : { right: 14, left: "auto" }) } : undefined;
+    : pos ? { top: fabY, bottom: "auto", ...(pos.side === "left" ? { left: 24, right: "auto" } : { right: 24, left: "auto" }) } : undefined;
   const anchor = (() => {
     if (!pos || drag) return undefined;
     const low = fabY > window.innerHeight / 2;
@@ -426,9 +426,10 @@ const CSS = `
 .lcf-hi { margin: 4px 0 10px; padding: 9px 12px; border-radius: 18px; background: #e9e9eb; font-size: 14.5px; line-height: 1.4; color: #000; }
 .lcf-guest ul { margin: 0 0 12px; padding-left: 18px; font-size: 13.5px; color: #3c3c43; display: grid; gap: 3px; }
 .lcf-guest small { display: block; margin-top: 8px; text-align: center; font-size: 12px; color: #8e8e93; }
-@media (max-width: 600px) { .lcf-btn { right: 14px; width: 54px; height: 54px; } .lcf-panel, .lcn.at-fab { right: 12px; } }
+@media (max-width: 600px) { .lcf-btn { right: 24px; width: 54px; height: 54px; } .lcf-panel, .lcn.at-fab { right: 12px; } }
 /* with no bar it sits in the corner, clear of the iPhone home indicator */
-.lcf-btn { bottom: max(var(--lcf-b), calc(16px + env(safe-area-inset-bottom, 0px))); }
+.lcf-btn { bottom: max(var(--lcf-b), calc(26px + env(safe-area-inset-bottom, 0px))); } .lcf-btn { right: 26px; }
+@media (max-width: 600px) { .lcf-btn { right: 24px; } }
 /* phone sheet: fills exactly the visible screen (it shrinks above the keyboard) */
 .lcf-panel.sheet { position: fixed; z-index: 2147483000; left: 0; right: 0; top: var(--vvt, 0px); bottom: auto; width: auto; height: var(--vvh, 100dvh); max-height: none;
   border-radius: 0; display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; overflow-y: auto; animation: lcfSheet .25s ease; background: #fff; }
