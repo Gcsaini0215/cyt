@@ -714,7 +714,8 @@ const W_CSS = AV_CSS + `
 .chw ul { list-style: none; margin: 0; padding: 0; }
 .chw li + li { border-top: 1px solid #f0f2f1; }
 .chw li a { display: flex; align-items: center; gap: 10px; padding: 8px 2px; text-decoration: none !important; color: #1c1c1e !important; }
-.chw li a > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chw li a > span:not(.lc-av) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chw .lc-av { flex: none !important; } .chw .lc-av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .chw li b { font-size: 14px; } .chw li small { font-size: 12.5px; color: #6e6e73; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chw li a.unread b, .chw li a.unread small { font-weight: 800; color: #1c1c1e; }
 .chw li time { flex: none; font-size: 11.5px; color: #8e8e93; }

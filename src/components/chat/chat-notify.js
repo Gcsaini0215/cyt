@@ -129,15 +129,26 @@ export default function ChatNotifier() {
 
   // sit just above whatever bar is at the bottom of this page
   useEffect(() => {
+    // measured from where each bar RESTS (its CSS bottom + height), not where it is right now: docks that slide away
+    // on scroll and come back never catch the button mid-way — it stays put above them (owner, 2026-11-23)
     const place = () => {
-      const bars = [...document.querySelectorAll(BARS)].filter((x) => x.offsetHeight && getComputedStyle(x).display !== "none" && getComputedStyle(x).visibility !== "hidden" && !x.classList.contains("away"));
-      const tops = bars.map((x) => x.getBoundingClientRect().top).filter((t) => t > window.innerHeight * 0.5 && t < window.innerHeight);
-      setBottom(tops.length ? Math.round(window.innerHeight - Math.min(...tops) + 14) : 24);
+      let need = 24;
+      for (const x of document.querySelectorAll(BARS)) {
+        const cs = getComputedStyle(x);
+        if (!x.offsetHeight || cs.display === "none" || cs.visibility === "hidden" || cs.position !== "fixed") continue;
+        const b = parseFloat(cs.bottom);
+        if (!Number.isFinite(b) || b > 200) continue;
+        need = Math.max(need, Math.round(b + x.offsetHeight + 14));
+      }
+      setBottom((v) => (v === need ? v : need));
     };
     place();
     const iv = setInterval(place, 800);
+    let raf = 0;
+    const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(place); };
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", place);
-    return () => { clearInterval(iv); window.removeEventListener("resize", place); };
+    return () => { clearInterval(iv); cancelAnimationFrame(raf); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", place); };
   }, [router.asPath]);
 
   // back from logging in to chat (?chat=1): open the widget once
