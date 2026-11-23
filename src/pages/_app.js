@@ -5,6 +5,8 @@ import Providers from "@/components/Providers";
 import dynamic from "next/dynamic";
 const CallbackWidget = dynamic(() => import("@/components/global/callback-widget"), { ssr: false });
 const ActiveBookingBanner = dynamic(() => import("@/components/global/active-booking-banner"), { ssr: false });
+// live chat: chime + top banner for new messages anywhere in the portals (components/chat/chat-notify.js)
+const ChatNotifier = dynamic(() => import("@/components/chat/chat-notify"), { ssr: false });
 import CookieConsent from "@/components/global/cookie-consent";
 import SessionNotice from "@/components/global/session-notice";
 import SiteMotion from "@/components/global/site-motion";
@@ -339,6 +341,7 @@ function MyApp({ Component, pageProps }) {
       )}
       <CookieConsent />
       <SessionNotice />
+      <ChatNotifier />
       <SiteMotion />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>

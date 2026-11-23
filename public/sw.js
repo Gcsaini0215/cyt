@@ -41,11 +41,17 @@ self.addEventListener('push', function (event) {
     }
   }
 
-  const options = {
+  var url = data.url || '/';
+  var chat = url.indexOf('/messages?t=') !== -1;
+  var options = {
     body: data.body,
-    icon: '/icons/cyt-icon-192.png',
+    icon: url.indexOf('/therapists/') === 0 ?'/icons/cyt-therapist-192.png' : '/icons/cyt-icon-192.png',
     badge: '/favicon.png',
-    data: data.url || '/',
+    data: url,
+    // chat messages (2026-11-23): one notification per chat, buzz again for each new message
+    tag: chat ? 'chat:' + url.split('?t=')[1] : undefined,
+    renotify: chat,
+    vibrate: chat ? [80, 40, 80] : undefined,
   };
 
   event.waitUntil(

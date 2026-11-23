@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { fetchById, postData, putData, deleteById } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
 import { getToken } from "../../utils/jwt";
+import { soundOn, setSound, playChime, enablePush, pushState, iosNeedsInstall } from "./chat-notify";
 
 /* Live chat (2026-11-23) — one app for therapists (/therapists/messages) and clients (/client/messages).
    Desktop / iPad landscape: chat list + conversation side by side. Phones / iPad portrait: the list, then the
@@ -108,6 +109,43 @@ function Settings({ onClose }) {
   ), document.body);
 }
 
+function Alerts({ onClose }) {
+  const [perm, setPerm] = useState(pushState());
+  const [snd, setSnd] = useState(soundOn());
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    const b = document.body, y = window.scrollY, prev = b.style.cssText;
+    b.style.position = "fixed"; b.style.top = `-${y}px`; b.style.width = "100%"; b.style.overflow = "hidden";
+    return () => { b.style.cssText = prev; window.scrollTo(0, y); };
+  }, []);
+  const turnOn = async () => { setBusy(true); try { setPerm(await enablePush()); } catch { setPerm(pushState()); } setBusy(false); };
+  return createPortal((
+    <div className="lc-scrim" role="dialog" aria-modal="true" aria-label="Message alerts" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <style>{CSS}</style>
+      <div className="lc-sheet">
+        <button type="button" className="lc-x" onClick={onClose} aria-label="Close">×</button>
+        <h3>Message alerts</h3>
+        <div className="lc-alert">
+          <span aria-hidden="true">📱</span>
+          <div>
+            <b>Phone notifications</b>
+            <small>{perm === "granted" ? "On — new messages pop up on this phone with its own sound, even when CYT is closed." : perm === "denied" ? "Blocked in your browser settings. Allow notifications for chooseyourtherapist.in, then come back." : perm === "unsupported" ? (iosNeedsInstall() ? "On iPhone: add CYT to your Home Screen first (Share → Add to Home Screen), open it from there, then turn this on." : "This browser can't show notifications.") : "Get a pop-up with your phone's own sound when a message arrives, even when CYT is closed."}</small>
+            {perm === "default" && <button type="button" className="lc-btn" disabled={busy} onClick={turnOn}>{busy ? "Turning on…" : "Turn on notifications"}</button>}
+            {perm === "granted" && <em className="lc-ok">✓ On</em>}
+          </div>
+        </div>
+        <label className="lc-switch">
+          <span><b>Sound in the app</b><small>A soft chime and a pop-up when a message comes in while CYT is open. Only you hear it.</small></span>
+          <input type="checkbox" checked={snd} onChange={(e) => { setSnd(e.target.checked); setSound(e.target.checked); if (e.target.checked) playChime(); }} />
+          <i aria-hidden="true" />
+        </label>
+        <button type="button" className="lc-test" onClick={() => playChime()}>▶ Play the sound</button>
+        <p className="lc-privacy">🔒 Notifications never show what the message says — only who it&apos;s from.</p>
+      </div>
+    </div>
+  ), document.body);
+}
+
 export default function ChatApp({ role }) {
   const router = useRouter();
   const [consent, setConsent] = useState(null);
@@ -120,9 +158,14 @@ export default function ChatApp({ role }) {
   const [err, setErr] = useState("");
   const [settings, setSettings] = useState(false);
   const [live, setLive] = useState(false);
+  const [alerts, setAlerts] = useState(false);
+  const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
   const activeRef = useRef(null);
   activeRef.current = active;
+  useEffect(() => { window.__lcActive = active || null; return () => { window.__lcActive = null; }; }, [active]);
+  // nudge once to turn on phone notifications (needs a tap)
+  useEffect(() => { try { setAskPush(pushState() === "default" && localStorage.getItem("cyt_lc_pushask") !== "1"); } catch { /* ignore */ } }, []);
 
   const loadThreads = useCallback(() => fetchById(`${API}/threads`).then((r) => r?.status && setThreads(r.data.threads)).catch(() => setThreads((t) => t || [])), []);
   useEffect(() => {
@@ -236,8 +279,19 @@ export default function ChatApp({ role }) {
           <aside className="lc-list" aria-label="Chats">
             <div className="lc-list-h">
               <h1>Messages {live && <span className="lc-live" title="Live">● Live</span>}</h1>
-              {role === "therapist" && <button type="button" className="lc-gear" onClick={() => setSettings(true)} aria-label="Message settings">⚙︎</button>}
+              <span className="lc-hbtns">
+                <button type="button" className="lc-gear" onClick={() => setAlerts(true)} aria-label="Message alerts">🔔</button>
+                {role === "therapist" && <button type="button" className="lc-gear" onClick={() => setSettings(true)} aria-label="Message settings">⚙︎</button>}
+              </span>
             </div>
+            {askPush && (
+              <div className="lc-nudge">
+                <span aria-hidden="true">🔔</span>
+                <p>Get notified when a message arrives, even when CYT is closed.</p>
+                <button type="button" onClick={() => { setAlerts(true); setAskPush(false); try { localStorage.setItem("cyt_lc_pushask", "1"); } catch { /* ignore */ } }}>Turn on</button>
+                <button type="button" className="no" aria-label="Not now" onClick={() => { setAskPush(false); try { localStorage.setItem("cyt_lc_pushask", "1"); } catch { /* ignore */ } }}>×</button>
+              </div>
+            )}
             <label className="lc-search"><span aria-hidden="true">⌕</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" aria-label="Search chats" /></label>
             <div className="lc-items">
               {threads === null ? <p className="lc-muted pad">Loading…</p> : !shown.length ? (
@@ -332,6 +386,7 @@ export default function ChatApp({ role }) {
         </div>
       )}
       {settings && <Settings onClose={() => setSettings(false)} />}
+      {alerts && <Alerts onClose={() => setAlerts(false)} />}
     </div>
   );
 }
@@ -396,6 +451,18 @@ const CSS = AV_CSS + `
 .lc-list-h { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px; }
 .lc-list-h h1 { margin: 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
 .lc-live { font-size: 11px; font-weight: 800; color: #16a34a; background: #e3f6ea; border-radius: 999px; padding: 3px 8px; }
+.lc-hbtns { display: flex; gap: 6px; }
+.lc-nudge { display: flex; align-items: center; gap: 8px; margin: 0 14px 8px; padding: 8px 10px; border-radius: 14px; background: #fff7e6; border: 1px solid #f3e2bb; }
+.lc-nudge > span { font-size: 18px; } .lc-nudge p { flex: 1; margin: 0; font-size: 12.5px; color: #5b4310; line-height: 1.35; }
+.lc-nudge button { flex: none; height: 30px; padding: 0 10px; border: 0; border-radius: 9px; background: #14532d; color: #fff; font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+.lc-nudge button.no { width: 26px; padding: 0; background: none; color: #8e8e93; font-size: 17px; }
+.lc-alert { display: flex; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #f4f7f5; margin-bottom: 14px; }
+.lc-alert > span { font-size: 24px; } .lc-alert > div { flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.lc-alert small { font-size: 12.5px; color: #6e6e73; line-height: 1.45; }
+.lc-alert .lc-btn { margin-top: 6px; }
+.lc-ok { font-style: normal; font-size: 12.5px; font-weight: 800; color: #15803d; background: #e3f6ea; border-radius: 999px; padding: 3px 10px; }
+.lc-test { height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid #d4e5da; background: #fff; color: #14532d; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; }
+.lc-privacy { margin: 14px 0 0; font-size: 12.5px; color: #6e6e73; }
 .lc-gear { width: 36px; height: 36px; border-radius: 50%; border: 0; background: #eef2f0; font-size: 18px; cursor: pointer; }
 .lc-search { display: flex; align-items: center; gap: 8px; margin: 0 14px 8px; padding: 0 12px; height: 38px; border-radius: 12px; background: #eef2f0; color: #8e8e93; }
 .lc-search input { flex: 1; min-width: 0; border: 0 !important; background: none !important; box-shadow: none !important; font: inherit; font-size: 14.5px; height: 36px; padding: 0 !important; outline: none; }
