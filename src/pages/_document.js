@@ -23,7 +23,7 @@ export default function Document(props) {
             never animates closed→open on a page load (top-nav.js keeps it in sync). Only portal CSS reads it. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('cyt_tsn_wide')==='1')document.documentElement.setAttribute('data-tsn-wide','')}catch(e){}`,
+            __html: `try{if(localStorage.getItem('cyt_tsn_wide')==='1')document.documentElement.setAttribute('data-tsn-wide','')}catch(e){}try{if(navigator.standalone||matchMedia('(display-mode: standalone)').matches)document.documentElement.classList.add('cyt-sa')}catch(e){}`,
           }}
         />
         {/* Google Consent Mode v2, before GTM: a visitor who chose in the cookie card (cookie_consent_v2) gets

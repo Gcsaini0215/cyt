@@ -923,6 +923,18 @@ body:has(.ts-area)::before { content: ""; position: fixed; left: 0; right: 0; bo
   .tn-bar.tn-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 200px; background: #fff; pointer-events: none; }
 }
 
+/* top bar on every screen (owner, 2026-11-23 — the iPad app still showed a blurred strip between the clock / battery line
+   and the bar): always solid white, never see-through. html.cyt-sa is set before first paint (_document.js) when the site runs as
+   a home-screen app — navigator.standalone is reliable on iPhone / iPad even when (display-mode: standalone) isn't — and the bar
+   then reaches up under the status bar in white, with the page moving down by the same amount (--tn-h includes it). */
+.tn-bar.tn-bar { background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html.cyt-sa { --tn-sat: env(safe-area-inset-top, 0px); --tn-h: calc(56px + var(--tn-sat)); background: #fff; }
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { html.cyt-sa { --tn-h: calc(60px + var(--tn-sat)); } }
+@media (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 1401px) { html.cyt-sa { --tn-h: calc(64px + var(--tn-sat)); } }
+html.cyt-sa .tn-bar.tn-bar { box-sizing: border-box; height: var(--tn-h); padding-top: var(--tn-sat); box-shadow: 0 -300px 0 0 #fff, 0 6px 20px -16px rgba(4,30,16,.35) !important; }
+html.cyt-sa .tn-bar.tn-bar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 300px; background: #fff; pointer-events: none; }
+html.cyt-sa, html.cyt-sa body { overscroll-behavior-y: none; }
+
 /* subscription wallet chip (2026-11-20): days left on the listing package — every screen */
 .tn-right > a.tn-wallet { display: inline-flex !important; align-items: center; gap: 5px; width: auto !important; height: 34px !important; padding: 0 11px 0 9px !important; margin-right: 4px;
   border-radius: 999px !important; background: #e6f4ec !important; color: #14532d !important; text-decoration: none !important; font-size: 13.5px; font-weight: 800; white-space: nowrap; flex: none; }
