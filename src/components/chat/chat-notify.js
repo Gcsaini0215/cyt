@@ -244,7 +244,7 @@ export default function ChatNotifier() {
       <span className="lcf-icons">
         <button type="button" className={`lcf-ic sos${sos ? " on" : ""}`} onClick={() => setSos((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
         {tid && onClear && <button type="button" className="lcf-ic" onClick={onClear} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>}
-        {tid && onFull && <button type="button" className="lcf-ic" onClick={onFull} aria-label="Open full screen" title="Full screen"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M4 4h6v2H7.4l3.3 3.3-1.4 1.4L6 7.4V10H4V4Zm10 0h6v6h-2V7.4l-3.3 3.3-1.4-1.4L16.6 6H14V4ZM9.3 13.3l1.4 1.4L7.4 18H10v2H4v-6h2v2.6l3.3-3.3Zm5.4 0 3.3 3.3V14h2v6h-6v-2h2.6l-3.3-3.3 1.4-1.4Z" /></svg></button>}
+        {tid && onFull && <button type="button" className="lcf-ic full" onClick={onFull} aria-label="Open full screen" title="Full screen"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M4 4h6v2H7.4l3.3 3.3-1.4 1.4L6 7.4V10H4V4Zm10 0h6v6h-2V7.4l-3.3 3.3-1.4-1.4L16.6 6H14V4ZM9.3 13.3l1.4 1.4L7.4 18H10v2H4v-6h2v2.6l3.3-3.3Zm5.4 0 3.3 3.3V14h2v6h-6v-2h2.6l-3.3-3.3 1.4-1.4Z" /></svg></button>}
         <button type="button" className="lcf-ic x" onClick={() => setOpen(false)} aria-label="Close">×</button>
       </span>
       {sos && (
@@ -436,6 +436,10 @@ const CSS = `
 .lcf-panel.sheet .lsm { flex: 1; min-height: 0; }
 .lcf-panel.sheet .lsm-msgs { flex: 1; height: auto; min-height: 120px; }
 .lcf-panel.sheet .lcf-guest { flex: 1; }
+/* phone sheet: it is already full screen — no full-screen icon; the typing box sits off the bottom edge (owner, 2026-11-24) */
+.lcf-panel.sheet .lcf-ic.full { display: none; }
+.lcf-panel.sheet { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+.lcf-panel.sheet .lsm-comp { margin: 8px 2px 0; }
 @keyframes lcfSheet { from { opacity: 0; transform: translateY(24px); } }
 .lcf-all { width: 100%; height: 42px; margin-top: 6px; border: 0; border-radius: 13px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
 .lcn { position: fixed; z-index: 100001; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 24px));

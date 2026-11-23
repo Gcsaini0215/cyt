@@ -741,7 +741,7 @@ const CSS = AV_CSS + `
 .lc-sys.crisis span { background: #fff1f0; border-radius: 14px; padding: 9px 12px; color: #c41e16; }
 .lc-note, .lc-note.closed { background: #f2f2f7; color: #3c3c43; border-radius: 14px; }
 .lc-quick button { border-color: rgba(60,60,67,.18); color: #0a84ff; background: #fff; }
-.lc-comp { position: relative; padding: 8px 10px 6px; background: rgba(249,249,249,.94); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid rgba(60,60,67,.12); }
+.lc-comp { position: relative; padding: 8px 10px 12px; background: rgba(249,249,249,.94); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid rgba(60,60,67,.12); }
 .lc-comp textarea { border: 1px solid rgba(60,60,67,.25) !important; border-radius: 19px !important; background: #fff !important; padding: 8px 44px 8px 14px !important; font-size: 16px; min-height: 38px; }
 .lc-comp textarea:focus { border-color: rgba(60,60,67,.35) !important; }
 .lc-comp button { position: absolute; right: 15px; bottom: 11px; width: 30px; height: 30px; display: grid; place-items: center; background: #34c759; }
@@ -778,6 +778,8 @@ html.lc-lock .lc-list, html.lc-lock .lc-conv { min-height: 0; }
   html.lc-lock .lc.has-active .lc-app { top: var(--lc-vvt, 0px) !important; left: 0 !important; right: 0; height: var(--lc-vvh, 100dvh) !important; z-index: 2100; border-top: 0; }
   .lc.has-active .lc-conv-h { padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
   .lc.has-active .lc-foot { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+  /* the typing box keeps clear of the bottom edge / home indicator (owner, 2026-11-24) */
+  .lc.has-active .lc-comp { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
 }
 /* back to the dashboard: phones and iPads (the desktop has the side menu) */
 @media (max-width: 1199px), (pointer: coarse) { .lc-home { display: inline-block; } .lc-list-h { padding-top: 2px; } }
