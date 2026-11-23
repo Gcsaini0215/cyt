@@ -286,7 +286,7 @@ export default function ClientShell({ title, children }) {
         <Link href="/my-dashboard" className="cls-logo" aria-label="Home"><img src="/cyt-emblem.png" alt="CYT" width={32} height={32} /></Link>
         <div className="cls-brand"><b>Choose Your Therapist</b><span>www.chooseyourtherapist.in</span></div>
         {/* phones / iPad: the page's name, like an app */}
-        <span className="cls-app-title">{pageTitle}</span>
+        <span className="cls-app-title"><em className="cls-who">Client</em>{pageTitle}</span>
         <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="cls-app-site">WWW.CHOOSEYOURTHERAPIST.IN</a>
         <div className="cls-right">
           <WalletChip />
@@ -708,6 +708,9 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 120px; background: #fff; pointer-events: none; }
 }
 
+.cls-who { display: none; }
+@media (min-width: 600px) { .cls-who { display: inline-flex; align-items: center; height: 24px; margin-right: 10px; padding: 0 10px; border-radius: 999px; background: #efe8ff; color: #5b2fc2;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; vertical-align: middle; position: relative; top: -3px; font-style: normal; } }
 /* the tile around a rail icon: hidden as a box on phones/iPad (no rail there anyway) */
 .cls-tic { display: inline-grid; place-items: center; flex: none; }
 /* ═══ Desktop (mouse / trackpad screens): app look like the therapist portal (2026-11-18) ═══ */

@@ -272,7 +272,7 @@ export default function DashboardTopNav() {
           {wide ? <MenuOpenRoundedIcon /> : <MenuRoundedIcon />}
         </button>
         {/* phones / iPad: the page's name, like an app (the profile chip moves to the right as an avatar) */}
-        <span className="tn-app-title">{pageTitle}</span>
+        <span className="tn-app-title"><em className="tn-who">Therapist</em>{pageTitle}</span>
         <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-app-site">WWW.CHOOSEYOURTHERAPIST.IN</a>
 
         {/* who's signed in — name, what they are, and whether the profile is live */}
@@ -475,6 +475,9 @@ const TN_CSS = `
 .tn-logo { margin-left: 6px; padding-left: 10px; border-left: 1px solid #e4ece7; height: 32px; }
 .tn-search-ic, .tn-search-x { display: none !important; }
 .tn-prof-name, .tn-prof-chevron { display: none; }
+.tn-who { display: none; }
+@media (min-width: 600px) { .tn-who { display: inline-flex; align-items: center; height: 24px; margin-right: 10px; padding: 0 10px; border-radius: 999px; background: #e3f4ea; color: #14532d;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; vertical-align: middle; position: relative; top: -3px; font-style: normal; } }
 .tn-title-text { font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; }
 
 .tn-search { position: relative; flex: 1; min-width: 0; max-width: 460px; height: 40px; margin-left: 12px; background: #f1f5f3; border: 1px solid transparent; border-radius: 11px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; color: #94a3b8; transition: border-color .14s, background .14s; }
