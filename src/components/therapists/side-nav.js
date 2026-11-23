@@ -2,6 +2,7 @@ import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
 import SelfImprovementRoundedIcon from "@mui/icons-material/SelfImprovementRounded";
 import HandymanRoundedIcon from "@mui/icons-material/HandymanRounded";
 import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
+import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -48,6 +49,7 @@ const ALL_GROUPS = [
       { to: "/therapists/brain-explorer", Icon: PsychologyRoundedIcon, label: "Brain Explorer" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },
+      { to: "/therapists/messages", Icon: ForumRoundedIcon, label: "Messages" },
       { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications", badgeKey: "inbox" },
     ],
   },
@@ -133,6 +135,7 @@ export const TILES = {
   "/my-schedule": G("#4fd6d6", "#0e8a9a", "rgba(14,138,154,.55)"),
   "/therapists/toolkit": G("#ff9b6b", "#e5532a", "rgba(229,83,42,.55)"),
   "/therapists/brain-explorer": G("#ff8ab4", "#d6336c", "rgba(214,51,108,.5)"),
+  "/therapists/messages": G("#5ad08a", "#1f8a52", "rgba(31,138,82,.5)"),
   "/therapists/notifications": G("#ff8aa6", "#e0335e", "rgba(224,51,94,.55)"),
   "/therapists/reviews": G("#ffd66b", "#e09a12", "rgba(224,154,18,.55)"),
   "/therapists/my-link": G("#7f9cff", "#3b4fd1", "rgba(59,79,209,.55)"),

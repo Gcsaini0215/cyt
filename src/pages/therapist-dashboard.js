@@ -53,6 +53,7 @@ import InstallAppPopup from "../components/global/install-app-popup";
 import ReflectPrompt from "../components/therapists/reflection/reflect-prompt";
 import SupervisionCard from "../components/therapists/dashboard/supervision-card";
 import { ReflectionCard } from "../components/therapists/reflection/reflection-journal";
+import { MessagesWidget } from "../components/chat/chat-app";
 
 /* ══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — one green system, tweak here to restyle everything
@@ -1844,6 +1845,7 @@ export default function TherapistDashboard() {
           </div>
 
           <SupervisionCard />
+          <div className="ov-msgs"><MessagesWidget role="therapist" /></div>
           <ReflectionCard />
 
           {/* ── insights: how the profile and the practice are doing ── */}

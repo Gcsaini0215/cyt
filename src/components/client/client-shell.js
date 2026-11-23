@@ -40,6 +40,7 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
+import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 // the install bar became a pop-up on My Space (components/global/install-app-popup.js)
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
@@ -49,6 +50,7 @@ export const CLIENT_NAV = [
   { to: "/my-dashboard", label: "My Space", Icon: HomeRoundedIcon, Off: HomeOutlinedIcon, mob: true },
   { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon }, // phones: in "More"
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, Off: EventAvailableOutlinedIcon, mob: true },
+  { to: "/client/messages", label: "Messages", Icon: ForumRoundedIcon }, // live chat with therapists; phones: in "More"
   { to: "/client/wallet", label: "Wallet", Icon: AccountBalanceWalletRoundedIcon }, // phones: in "More" (the balance is also in the top bar)
   { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, Off: PersonSearchOutlinedIcon, mob: true },
   { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, Off: FavoriteBorderRoundedIcon, mob: true },
@@ -79,6 +81,7 @@ const CLS_TILES = {
   "/client/find": TG("#4fd6d6", "#0e8a9a", "rgba(14,138,154,.5)"),
   "/client/favrioute-therapits": TG("#ff7a8a", "#d92d4b", "rgba(217,45,75,.5)"),
   "/client/ask": TG("#5ad1ff", "#0b84c6", "rgba(11,132,198,.5)"),
+  "/client/messages": TG("#5ad08a", "#1f8a52", "rgba(31,138,82,.5)"),
   "/my-settings": TG("#b98cff", "#6a3fd6", "rgba(106,63,214,.5)"),
   "/client/check-ins": TG("#7f9cff", "#3b4fd1", "rgba(59,79,209,.5)"),
   "/self-assessment": TG("#4fc3d6", "#0e7490", "rgba(14,116,144,.5)"),
@@ -243,7 +246,7 @@ export default function ClientShell({ title, children }) {
 
   // phone "More" sheet: tiles in pages of 8 that slide sideways
   const mobNav = CLIENT_NAV.filter((n) => n.mob);
-  const moreOn = more || active("/my-settings") || active("/client/ask") || active("/client/cycle") || active("/client/worksheets") || onChecks;
+  const moreOn = more || active("/my-settings") || active("/client/ask") || active("/client/messages") || active("/client/cycle") || active("/client/worksheets") || onChecks;
   const mobOn = moreOn ? mobNav.length : mobNav.findIndex((n) => active(n.to));
   const sheetTiles = [
     { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon },

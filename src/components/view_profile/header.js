@@ -19,6 +19,7 @@ import { Facebook, Twitter, Linkedin, Link as LinkIcon, MessageCircle, Share2 } 
 import ConsultationForm from "../home/consultation-form";
 import { getValidServices, getMinMaxPrice } from "../../utils/helpers";
 import ChatBox from "./chat-box";
+import AskButton from "../chat/ask-button";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
@@ -501,6 +502,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                   </button>
                 </>
               )}
+              <AskButton therapistId={pageData._id} />
               <div style={{ paddingTop: 4, borderTop: "1px solid #ecefec", marginTop: 2 }}>{shareRow}</div>
             </div>
           )}
@@ -517,6 +519,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               <div className="ph-sticky-fee"><b>{pageData.user?.name?.split(" ")[0] || "Therapist"}</b><small>{pageData.profile_type || "Therapist"}</small></div>
             );
           })()}
+          <AskButton therapistId={pageData._id} variant="icon" />
           <button type="button" className="ph-sticky-book" onClick={handleClick}>Book Session</button>
         </div>,
         document.body
