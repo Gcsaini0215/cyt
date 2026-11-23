@@ -44,6 +44,23 @@ export function playChime() {
   } catch { /* no audio */ }
 }
 
+
+let audioArmed = false;
+export function armAudio() {
+  if (audioArmed || typeof window === "undefined") return;
+  audioArmed = true;
+  const unlock = () => {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      ctx = ctx || new AC();
+      if (ctx.state !== "running") ctx.resume();
+      const b = ctx.createBuffer(1, 1, 22050), src = ctx.createBufferSource();
+      src.buffer = b; src.connect(ctx.destination); src.start(0);
+    } catch (e) { /* no audio */ }
+  };
+  ["pointerdown", "touchend", "keydown", "click"].forEach((ev) => window.addEventListener(ev, unlock, { passive: true }));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ctx && ctx.state !== "running") { try { ctx.resume(); } catch (e) { /* tap will do it */ } } });
+}
 const b64 = (s) => { const p = "=".repeat((4 - (s.length % 4)) % 4); const raw = window.atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); };
 export const pushSupported = () => typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 export const pushState = () => (!pushSupported() ? "unsupported" : Notification.permission); // default | granted | denied | unsupported
@@ -86,6 +103,7 @@ const BARS = ".tn-mob-nav, .cls-mob, .mab, .ph-sticky, .mobile-bottom-nav";
 
 export default function ChatNotifier() {
   const router = useRouter();
+  useEffect(() => { armAudio(); }, []);
   const [toast, setToast] = useState(null);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
@@ -161,13 +179,15 @@ export default function ChatNotifier() {
       const { threadId, message } = JSON.parse(e.data || "{}");
       if (!message) return;
       // the Care Team chat open inside the widget shows it right there
-      if (window.__lcMini && window.__lcMini(threadId, message)) return;
+      const shownInWidget = !!(window.__lcMini && window.__lcMini(threadId, message));
       if (message.fromRole === role.current || message.fromRole === "system") return;
+      // the tone every time a message comes in — chat open or closed (owner, 2026-11-24)
+      playChime();
+      if (navigator.vibrate) try { navigator.vibrate(60); } catch { /* ignore */ }
+      if (shownInWidget) return;
       // the chat that's open and visible already shows it
       if (window.__lcActive === threadId && document.visibilityState === "visible") return;
       setUnread((n) => n + 1);
-      playChime();
-      if (navigator.vibrate) try { navigator.vibrate(60); } catch { /* ignore */ }
       setToast({ threadId, name: message.fromName || (role.current === "therapist" ? "Your client" : "Your therapist"), body: message.body, href: `${base()}?t=${threadId}` });
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setToast(null), 6000);
@@ -349,6 +369,7 @@ export default function ChatNotifier() {
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { dragRef.current = null; setDrag(null); }} title="Drag to move" aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
+          {!open && !drag && <span className={`lcf-lbl${pos?.side === "left" ? " r" : ""}`} aria-hidden="true"><i />{who === "therapist" ? (unread ? `${unread} new message${unread === 1 ? "" : "s"}` : "Your clients") : "Instant reply"}</span>}
           {!open && !drag && <span className="lcf-ring" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><path id={"lcf-ring-p"} d="M50,50 m-39,0 a39,39 0 1,1 78,0 a39,39 0 1,1 -78,0" /></defs><circle cx="50" cy="50" r="49" /><text><textPath href={`#${"lcf-ring-p"}`} textLength="238" lengthAdjust="spacingAndGlyphs">{who === "therapist" ? "Your clients • Messages • Reply in one tap • " : who === "client" ? "Instant reply • Your care team • Ask anything • " : "Instant reply • Chat with our care team • "}</textPath></text></svg></span>}
         </button>
       )}
@@ -415,7 +436,13 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .lcf-ring { animation: none; } }
 .lcf-btn { isolation: isolate; } .lcf-btn > :not(.lcf-ring) { position: relative; z-index: 1; }
 .lcf-btn::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; z-index: 0; }
-/* (old side label, no longer shown) */
+
+.lcf .lcf-lbl { display: none; }
+@media (max-width: 767px), (hover: none) and (pointer: coarse) and (max-width: 1100px) {
+  .lcf-ring { display: none !important; }
+  .lcf .lcf-lbl { display: flex; animation: lcfLblAway 7s ease forwards !important; pointer-events: none; }
+}
+@keyframes lcfLblAway { 0% { opacity: 0; transform: translate(8px, -50%); } 6% { opacity: 1; transform: translate(0, -50%); } 86% { opacity: 1; transform: translate(0, -50%); } 100% { opacity: 0; transform: translate(6px, -50%); visibility: hidden; } }
 .lcf-lbl { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-start; padding: 7px 14px 7px 26px; border-radius: 16px;
   background: #fff; color: #14532d; font-size: 14px; font-weight: 800; line-height: 1.15; white-space: nowrap; box-shadow: 0 10px 26px -10px rgba(16,80,45,.45), 0 0 0 1px rgba(20,83,45,.08); pointer-events: auto; animation: lcfLbl .4s ease both .6s; }
 .lcf-lbl.r { right: auto; left: calc(100% + 10px); }
