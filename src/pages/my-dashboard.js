@@ -236,8 +236,8 @@ export default function ClientHome() {
 
           <aside className="ch-side">
             {referral !== null && <ReferralCard data={referral} />}
-            {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
             <CalmCorner now={now} />
+            {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
             {/* a first-time client already has the call back in the start card */}
             {!newbie && (
               <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
@@ -416,9 +416,14 @@ const HOME_CSS = `
 }
 @media (min-width: 700px) and (max-width: 1279px) {
   .ch-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .ch-side > :last-child:nth-child(odd) { grid-column: 1 / -1; }
-  /* the taller cards pair up, and so do the shorter ones */
-  .ch-side > :nth-child(2) { order: 3; } .ch-side > :nth-child(4) { order: 4; }
+  /* cards go two across; the call-back strip is always full width at the end, and a card left on its own takes
+     the full width too — so there's never an empty half (iPad portrait, owner 2026-11-23). Some cards render
+     nothing (no past sessions yet), so this can't count on fixed positions. */
+  .ch-side > .ch-cta { grid-column: 1 / -1; }
+  /* upcoming sessions: two across, and a card left on its own takes the full row */
+  .ch-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ch-cards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .ch-side > :not(.ch-cta):nth-child(odd):last-child, .ch-side > :not(.ch-cta):nth-child(odd):nth-last-child(2):has(+ .ch-cta) { grid-column: 1 / -1; }
 }
 @media (max-width: 699px) {
   .ch-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
