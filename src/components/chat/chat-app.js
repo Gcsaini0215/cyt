@@ -190,6 +190,8 @@ export default function ChatApp({ role }) {
       const rail = [...document.querySelectorAll(".tsn-rail, .cls-rail")].find((r) => shown(r) && r.getBoundingClientRect().left < 4);
       const left = rail ? Math.max(0, Math.round(rail.getBoundingClientRect().right)) : 0;
       let bottom;
+      // iOS slides the whole page up when the keyboard opens — put it back; the chat fits above the keyboard instead
+      if (keyboard && vv.offsetTop > 0) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
       if (keyboard) {
         // typing: end right above the keyboard; keep the header in sight if the screen slid up
         top = Math.max(top, Math.round(vv.offsetTop));

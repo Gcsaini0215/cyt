@@ -209,6 +209,7 @@ export default function ChatNotifier() {
     const vv = window.visualViewport;
     const fit = () => {
       const el = rootRef.current; if (!el) return;
+      if (vv && vv.offsetTop > 0 && window.innerHeight - vv.height > 150) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
       el.style.setProperty("--vvh", `${Math.round(vv ? vv.height : window.innerHeight)}px`);
       el.style.setProperty("--vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`);
     };
