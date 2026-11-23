@@ -18,6 +18,8 @@ export default function SupportMini({ page, onOpenAll }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [clearing, setClearing] = useState(false);
+  const [more, setMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const box = useRef(null);
   const end = () => requestAnimationFrame(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight; });
 
@@ -33,6 +35,7 @@ export default function SupportMini({ page, onOpenAll }) {
         const t = await fetchById(`${API}/threads/${s.data.id}`);
         if (!live) return;
         setMsgs(Array.isArray(t?.data?.messages) ? t.data.messages : []);
+        setMore(!!t?.data?.more);
         end();
         postData(`${API}/threads/${s.data.id}/read`, {}).catch(() => {});
       } catch { if (live) { setErr("Couldn't open the chat — check your internet."); setMsgs([]); } }
@@ -53,6 +56,22 @@ export default function SupportMini({ page, onOpenAll }) {
     };
     return () => { window.__lcMini = null; };
   }, [tid]);
+
+  // older messages, 60 at a time, keeping the place on screen
+  const loadEarlier = async () => {
+    if (!tid || !msgs?.length || loadingMore) return;
+    setLoadingMore(true);
+    const el = box.current; const before = el ? el.scrollHeight : 0;
+    try {
+      const r = await fetchById(`${API}/threads/${tid}`, { before: msgs[0].createdAt });
+      if (r?.status) {
+        setMsgs((x) => [...r.data.messages.filter((m) => !(x || []).some((y) => y._id === m._id)), ...(x || [])]);
+        setMore(!!r.data.more);
+        requestAnimationFrame(() => { if (el) el.scrollTop = el.scrollHeight - before; });
+      }
+    } catch { /* keep what's shown */ }
+    setLoadingMore(false);
+  };
 
   const send = async (e) => {
     e?.preventDefault();
@@ -87,7 +106,8 @@ export default function SupportMini({ page, onOpenAll }) {
 
   return (
     <div className="lsm">
-      <div className="lsm-msgs" ref={box}>
+      <div className="lsm-msgs" ref={box} onScroll={(e) => { if (e.currentTarget.scrollTop < 40 && more && !loadingMore) loadEarlier(); }}>
+        {more && <button type="button" className="lsm-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
         <div className="lsm-row in"><p className="lsm-bub">Hi 👋 Not sure who to talk to? Tell us a little about what&apos;s going on — we&apos;ll help you find the right therapist.</p></div>
         {msgs === null ? <p className="lsm-muted">Loading…</p> : msgs.map((m) => (
           m.fromRole === "system" ? (
@@ -123,6 +143,7 @@ export const SM_CSS = `
 .lsm-row.me .lsm-bub { background: linear-gradient(180deg, #3bd16a, #2fb457); color: #fff; }
 .lsm-sys { margin: 6px 8px; text-align: center; font-size: 11.5px; color: #8e8e93; line-height: 1.4; }
 .lsm-sys.bad { color: #c41e16; background: #fff1f0; border-radius: 12px; padding: 7px 10px; font-weight: 700; }
+.lsm-earlier { align-self: center; margin: 2px 0 8px; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: #f2f2f7; color: #0a84ff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .lsm-muted { margin: 10px; font-size: 13px; color: #8e8e93; text-align: center; }
 .lsm-err { margin: 4px 2px; font-size: 12.5px; color: #c41e16; }
 .lsm-comp { position: relative; margin-top: 6px; }

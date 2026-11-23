@@ -160,7 +160,10 @@ export default function ChatApp({ role }) {
   const [settings, setSettings] = useState(false);
   const [live, setLive] = useState(false);
   const [alerts, setAlerts] = useState(false);
-  const [clearing, setClearing] = useState(false);
+  const [clearing, setClearing] = useState(null); // thread id
+  const [swiped, setSwiped] = useState(null); // list row showing its Delete button
+  const swipe = useRef(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
   const appRef = useRef(null);
@@ -198,6 +201,9 @@ export default function ChatApp({ role }) {
       el.style.top = `${top}px`;
       el.style.left = `${left}px`;
       el.style.height = `${Math.max(240, bottom - top)}px`;
+      // phones / iPad portrait: an open chat covers the whole visible screen (above the keyboard) — see the CSS
+      const root = el.parentElement;
+      if (root) { root.style.setProperty("--lc-vvh", `${Math.round(vv ? vv.height : window.innerHeight)}px`); root.style.setProperty("--lc-vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`); }
     };
     fit();
     // after the box has its final height, show the newest message
@@ -317,6 +323,20 @@ export default function ChatApp({ role }) {
     setSending(false);
   };
 
+  const loadEarlier = async () => {
+    if (!conv?.messages?.length || loadingMore) return;
+    setLoadingMore(true);
+    const el = scroller.current; const before = el ? el.scrollHeight : 0;
+    try {
+      const r = await fetchById(`${API}/threads/${active}`, { before: conv.messages[0].createdAt });
+      if (r?.status) {
+        setConv((c) => (c ? { ...c, more: r.data.more, messages: [...r.data.messages.filter((m) => !c.messages.some((x) => x._id === m._id)), ...c.messages] } : c));
+        // stay on the same message after the older ones are added above
+        requestAnimationFrame(() => { if (el) el.scrollTop = el.scrollHeight - before; });
+      }
+    } catch { /* keep what's shown */ }
+    setLoadingMore(false);
+  };
   const remove = async (m) => {
     try { await deleteById(`${API}/messages/${m._id}`); setConv((c) => ({ ...c, messages: c.messages.map((x) => (x._id === m._id ? { ...x, deleted: true, body: "" } : x)) })); }
     catch (e) { setErr(e?.response?.data?.message || "Couldn't delete"); }
@@ -365,7 +385,17 @@ export default function ChatApp({ role }) {
                   {role === "client" && <Link href="/client/find" className="lc-btn">Find a therapist</Link>}
                 </div>
               ) : shown.map((t) => (
-                <button type="button" key={t._id} className={`lc-item${t._id === active ? " on" : ""}${t.unread ? " unread" : ""}`} onClick={() => { setActive(t._id); router.replace({ pathname: router.pathname, query: { t: t._id } }, undefined, { shallow: true }); }}>
+                <div key={t._id} className={`lc-sw${swiped === t._id ? " open" : ""}`}
+                  onTouchStart={(e) => { swipe.current = { id: t._id, x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
+                  onTouchMove={(e) => {
+                    const g = swipe.current; if (!g || g.id !== t._id) return;
+                    const dx = e.touches[0].clientX - g.x, dy = e.touches[0].clientY - g.y;
+                    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.5) { setSwiped(dx < 0 ? t._id : null); swipe.current = null; }
+                  }}>
+                <button type="button" className="lc-sw-del" onClick={() => setClearing(t._id)} aria-label={`Delete chat with ${t.other.name}`}>
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>Delete
+                </button>
+                <button type="button" className={`lc-item${t._id === active ? " on" : ""}${t.unread ? " unread" : ""}`} onClick={() => { if (swiped) { setSwiped(null); return; } setActive(t._id); router.replace({ pathname: router.pathname, query: { t: t._id } }, undefined, { shallow: true }); }}>
                   <i className="lc-dot" aria-label={t.unread ? `${t.unread} unread` : undefined} />
                   <Avatar p={t.other} size={50} />
                   <span className="lc-item-m">
@@ -373,6 +403,10 @@ export default function ChatApp({ role }) {
                     <span className="lc-item-p">{t.lastFrom === role ? "You: " : ""}{t.preview || "…"}</span>
                   </span>
                 </button>
+                <button type="button" className="lc-sw-bin" onClick={(e) => { e.stopPropagation(); setClearing(t._id); }} aria-label={`Delete chat with ${t.other.name}`} title="Delete chat">
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>
+                </button>
+                </div>
               ))}
             </div>
           </aside>
@@ -394,11 +428,12 @@ export default function ChatApp({ role }) {
                   </div>
                   <span className="lc-hr">
                     {role === "client" && <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link>}
-                    <button type="button" className="lc-clear" onClick={() => setClearing(true)} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
+                    <button type="button" className="lc-clear" onClick={() => setClearing(active)} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
                   </span>
                 </header>
 
-                <div className="lc-msgs" ref={scroller}>
+                <div className="lc-msgs" ref={scroller} onScroll={(e) => { if (e.currentTarget.scrollTop < 60 && conv.more && !loadingMore) loadEarlier(); }}>
+                  {conv.more && <button type="button" className="lc-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
                   {conv.messages.length === 0 && <p className="lc-start">Say hello 👋 — {role === "client" ? "keep it short and simple." : "your reply goes to the client right away."}</p>}
                   {(() => {
                     const ms = conv.messages;
@@ -459,9 +494,9 @@ export default function ChatApp({ role }) {
           </section>
         </div>
       )}
-      {clearing && active && (
-        <ClearSheet threadId={active} otherName={other?.name} onClose={() => setClearing(false)}
-          onDone={() => { setClearing(false); fetchById(`${API}/threads/${active}`).then((r) => r?.status && setConv(r.data)).catch(() => {}); loadThreads(); }} />
+      {clearing && (
+        <ClearSheet threadId={clearing} otherName={(threads || []).find((x) => x._id === clearing)?.other?.name || other?.name} onClose={() => setClearing(null)}
+          onDone={() => { const id = clearing; setClearing(null); setSwiped(null); if (id === active) fetchById(`${API}/threads/${id}`).then((r) => r?.status && setConv(r.data)).catch(() => {}); loadThreads(); }} />
       )}
       {settings && <Settings onClose={() => setSettings(false)} />}
       {alerts && <Alerts onClose={() => setAlerts(false)} />}
@@ -624,6 +659,21 @@ const CSS = AV_CSS + `
 .lc-days button { height: 34px; min-width: 46px; border-radius: 999px; border: 1px solid #d4e5da; background: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .lc-days button.on { background: #14532d; border-color: #14532d; color: #fff; }
 .lc-save { width: 100%; height: 48px; border-radius: 14px; border: 0; background: #14532d; color: #fff; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+/* the avatar never runs into the name under it */
+.lc-conv-who .lc-av { display: block; flex: none; margin: 0 auto 4px; }
+.lc-conv-who .lc-av img { display: block; width: 100% !important; height: 100% !important; max-width: none; }
+.lc-conv-who { gap: 0; line-height: 1.25; }
+/* swipe a chat left to delete it (touch); a bin shows on hover with a mouse */
+.lc-sw { position: relative; overflow: hidden; }
+.lc-sw > .lc-item { position: relative; z-index: 1; background: #fff; transition: transform .22s ease; }
+.lc-sw.open > .lc-item { transform: translateX(-92px); }
+.lc-sw-del { position: absolute; z-index: 0; top: 0; right: 0; bottom: 0; width: 92px; border: 0; background: #ff3b30; color: #fff; font: inherit; font-size: 13px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+.lc-sw-bin { position: absolute; z-index: 2; right: 10px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; border: 0; background: #fff; color: #8e8e93; box-shadow: 0 2px 8px -3px rgba(0,0,0,.3); display: none; place-items: center; cursor: pointer; }
+.lc-sw-bin:hover { color: #ff3b30; }
+@media (hover: hover) and (pointer: fine) { .lc-sw:hover .lc-sw-bin { display: grid; } }
+.lc-earlier { align-self: center; margin: 6px 0 10px; height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: #f2f2f7; color: #0a84ff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.lc-earlier:disabled { color: #8e8e93; }
+
 /* ═══ iPhone Messages look (owner, 2026-11-23) ═══ */
 .lc, .lc-sheet, .lc-consent { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
 .lc-app { border-radius: 24px; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 20px 44px -28px rgba(0,0,0,.35); }
@@ -707,6 +757,13 @@ html.lc-lock .lc-list, html.lc-lock .lc-conv { min-height: 0; }
   .lc:not(.has-active) .lc-conv { display: none; }
   .lc-back { display: inline-grid; place-items: center; }
   .lc-list { border-right: 0; }
+}
+/* phones + iPad portrait: an open chat is the whole screen, like iPhone Messages — the portal's top bar and the bottom
+   dock are covered; header, messages and the typing box stay put; it shrinks above the keyboard (owner, 2026-11-23) */
+@media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
+  html.lc-lock .lc.has-active .lc-app { top: var(--lc-vvt, 0px) !important; left: 0 !important; right: 0; height: var(--lc-vvh, 100dvh) !important; z-index: 2100; border-top: 0; }
+  .lc.has-active .lc-conv-h { padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
+  .lc.has-active .lc-foot { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
 }
 /* back to the dashboard: phones and iPads (the desktop has the side menu) */
 @media (max-width: 1199px), (pointer: coarse) { .lc-home { display: inline-block; } .lc-list-h { padding-top: 2px; } }
