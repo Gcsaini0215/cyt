@@ -1,53 +1,19 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { BRAIN_GROUPS, BRAIN_PARTS } from "./brain-data";
+
+// the real-time 3D brain (three.js) loads only on this page, only in the browser
+const Brain3D = dynamic(() => import("./brain-3d"), { ssr: false, loading: () => <div className="b3-load">Loading 3D brain…</div> });
+const DEEP_IDS = new Set(["insula", "cingulate", "amygdala", "hippocampus", "hypothalamus", "pituitary", "thalamus", "basal", "callosum"]);
 
 /* Brain Explorer (2026-11-21) — a therapist resource for psychoeducation. Two views of one brain (outside:
    the lobes; inside: a midline cut showing the deep parts), tap any part for what it does, what changes in
    common difficulties, a plain line to say to a client and how therapy works with it. "Stress response" and
    "Calming down" play the parts in order (the 4th dimension — time). "Show to client" opens a big, simple card
-   for screen-sharing. Drawn in SVG (no 3D library) so it loads fast on phones. */
+   for screen-sharing. The brain itself is real-time 3D (brain-3d.js, three.js), loaded only on this page. */
 
 const BY_ID = Object.fromEntries(BRAIN_PARTS.map((p) => [p.id, p]));
 const colorOf = (id) => BY_ID[id]?.color || BRAIN_GROUPS[BY_ID[id]?.group]?.color || "#94a3b8";
-
-// cerebrum outline (front = left)
-const OUTLINE = "M150,262 C118,202 138,120 220,84 C300,50 420,54 492,95 C556,131 586,192 571,251 C563,286 541,301 511,306 C472,336 420,346 380,341 C330,351 270,346 240,321 C200,316 165,296 150,262 Z";
-const CEREB = "M428,318 C458,300 538,300 566,272 C588,300 578,342 542,360 C506,378 456,372 430,352 C419,342 419,328 428,318 Z";
-const STEM = "M366,326 C364,352 376,374 383,394 C387,410 385,428 383,442 L410,442 C410,426 413,406 418,388 C429,368 432,346 426,326 Z";
-
-const OUTSIDE = [
-  { id: "prefrontal", d: "M0,0 L270,0 L262,64 C250,130 238,190 224,256 L214,264 C212,330 228,400 260,470 L0,470 Z", clip: true },
-  { id: "frontal", d: "M270,0 L345,0 L340,52 C330,110 318,170 301,240 C270,244 240,250 224,256 C238,190 250,130 262,64 Z", clip: true },
-  { id: "parietal", d: "M345,0 L490,0 L488,92 C498,150 505,200 505,250 C490,244 460,238 420,238 C380,238 340,239 301,240 C318,170 330,110 340,52 Z", clip: true },
-  { id: "occipital", d: "M490,0 L700,0 L700,470 L512,306 L505,250 C505,200 498,150 488,92 Z", clip: true },
-  { id: "temporal", d: "M214,264 C250,250 330,240 420,238 C460,238 490,244 505,250 L512,306 L520,470 L260,470 C228,400 212,330 214,264 Z", clip: true },
-  { id: "cerebellum", d: CEREB },
-  { id: "brainstem", d: STEM },
-  { id: "insula", ellipse: [322, 228, 46, 20], deep: true },
-];
-
-const INSIDE = [
-  { id: "prefrontal", d: "M0,0 L240,0 C228,80 220,160 214,230 C208,260 200,285 196,300 L0,470 Z", clip: true },
-  { id: "parietal", d: "M360,0 L478,0 L480,150 L420,140 L380,120 Z", clip: true, faint: true },
-  { id: "occipital", d: "M478,0 L700,0 L700,470 L520,300 C506,240 494,190 480,150 Z", clip: true },
-  { id: "cingulate", d: "M206,222 C214,140 300,108 382,112 C458,116 500,162 494,214 L470,212 C474,174 440,140 382,138 C316,136 244,160 236,222 Z" },
-  { id: "callosum", d: "M238,222 C246,166 312,142 382,142 C440,144 470,176 468,214 C466,232 446,240 432,230 C436,206 420,172 380,170 C326,170 276,186 266,226 Z" },
-  { id: "basal", ellipse: [312, 226, 30, 18], deep: true },
-  { id: "thalamus", ellipse: [370, 234, 38, 21] },
-  { id: "hypothalamus", ellipse: [322, 266, 19, 12] },
-  { id: "pituitary", circle: [313, 296, 9], stalk: "M318,276 L314,288" },
-  { id: "amygdala", circle: [285, 290, 13], deep: true },
-  { id: "hippocampus", d: "M298,300 C326,316 380,312 424,286 L428,296 C384,326 324,330 294,312 Z", deep: true },
-  { id: "cerebellum", d: CEREB },
-  { id: "brainstem", d: STEM },
-];
-
-// decorative folds (gyri) on the outside view
-const FOLDS = [
-  "M190,150 C215,135 240,150 262,140", "M170,205 C200,190 225,205 250,195", "M265,90 C280,120 270,150 285,180",
-  "M380,80 C370,110 390,140 375,170", "M420,90 C440,120 425,150 445,185", "M520,150 C540,170 530,200 548,225",
-  "M260,290 C300,280 340,295 380,285", "M300,318 C340,308 380,322 430,310", "M215,110 C240,95 260,110 285,100",
-];
 
 const STORIES = {
   stress: {
@@ -72,49 +38,6 @@ const STORIES = {
   },
 };
 
-function Region({ r, sel, hot, cool, dim, onPick }) {
-  const c = colorOf(r.id);
-  const on = sel === r.id || hot === r.id;
-  const common = {
-    className: `be-r${on ? " on" : ""}${hot === r.id ? " hot" : ""}${cool && hot === r.id ? " cool" : ""}${dim && hot === r.id ? " dim" : ""}${r.deep ? " deep" : ""}${r.faint ? " faint" : ""}`,
-    style: { "--c": c },
-    onClick: () => onPick(r.id),
-    role: "button", tabIndex: 0, "aria-label": BY_ID[r.id]?.name, "aria-pressed": sel === r.id,
-    onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(r.id); } },
-  };
-  if (r.ellipse) return <ellipse cx={r.ellipse[0]} cy={r.ellipse[1]} rx={r.ellipse[2]} ry={r.ellipse[3]} {...common} />;
-  if (r.circle) return <g>{r.stalk && <path d={r.stalk} className="be-stalk" />}<circle cx={r.circle[0]} cy={r.circle[1]} r={r.circle[2]} {...common} /></g>;
-  return <path d={r.d} {...common} clipPath={r.clip ? "url(#be-clip)" : undefined} />;
-}
-
-function Brain({ view, sel, hot, cool, dim, onPick }) {
-  const regions = view === "inside" ? INSIDE : OUTSIDE;
-  // under-the-cortex parts first, then the cerebrum, then deep parts drawn on top
-  const back = regions.filter((r) => r.id === "cerebellum" || r.id === "brainstem");
-  const cortex = regions.filter((r) => r.clip);
-  const front = regions.filter((r) => !r.clip && r.id !== "cerebellum" && r.id !== "brainstem");
-  return (
-    <svg className="be-svg" viewBox="100 40 500 420" role="group" aria-label={view === "inside" ? "Brain, cut down the middle" : "Brain from the side"}>
-      <defs>
-        <clipPath id="be-clip"><path d={OUTLINE} /></clipPath>
-        <radialGradient id="be-shade" cx="40%" cy="30%" r="75%"><stop offset="0" stopColor="#fff" stopOpacity=".35" /><stop offset="1" stopColor="#000" stopOpacity=".12" /></radialGradient>
-        <pattern id="be-cbl" width="10" height="8" patternUnits="userSpaceOnUse"><path d="M0,6 Q5,0 10,6" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.2" /></pattern>
-      </defs>
-      {back.map((r) => <Region key={r.id} r={r} sel={sel} hot={hot} cool={cool} dim={dim} onPick={onPick} />)}
-      <path d={CEREB} fill="url(#be-cbl)" pointerEvents="none" />
-      <path d={OUTLINE} className="be-base" />
-      {cortex.map((r) => <Region key={r.id} r={r} sel={sel} hot={hot} cool={cool} dim={dim} onPick={onPick} />)}
-      {view === "outside" && FOLDS.map((d) => <path key={d} d={d} className="be-fold" clipPath="url(#be-clip)" />)}
-      {view === "outside" && <path d="M214,264 C250,250 330,240 420,238 C460,238 490,244 505,250" className="be-fold big" clipPath="url(#be-clip)" />}
-      {view === "outside" && <path d="M340,52 C330,110 318,170 301,240" className="be-fold big" clipPath="url(#be-clip)" />}
-      <path d={OUTLINE} fill="url(#be-shade)" pointerEvents="none" />
-      <path d={OUTLINE} className="be-edge" />
-      {front.map((r) => <Region key={r.id} r={r} sel={sel} hot={hot} cool={cool} dim={dim} onPick={onPick} />)}
-      <text x="128" y="70" className="be-dir">Front</text><text x="560" y="70" className="be-dir" textAnchor="end">Back</text>
-    </svg>
-  );
-}
-
 export default function BrainExplorer() {
   const [view, setView] = useState("outside");
   const [sel, setSel] = useState("amygdala");
@@ -124,11 +47,14 @@ export default function BrainExplorer() {
   const part = BY_ID[sel];
   const step = story ? STORIES[story.key].steps[story.i] : null;
 
-  const inView = useMemo(() => new Set((view === "inside" ? INSIDE : OUTSIDE).map((r) => r.id)), [view]);
+  const [label, setLabel] = useState(null);
+  const colors = useRef(Object.fromEntries(BRAIN_PARTS.map((p) => [p.id, colorOf(p.id)]))).current;
+  const onLabel = useCallback((l) => setLabel((o) => (o && o.id === l.id && Math.abs(o.x - l.x) < 0.5 && Math.abs(o.y - l.y) < 0.5 && o.behind === l.behind ? o : l)), []);
+  const pick3d = useCallback((id) => { setStory(null); setSel(id); setView(DEEP_IDS.has(id) ? "inside" : "outside"); }, []);
   const pick = (id, scroll = false) => {
     setStory(null);
     setSel(id);
-    if (!(view === "inside" ? INSIDE : OUTSIDE).some((r) => r.id === id)) setView(view === "inside" ? "outside" : "inside");
+    setView(DEEP_IDS.has(id) ? "inside" : "outside");
     if (scroll && panelRef.current && window.innerWidth < 900) panelRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -168,8 +94,8 @@ export default function BrainExplorer() {
         <section className="be-stage">
           <div className="be-bar">
             <div className="be-seg" role="tablist" aria-label="View">
-              <button type="button" role="tab" aria-selected={view === "outside"} className={view === "outside" ? "on" : ""} onClick={() => { setStory(null); setView("outside"); }}>Outside</button>
-              <button type="button" role="tab" aria-selected={view === "inside"} className={view === "inside" ? "on" : ""} onClick={() => { setStory(null); setView("inside"); }}>Inside</button>
+              <button type="button" role="tab" aria-selected={view === "outside"} className={view === "outside" ? "on" : ""} onClick={() => { setStory(null); setView("outside"); }}>Surface</button>
+              <button type="button" role="tab" aria-selected={view === "inside"} className={view === "inside" ? "on" : ""} onClick={() => { setStory(null); setView("inside"); }}>X-ray</button>
             </div>
             <div className="be-play">
               {Object.entries(STORIES).map(([k, s]) => (
@@ -180,7 +106,10 @@ export default function BrainExplorer() {
             </div>
           </div>
           <div className={`be-canvas${story ? " playing" : ""}`}>
-            <Brain view={view} sel={sel} hot={step?.id} cool={step?.cool} dim={step?.dim} onPick={(id) => pick(id, true)} />
+            <Brain3D colors={colors} selected={sel} hot={step?.id} cool={step?.cool} dim={step?.dim} xray={view === "inside"} onPick={pick3d} onLabel={onLabel} />
+            {label && !label.behind && BY_ID[label.id] && (
+              <span className="b3-label" style={{ left: label.x, top: label.y, "--c": colorOf(label.id) }}><i />{BY_ID[label.id].name}</span>
+            )}
           </div>
           {story ? (
             <div className={`be-cap ${story.key}`} role="status" aria-live="polite">
@@ -189,7 +118,7 @@ export default function BrainExplorer() {
               <div className="be-cap-dots">{STORIES[story.key].steps.map((s, i) => <button type="button" key={s.id + i} className={i === story.i ? "on" : ""} onClick={() => setStory({ key: story.key, i })} aria-label={`Step ${i + 1}`} />)}</div>
             </div>
           ) : (
-            <p className="be-tip">{view === "outside" ? "Outside view: the four lobes, cerebellum and brainstem. Dashed = deeper, under the folds." : "Inside view: the brain cut down the middle. Dashed parts sit deeper, off the midline."}</p>
+            <p className="be-tip">{view === "outside" ? "Drag to turn the brain, pinch or scroll to zoom, tap a part. Switch to X-ray to see the parts deep inside." : "X-ray: the outer cortex is see-through so the deep parts show. Tap one to learn about it."}</p>
           )}
           <div className="be-legend">
             {Object.entries(BRAIN_GROUPS).map(([k, g]) => <span key={k}><i style={{ background: g.color }} />{g.label}</span>)}
@@ -224,7 +153,7 @@ export default function BrainExplorer() {
             <div className="be-chips">
               {BRAIN_PARTS.filter((p) => p.group === k).map((p) => (
                 <button type="button" key={p.id} className={sel === p.id ? "on" : ""} style={{ "--c": g.color }} onClick={() => pick(p.id, true)}>
-                  {p.name}{!inView.has(p.id) && <em> ↻</em>}
+                  {p.name}
                 </button>
               ))}
             </div>
@@ -237,7 +166,7 @@ export default function BrainExplorer() {
         <div className="be-show" role="dialog" aria-modal="true" aria-label={part.name} onClick={(e) => { if (e.target === e.currentTarget) setPresent(false); }}>
           <div className="be-show-c" style={{ "--c": colorOf(sel) }}>
             <button type="button" className="be-show-x" onClick={() => setPresent(false)} aria-label="Close">×</button>
-            <div className="be-show-svg"><Brain view={INSIDE.some((r) => r.id === sel) && !OUTSIDE.some((r) => r.id === sel) ? "inside" : view} sel={sel} onPick={(id) => setSel(id)} /></div>
+            <span className="be-show-ic" aria-hidden="true">🧠</span>
             <h2>{part.name}</h2>
             <p>{part.say}</p>
           </div>
@@ -264,7 +193,15 @@ const CSS = `
 .be-pbtn { height: 34px; padding: 0 13px; border-radius: 10px; border: 1.5px solid #fecaca; background: #fff5f5; color: #b91c1c; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
 .be-pbtn.calm { border-color: #bbe5cb; background: #f0faf4; color: #15803d; }
 .be-pbtn.on { background: #1c1c1e; border-color: #1c1c1e; color: #fff; }
-.be-canvas { margin: 6px 0 4px; border-radius: 18px; background: radial-gradient(circle at 50% 45%, #f6f9ff, #eef3f8 70%); }
+.be-canvas { position: relative; margin: 6px 0 4px; border-radius: 18px; overflow: hidden; background: radial-gradient(circle at 50% 42%, #ffffff 0, #eef3f8 55%, #dfe7f1 100%); }
+.b3-mount { width: 100%; height: clamp(340px, 52vh, 520px); touch-action: none; cursor: grab; }
+.b3-mount:active { cursor: grabbing; }
+.b3-mount canvas { display: block; outline: none; }
+.b3-load { height: clamp(340px, 52vh, 520px); display: grid; place-items: center; color: #8e8e93; font-size: 14px; font-weight: 700; }
+.b3-label { position: absolute; transform: translate(-50%, calc(-100% - 14px)); pointer-events: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 999px; background: rgba(255,255,255,.94); box-shadow: 0 8px 20px -10px rgba(0,0,0,.45); font-size: 13px; font-weight: 800; color: #1c1c1e; border: 1.5px solid var(--c); }
+.b3-label i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.b3-label::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 2px; height: 11px; background: var(--c); transform: translateX(-50%); }
 .be-svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
 .be-base { fill: #f2d7cf; }
 .be-edge { fill: none; stroke: rgba(120,60,50,.35); stroke-width: 2; pointer-events: none; }
@@ -317,7 +254,7 @@ const CSS = `
 .be-show { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; padding: 16px; background: rgba(15,23,42,.6); backdrop-filter: blur(4px); }
 .be-show-c { position: relative; width: min(760px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; background: #fff; border-radius: 28px; padding: 22px 28px 28px; text-align: center; border-top: 8px solid var(--c); }
 .be-show-x { position: absolute; top: 12px; right: 14px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: #f1f5f9; font-size: 24px; cursor: pointer; }
-.be-show-svg { max-width: 460px; margin: 0 auto; }
+.be-show-ic { display: inline-grid; place-items: center; width: 76px; height: 76px; margin-top: 6px; border-radius: 24px; font-size: 40px; background: color-mix(in srgb, var(--c) 18%, #fff); }
 .be-show-c h2 { margin: 8px 0 8px; font-size: 30px; font-weight: 800; color: var(--c); }
 .be-show-c p { margin: 0 auto; max-width: 620px; font-size: 21px; line-height: 1.55; color: #1c1c1e; font-weight: 600; }
 @media (max-width: 899px) {
