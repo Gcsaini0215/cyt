@@ -97,16 +97,21 @@ export default function App() {
     update();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    const data = getToken();
-    if (data) {
-      const userData = getDecodedToken();
-      if (userData.role === 1) {
-        setUserType(2);
-        fetchTherapistInfo();
-      } else {
-        setUserType(1);
+    const readUser = () => {
+      const data = getToken();
+      if (data) {
+        const userData = getDecodedToken();
+        if (userData.role === 1) {
+          setUserType(2);
+          fetchTherapistInfo();
+        } else {
+          setUserType(1);
+        }
       }
-    }
+    };
+    readUser();
+    // signed in from the chat widget (components/chat/widget-login.js) — show the account menu straight away
+    window.addEventListener("cyt-auth-changed", readUser);
 
     // GA4 (G-GFBR3SJQT3) is loaded by the GTM container in _document.js —
     // injecting gtag.js here too downloaded it twice and double-counted
@@ -114,6 +119,7 @@ export default function App() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("cyt-auth-changed", readUser);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [fetchTherapistInfo]);

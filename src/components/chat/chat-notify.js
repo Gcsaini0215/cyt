@@ -5,6 +5,7 @@ import { apiUrl, imagePath } from "../../utils/url";
 import { getToken, getDecodedToken } from "../../utils/jwt";
 import { postData, fetchById } from "../../utils/actions";
 import SupportMini, { SM_CSS } from "./support-mini";
+import WidgetLogin from "./widget-login";
 
 /* Message alerts (2026-11-23, owner):
    - In the app: a soft three-note chime (our own, made with Web Audio — not Apple's tone) + a banner at the top,
@@ -90,6 +91,7 @@ export default function ChatNotifier() {
   const [threads, setThreads] = useState(null);
   const [bottom, setBottom] = useState(24);
   const [who, setWho] = useState(null); // null (loading) | "guest" | "client" | "therapist"
+  const [authTick, setAuthTick] = useState(0); // bumps after logging in inside the widget → reconnect as that user
   const timer = useRef(null);
   const role = useRef(null);
   const base = () => (role.current === "therapist" ? "/therapists/messages" : "/client/messages");
@@ -125,7 +127,7 @@ export default function ChatNotifier() {
     });
     es.addEventListener("read", loadUnread);
     return () => { es.close(); clearTimeout(timer.current); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // sit just above whatever bar is at the bottom of this page
   useEffect(() => {
@@ -162,11 +164,6 @@ export default function ChatNotifier() {
     setOpen((o) => !o); setToast(null);
   };
   const go = (href) => { setOpen(false); setToast(null); router.push(href); };
-  const loginHref = () => {
-    const here = path.replace(/([?&])chat=1(&|$)/, "$1").replace(/[?&]$/, "");
-    const back = `${here}${here.includes("?") ? "&" : "?"}chat=1`;
-    return `/login?next=${encodeURIComponent(back)}`;
-  };
 
   if (typeof document === "undefined" || !who) return null;
   const showFab = !hidden;
@@ -209,9 +206,8 @@ export default function ChatNotifier() {
               {who === "guest" ? (
                 <div className="lcf-guest">
                   <p className="lcf-hi">Hi 👋 Not sure which therapist is right for you? Chat with our care team — we&apos;ll help you choose.</p>
-                  <ul><li>Real people, not a bot</li><li>Private and secure</li><li>Free — no booking needed to ask</li></ul>
-                  <button type="button" className="lcf-all" onClick={() => go(loginHref())}>Log in to start chatting</button>
-                  <small>New here? Logging in creates your free account with just your email.</small>
+                  {/* log in / sign up right here; the chat starts in the same place (owner, 2026-11-23) */}
+                  <WidgetLogin onDone={() => { setAuthTick((n) => n + 1); window.dispatchEvent(new Event("cyt-auth-changed")); }} />
                 </div>
               ) : (
                 <SupportMini page={path.slice(0, 180)} onOpenAll={(tid) => go(`/client/messages?t=${tid}`)} />
