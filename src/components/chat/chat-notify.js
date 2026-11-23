@@ -254,15 +254,15 @@ export default function ChatNotifier() {
 }
 
 const CSS = `
-.lcf { position: fixed; z-index: 9997; right: 0; bottom: 0; width: 0; height: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
-.lcf-btn { position: fixed; right: 18px; bottom: var(--lcf-b); width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
+.lcf { position: static; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
+.lcf-btn { position: fixed; z-index: 9997; right: 18px; bottom: var(--lcf-b); width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
   display: grid; place-items: center; background: linear-gradient(160deg, #3bd16a, #1f9a4f); box-shadow: 0 14px 30px -10px rgba(16,110,55,.7), 0 0 0 1px rgba(255,255,255,.6) inset;
   transition: transform .18s ease; }
 .lcf-btn:hover { transform: translateY(-2px) scale(1.03); }
 .lcf-btn.on { background: #1c1c1e; }
 .lcf-btn em { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; animation: lcfPop .3s ease; }
 .lcf-x { font-size: 28px; line-height: 1; font-weight: 300; }
-.lcf-panel { position: fixed; right: 18px; bottom: calc(var(--lcf-b) + 70px); width: min(340px, calc(100vw - 36px)); background: rgba(255,255,255,.97); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+.lcf-panel { position: fixed; z-index: 9998; right: 18px; bottom: calc(var(--lcf-b) + 70px); width: min(340px, calc(100vw - 36px)); background: rgba(255,255,255,.97); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
   border-radius: 22px; box-shadow: 0 24px 60px -20px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.05); padding: 12px; animation: lcfUp .25s cubic-bezier(.2,.9,.3,1.1); transform-origin: bottom right; }
 .lcf-h { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 8px; } .lcf-h b { font-size: 18px; font-weight: 800; color: #1c1c1e; }
 .lcf-h button { width: 28px; height: 28px; border: 0; border-radius: 50%; background: #f2f2f7; color: #6e6e73; font-size: 18px; cursor: pointer; }
@@ -290,7 +290,7 @@ const CSS = `
 /* with no bar it sits in the corner, clear of the iPhone home indicator */
 .lcf-btn { bottom: max(var(--lcf-b), calc(16px + env(safe-area-inset-bottom, 0px))); }
 /* phone sheet: fills exactly the visible screen (it shrinks above the keyboard) */
-.lcf-panel.sheet { position: fixed; z-index: 100003; left: 0; right: 0; top: var(--vvt, 0px); bottom: auto; width: auto; height: var(--vvh, 100dvh); max-height: none;
+.lcf-panel.sheet { position: fixed; z-index: 2147483000; left: 0; right: 0; top: var(--vvt, 0px); bottom: auto; width: auto; height: var(--vvh, 100dvh); max-height: none;
   border-radius: 0; display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; overflow-y: auto; animation: lcfSheet .25s ease; background: #fff; }
 .lcf-panel.sheet .lcf-h { flex: none; }
 .lcf-panel.sheet .lsm { flex: 1; min-height: 0; }
