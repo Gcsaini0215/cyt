@@ -90,6 +90,42 @@ export default function ChatNotifier() {
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState(null);
   const [bottom, setBottom] = useState(24);
+  /* drag the button anywhere (owner, 2026-11-23): it snaps to the nearest side, keeps clear of the top bar and the
+     bottom bar, and this device remembers it. Untouched, it stays in the bottom corner above any bottom bar. */
+  const FAB_KEY = "cyt_fab_pos";
+  const [pos, setPos] = useState(null); // { side: "left" | "right", y } (y = top, px)
+  const [drag, setDrag] = useState(null); // { x, y } while dragging
+  const dragRef = useRef(null);
+  const btnRef = useRef(null);
+  useEffect(() => { try { const v = JSON.parse(localStorage.getItem(FAB_KEY) || "null"); if (v && (v.side === "left" || v.side === "right") && Number.isFinite(v.y)) setPos(v); } catch { /* ignore */ } }, []);
+  const clampY = (y) => {
+    const topBar = [...document.querySelectorAll(".tn-bar, .cls-bar, .rbt-header, header")].map((h) => h.getBoundingClientRect()).filter((r) => r.top <= 1 && r.height < 160).reduce((m, r) => Math.max(m, r.bottom), 0);
+    const min = Math.max(12, topBar + 10);
+    const max = window.innerHeight - bottom - 58;
+    return Math.round(Math.min(Math.max(y, min), Math.max(min, max)));
+  };
+  const onDown = (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    dragRef.current = { sx: e.clientX, sy: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, moved: false };
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  };
+  const onMove = (e) => {
+    const d = dragRef.current; if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 8) return;
+    d.moved = true;
+    setDrag({ x: e.clientX - d.dx, y: e.clientY - d.dy });
+  };
+  const onUp = (e) => {
+    const d = dragRef.current; dragRef.current = null;
+    if (!d || !d.moved) return;
+    e.preventDefault();
+    d.justDragged = true; window.__lcfJustDragged = Date.now();
+    const next = { side: e.clientX < window.innerWidth / 2 ? "left" : "right", y: clampY(e.clientY - d.dy) };
+    setPos(next); setDrag(null);
+    try { localStorage.setItem(FAB_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  };
+  const resetPos = () => { setPos(null); try { localStorage.removeItem(FAB_KEY); } catch { /* ignore */ } };
   const [who, setWho] = useState(null); // null (loading) | "guest" | "client" | "therapist"
   const [authTick, setAuthTick] = useState(0); // bumps after logging in inside the widget → reconnect as that user
   const timer = useRef(null);
@@ -187,26 +223,35 @@ export default function ChatNotifier() {
   }, [open]);
 
   const toggle = () => {
+    if (window.__lcfJustDragged && Date.now() - window.__lcfJustDragged < 400) return;
     if (!open && who === "therapist") fetchById(`${apiUrl}/live-chat/threads`).then((r) => setThreads(Array.isArray(r?.data?.threads) ? r.data.threads : [])).catch(() => setThreads([]));
     setOpen((o) => !o); setToast(null);
   };
   const go = (href) => { setOpen(false); setToast(null); router.push(href); };
 
   if (typeof document === "undefined" || !who) return null;
+  const fabY = pos ? clampY(pos.y) : null;
+  const btnStyle = drag ? { left: drag.x, top: drag.y, right: "auto", bottom: "auto", transition: "none" }
+    : pos ? { top: fabY, bottom: "auto", ...(pos.side === "left" ? { left: 14, right: "auto" } : { right: 14, left: "auto" }) } : undefined;
+  const anchor = (() => {
+    if (!pos || drag) return undefined;
+    const low = fabY > window.innerHeight / 2;
+    return { ...(pos.side === "left" ? { left: 12, right: "auto" } : { right: 12, left: "auto" }), ...(low ? { bottom: window.innerHeight - fabY + 10, top: "auto" } : { top: fabY + 66, bottom: "auto" }) };
+  })();
   const showFab = !hidden;
   if (!showFab && !toast) return null;
   return createPortal((
     <div className="lcf" ref={rootRef} style={{ "--lcf-b": `${bottom}px` }}>
       <style>{CSS + SM_CSS}</style>
       {toast && (
-        <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} onClick={() => go(toast.href)}>
+        <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} style={showFab ? anchor : undefined} onClick={() => go(toast.href)}>
           <span className="lcn-ic" aria-hidden="true">💬</span>
           <span className="lcn-m"><b>{toast.name}</b><small>{toast.body}</small></span>
           <span className="lcn-x" role="presentation" onClick={(e) => { e.stopPropagation(); setToast(null); }}>×</span>
         </button>
       )}
       {showFab && open && (
-        <div className={`lcf-panel ${who}${sheet ? " sheet" : ""}`} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
+        <div className={`lcf-panel ${who}${sheet ? " sheet" : ""}`} style={sheet ? undefined : anchor} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
           {who === "therapist" ? (
             <>
               <div className="lcf-h"><b>Messages</b><button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button></div>
@@ -221,6 +266,7 @@ export default function ChatNotifier() {
                 ))}</ul>
               )}
               <button type="button" className="lcf-all" onClick={() => go(base())}>Open Messages ›</button>
+              {pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
             </>
           ) : (
             <>
@@ -234,6 +280,7 @@ export default function ChatNotifier() {
                 <div className="lcf-guest">
                   <p className="lcf-hi">Hi 👋 Not sure which therapist is right for you? Chat with our care team — we&apos;ll help you choose.</p>
                   {/* log in / sign up right here; the chat starts in the same place (owner, 2026-11-23) */}
+                  {pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
                   <WidgetLogin onDone={() => { setAuthTick((n) => n + 1); window.dispatchEvent(new Event("cyt-auth-changed")); }} />
                 </div>
               ) : (
@@ -244,7 +291,8 @@ export default function ChatNotifier() {
         </div>
       )}
       {showFab && !sheet && (
-        <button type="button" className={`lcf-btn${open ? " on" : ""}`} onClick={toggle} aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
+        <button type="button" ref={btnRef} className={`lcf-btn${open ? " on" : ""}${drag ? " dragging" : ""}`} style={btnStyle} onClick={toggle}
+          onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { dragRef.current = null; setDrag(null); }} title="Drag to move" aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
         </button>
@@ -259,6 +307,9 @@ const CSS = `
   display: grid; place-items: center; background: linear-gradient(160deg, #3bd16a, #1f9a4f); box-shadow: 0 14px 30px -10px rgba(16,110,55,.7), 0 0 0 1px rgba(255,255,255,.6) inset;
   transition: transform .18s ease; }
 .lcf-btn:hover { transform: translateY(-2px) scale(1.03); }
+.lcf-btn { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.lcf-btn.dragging { transform: scale(1.1); box-shadow: 0 22px 40px -12px rgba(16,110,55,.8); cursor: grabbing; }
+.lcf-reset { display: block; width: 100%; margin-top: 6px; border: 0; background: none; padding: 4px; font: inherit; font-size: 12px; color: #8e8e93; cursor: pointer; text-decoration: underline; }
 .lcf-btn.on { background: #1c1c1e; }
 .lcf-btn em { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; animation: lcfPop .3s ease; }
 .lcf-x { font-size: 28px; line-height: 1; font-weight: 300; }
