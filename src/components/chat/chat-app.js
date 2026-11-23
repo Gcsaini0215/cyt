@@ -161,6 +161,7 @@ export default function ChatApp({ role }) {
   const [live, setLive] = useState(false);
   const [alerts, setAlerts] = useState(false);
   const [clearing, setClearing] = useState(null); // thread id
+  const [delMode, setDelMode] = useState(false); // true: delete the whole chat (swipe), false: clear messages (🗑 in a chat)
   const [swiped, setSwiped] = useState(null); // list row showing its Delete button
   const swipe = useRef(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -199,7 +200,9 @@ export default function ChatApp({ role }) {
         bottom = Math.round(vv.offsetTop + vv.height);
       } else {
         const dock = [...document.querySelectorAll(".tn-mob-nav, .cls-mob")].find(shown);
-        bottom = dock ? Math.round(dock.getBoundingClientRect().top - 8) : Math.round(vv ? vv.height : window.innerHeight);
+        const tucked = html.classList.contains("lc-nav-min");
+        html.classList.toggle("lc-has-nav", !!dock);
+        bottom = dock && !tucked ? Math.round(dock.getBoundingClientRect().top - 8) : Math.round(vv ? vv.height : window.innerHeight);
       }
       el.style.top = `${top}px`;
       el.style.left = `${left}px`;
@@ -226,6 +229,17 @@ export default function ChatApp({ role }) {
       body.style.cssText = prev;
     };
   }, [consent, active]);
+  const [navMin, setNavMin] = useState(false);
+  const navTimer = useRef(null);
+  const tuckNav = (ms) => { clearTimeout(navTimer.current); navTimer.current = setTimeout(() => setNavMin(true), ms); };
+  useEffect(() => { tuckNav(2500); return () => { clearTimeout(navTimer.current); document.documentElement.classList.remove("lc-nav-min"); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    document.documentElement.classList.toggle("lc-nav-min", navMin);
+    const iv = setInterval(() => window.__lcFit && window.__lcFit(), 50); // follow the menu while it slides
+    const stop = setTimeout(() => clearInterval(iv), 450);
+    return () => { clearInterval(iv); clearTimeout(stop); };
+  }, [navMin]);
+  const showNav = () => { setNavMin(false); tuckNav(5000); };
   const activeRef = useRef(null);
   activeRef.current = active;
   useEffect(() => { window.__lcActive = active || null; return () => { window.__lcActive = null; }; }, [active]);
@@ -357,6 +371,7 @@ export default function ChatApp({ role }) {
 
   return (
     <div className={`lc${active ? " has-active" : ""}`} data-sm-skip="">
+      {navMin && <button type="button" className="lc-navtab" onClick={showNav} aria-label="Show the menu"><i /></button>}
       <style>{CSS}</style>
       {consent === false ? <Consent role={role} onAgree={() => setConsent(true)} /> : (
         <div className="lc-app" ref={appRef}>
@@ -395,7 +410,7 @@ export default function ChatApp({ role }) {
                     const dx = e.touches[0].clientX - g.x, dy = e.touches[0].clientY - g.y;
                     if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.5) { setSwiped(dx < 0 ? t._id : null); swipe.current = null; }
                   }}>
-                <button type="button" className="lc-sw-del" onClick={() => setClearing(t._id)} aria-label={`Delete chat with ${t.other.name}`}>
+                <button type="button" className="lc-sw-del" onClick={() => { setDelMode(true); setClearing(t._id); }} aria-label={`Delete chat with ${t.other.name}`}>
                   <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>Delete
                 </button>
                 <button type="button" className={`lc-item${t._id === active ? " on" : ""}${t.unread ? " unread" : ""}`} onClick={() => { if (swiped) { setSwiped(null); return; } setActive(t._id); router.replace({ pathname: router.pathname, query: { t: t._id } }, undefined, { shallow: true }); }}>
@@ -406,7 +421,7 @@ export default function ChatApp({ role }) {
                     <span className="lc-item-p">{t.lastFrom === role ? "You: " : ""}{t.preview || "…"}</span>
                   </span>
                 </button>
-                <button type="button" className="lc-sw-bin" onClick={(e) => { e.stopPropagation(); setClearing(t._id); }} aria-label={`Delete chat with ${t.other.name}`} title="Delete chat">
+                <button type="button" className="lc-sw-bin" onClick={(e) => { e.stopPropagation(); setDelMode(true); setClearing(t._id); }} aria-label={`Delete chat with ${t.other.name}`} title="Delete chat">
                   <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg>
                 </button>
                 </div>
@@ -432,7 +447,7 @@ export default function ChatApp({ role }) {
                   <span className="lc-hr">
                     {role === "client" && <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link>}
                     <button type="button" className={`lc-clear lc-sos${sosOpen ? " on" : ""}`} onClick={() => setSosOpen((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
-                    <button type="button" className="lc-clear" onClick={() => setClearing(active)} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
+                    <button type="button" className="lc-clear" onClick={() => { setDelMode(false); setClearing(active); }} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
                   </span>
                   {sosOpen && (
                     <div className="lc-sosp" role="note">
@@ -505,8 +520,10 @@ export default function ChatApp({ role }) {
         </div>
       )}
       {clearing && (
-        <ClearSheet threadId={clearing} otherName={(threads || []).find((x) => x._id === clearing)?.other?.name || other?.name} onClose={() => setClearing(null)}
-          onDone={() => { const id = clearing; setClearing(null); setSwiped(null); if (id === active) fetchById(`${API}/threads/${id}`).then((r) => r?.status && setConv(r.data)).catch(() => {}); loadThreads(); }} />
+        <ClearSheet threadId={clearing} remove={delMode} otherName={(threads || []).find((x) => x._id === clearing)?.other?.name || other?.name} onClose={() => setClearing(null)}
+          onDone={() => { const id = clearing; setClearing(null); setSwiped(null);
+            if (delMode) { setThreads((l) => (l ? l.filter((x) => x._id !== id) : l)); if (id === active) { setActive(null); router.replace({ pathname: router.pathname }, undefined, { shallow: true }); } loadThreads(); return; }
+            if (id === active) fetchById(`${API}/threads/${id}`).then((r) => r?.status && setConv(r.data)).catch(() => {}); loadThreads(); }} />
       )}
       {settings && <Settings onClose={() => setSettings(false)} />}
       {alerts && <Alerts onClose={() => setAlerts(false)} />}
@@ -781,6 +798,15 @@ html.lc-lock .lc-list, html.lc-lock .lc-conv { min-height: 0; }
   /* the typing box keeps clear of the bottom edge / home indicator (owner, 2026-11-24) */
   .lc.has-active .lc-comp { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
 }
+/* bottom menu tucked away on Messages (owner, 2026-11-24) */
+html.lc-lock .tn-mob-nav, html.lc-lock .cls-mob { transition: translate .35s cubic-bezier(.3,.8,.3,1); }
+html.lc-lock.lc-nav-min .tn-mob-nav, html.lc-lock.lc-nav-min .cls-mob { translate: 0 calc(100% + 40px); }
+.lc-navtab { position: fixed; left: 50%; bottom: calc(2px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 950; width: 140px; height: 20px; border: 0; padding: 0; background: none; cursor: pointer; display: none; place-items: center; }
+.lc-navtab i { display: block; width: 110px; height: 5px; border-radius: 999px; background: rgba(28,28,30,.32); }
+html.lc-has-nav .lc-navtab { display: grid; }
+@media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) { html.lc-has-nav .lc.has-active .lc-navtab { display: none; } }
+html.lc-has-nav.lc-nav-min .lc-list { padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+html.lc-has-nav.lc-nav-min .lc-comp { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
 /* back to the dashboard: phones and iPads (the desktop has the side menu) */
 @media (max-width: 1199px), (pointer: coarse) { .lc-home { display: inline-block; } .lc-list-h { padding-top: 2px; } }
 @media (max-width: 600px) {

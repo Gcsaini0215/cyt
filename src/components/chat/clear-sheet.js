@@ -5,7 +5,7 @@ import { apiUrl } from "../../utils/url";
 
 /* "Clear chat" — asks: for me, or for everyone (2026-11-23, owner). iOS action-sheet look, centred, page frozen.
    Messages are never removed from CYT's record; clearing hides them from the screen. */
-export default function ClearSheet({ threadId, otherName, onClose, onDone }) {
+export default function ClearSheet({ threadId, otherName, onClose, onDone, remove = false }) {
   const [busy, setBusy] = useState("");
   const [err, setErr] = useState("");
   useEffect(() => {
@@ -15,19 +15,29 @@ export default function ClearSheet({ threadId, otherName, onClose, onDone }) {
   }, [onClose]);
   const go = async (scope) => {
     setBusy(scope); setErr("");
-    try { const r = await postData(`${apiUrl}/live-chat/threads/${threadId}/clear`, { scope }); if (r?.status) onDone(scope); else setErr(r?.message || "Couldn't clear — try again"); }
+    try { const r = await postData(`${apiUrl}/live-chat/threads/${threadId}/clear`, remove ? { scope, remove: true } : { scope }); if (r?.status) onDone(scope); else setErr(r?.message || "Couldn't clear — try again"); }
     catch (e) { setErr(e?.response?.data?.message || "Couldn't clear — try again"); }
     setBusy("");
   };
   if (typeof document === "undefined") return null;
   return createPortal((
-    <div className="lcs-scrim" role="dialog" aria-modal="true" aria-label="Clear chat" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="lcs-scrim" role="dialog" aria-modal="true" aria-label={remove ? "Delete chat" : "Clear chat"} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <style>{CSS}</style>
       <div className="lcs">
         <div className="lcs-card">
-          <div className="lcs-h"><b>Clear this chat?</b><small>Choose who it&apos;s cleared for.</small></div>
-          <button type="button" disabled={!!busy} onClick={() => go("me")}>{busy === "me" ? "Clearing…" : "Clear for me"}<small>Only your screen. {otherName || "The other person"} still sees everything.</small></button>
-          <button type="button" className="bad" disabled={!!busy} onClick={() => go("all")}>{busy === "all" ? "Clearing…" : "Clear for everyone"}<small>Hides the messages for both of you. They&apos;ll see that the chat was cleared.</small></button>
+          {remove ? (
+            <>
+              <div className="lcs-h"><b>Delete this chat?</b><small>It goes from your Messages. A new message brings it back.</small></div>
+              <button type="button" className="bad" disabled={!!busy} onClick={() => go("me")}>{busy === "me" ? "Deleting…" : "Delete for me"}<small>Only from your Messages. {otherName || "The other person"} still has it.</small></button>
+              <button type="button" className="bad" disabled={!!busy} onClick={() => go("all")}>{busy === "all" ? "Deleting…" : "Delete for everyone"}<small>Gone from Messages for both of you.</small></button>
+            </>
+          ) : (
+            <>
+              <div className="lcs-h"><b>Clear this chat?</b><small>Choose who it&apos;s cleared for.</small></div>
+              <button type="button" disabled={!!busy} onClick={() => go("me")}>{busy === "me" ? "Clearing…" : "Clear for me"}<small>Only your screen. {otherName || "The other person"} still sees everything.</small></button>
+              <button type="button" className="bad" disabled={!!busy} onClick={() => go("all")}>{busy === "all" ? "Clearing…" : "Clear for everyone"}<small>Hides the messages for both of you. They&apos;ll see that the chat was cleared.</small></button>
+            </>
+          )}
           {err && <p className="lcs-err">{err}</p>}
         </div>
         <button type="button" className="lcs-cancel" onClick={onClose}>Cancel</button>
