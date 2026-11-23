@@ -344,11 +344,7 @@ export default function ChatNotifier() {
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { dragRef.current = null; setDrag(null); }} title="Drag to move" aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
-          {!open && !drag && (
-            <span className={`lcf-lbl${pos?.side === "left" ? " r" : ""}`} aria-hidden="true">
-              <i />{who === "therapist" ? "Messages" : "Live chat"}<small>{who === "therapist" ? (unread ? `${unread} new` : "Your clients") : "We're here to help"}</small>
-            </span>
-          )}
+          {!open && !drag && <span className="lcf-ring" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><path id={"lcf-ring-p"} d="M50,50 m-39,0 a39,39 0 1,1 78,0 a39,39 0 1,1 -78,0" /></defs><circle cx="50" cy="50" r="49" /><text><textPath href={`#${"lcf-ring-p"}`} textLength="238" lengthAdjust="spacingAndGlyphs">{who === "therapist" ? "Your clients • Messages • Reply in one tap • " : who === "client" ? "Instant reply • Your care team • Ask anything • " : "Instant reply • Chat with our care team • "}</textPath></text></svg></span>}
         </button>
       )}
     </div>
@@ -404,7 +400,17 @@ const CSS = `
 .lcf .lcf-q p { margin: 0; max-width: 88%; padding: 8px 12px; border-radius: 18px; background: #34c759; color: #fff; font-size: 14.5px; line-height: 1.35; }
 .lcf .lcf-q button { border: 0; background: none; padding: 0 4px; font: inherit; font-size: 12px; color: #0a84ff; cursor: pointer; }
 .lcf .lcf-why { margin: 0 0 8px; font-size: 12.5px; color: #6e6e73; }
-/* "Live chat" label beside the floating button */
+
+/* round text around the chat button (owner, 2026-11-24) */
+.lcf-ring { position: absolute; left: -19px; top: -19px; width: calc(100% + 38px); height: calc(100% + 38px); pointer-events: none; z-index: -1; animation: lcfSpin 22s linear infinite; }
+.lcf-ring svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.lcf-ring circle { fill: rgba(255,255,255,.96); stroke: rgba(20,83,45,.12); stroke-width: .6; filter: drop-shadow(0 4px 8px rgba(16,80,45,.25)); }
+.lcf-ring text { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; font-size: 9.6px; font-weight: 800; letter-spacing: .5px; fill: #14532d; text-transform: uppercase; }
+@keyframes lcfSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lcf-ring { animation: none; } }
+.lcf-btn { isolation: isolate; } .lcf-btn > svg, .lcf-btn > em { position: relative; z-index: 1; }
+.lcf-btn::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; z-index: 0; }
+/* (old side label, no longer shown) */
 .lcf-lbl { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-start; padding: 7px 14px 7px 26px; border-radius: 16px;
   background: #fff; color: #14532d; font-size: 14px; font-weight: 800; line-height: 1.15; white-space: nowrap; box-shadow: 0 10px 26px -10px rgba(16,80,45,.45), 0 0 0 1px rgba(20,83,45,.08); pointer-events: auto; animation: lcfLbl .4s ease both .6s; }
 .lcf-lbl.r { right: auto; left: calc(100% + 10px); }
