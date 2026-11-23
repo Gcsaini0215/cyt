@@ -189,6 +189,9 @@ export default function ChatApp({ role }) {
         else if (dock) gap = Math.max(gap, window.innerHeight - dock.getBoundingClientRect().top + 10);
       }
       el.style.height = `${Math.max(300, Math.round(vh - top - gap))}px`;
+      // phones: the open conversation is a full-screen view sized to the visible screen (above the keyboard)
+      const root = el.parentElement;
+      if (root) { root.style.setProperty("--lc-vvh", `${Math.round(vh)}px`); root.style.setProperty("--lc-vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`); }
     };
     fit();
     // after the box has its final height, show the newest message
@@ -196,12 +199,14 @@ export default function ChatApp({ role }) {
     const t1 = setTimeout(toEnd, 120), t2 = setTimeout(toEnd, 600);
     window.addEventListener("resize", fit);
     window.visualViewport?.addEventListener("resize", fit);
+    window.visualViewport?.addEventListener("scroll", fit);
     window.__lcFit = fit;
     return () => {
       clearTimeout(t1); clearTimeout(t2);
       window.__lcFit = null;
       window.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("resize", fit);
+      window.visualViewport?.removeEventListener("scroll", fit);
       html.classList.remove("lc-lock");
       body.style.cssText = prev;
     };
@@ -704,7 +709,20 @@ html.lc-lock .tn-mob-nav, html.lc-lock .cls-mob { transition: translate .35s cub
 @keyframes lcTab { from { opacity: 0; } }
 /* the page doesn't scroll on the Messages screen — the chat box is sized to fit (JS above) */
 html.lc-lock, html.lc-lock body { overflow: hidden !important; overscroll-behavior: none; }
+/* the portals open pages with a zoom (transform) — a transformed parent would trap the full-screen conversation */
+html.lc-lock .ts-page.ts-zoom, html.lc-lock .cls-main.cls-zoom, html.lc-lock .ts-page, html.lc-lock .cls-main { animation: none !important; transform: none !important; }
 .lc-app { height: calc(100dvh - 150px); }
+
+/* phones + iPad portrait: an open conversation is its own full-screen view, like iPhone Messages — header,
+   messages and the typing box stay put; only the messages scroll; it shrinks above the keyboard (owner, 2026-11-23) */
+@media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
+  .lc.has-active .lc-conv { position: fixed; z-index: 2100; left: 0; right: 0; top: var(--lc-vvt, 0px); height: var(--lc-vvh, 100dvh); background: #fff; border-radius: 0; }
+  .lc.has-active .lc-conv-h { padding-top: calc(8px + env(safe-area-inset-top, 0px)); flex: none; }
+  .lc.has-active .lc-msgs { flex: 1; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .lc.has-active .lc-comp, .lc.has-active .lc-quick, .lc.has-active .lc-note, .lc.has-active .lc-err { flex: none; }
+  .lc.has-active .lc-foot { flex: none; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+  html.lc-lock:has(.lc.has-active) .lc-dock-tab { display: none; }
+}
 
 /* phones + iPad portrait: one pane at a time */
 @media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
