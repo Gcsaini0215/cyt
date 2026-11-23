@@ -164,6 +164,7 @@ export default function ChatApp({ role }) {
   const [swiped, setSwiped] = useState(null); // list row showing its Delete button
   const swipe = useRef(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [sosOpen, setSosOpen] = useState(false);
   const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
   const appRef = useRef(null);
@@ -430,8 +431,16 @@ export default function ChatApp({ role }) {
                   </div>
                   <span className="lc-hr">
                     {role === "client" && <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link>}
+                    <button type="button" className={`lc-clear lc-sos${sosOpen ? " on" : ""}`} onClick={() => setSosOpen((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
                     <button type="button" className="lc-clear" onClick={() => setClearing(active)} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
                   </span>
+                  {sosOpen && (
+                    <div className="lc-sosp" role="note">
+                      <b>Not for emergencies</b>
+                      <span>If you or someone near you is in danger, call <a href="tel:112">112</a> or Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).</span>
+                      <button type="button" onClick={() => setSosOpen(false)} aria-label="Close">×</button>
+                    </div>
+                  )}
                 </header>
 
                 <div className="lc-msgs" ref={scroller} onScroll={(e) => { if (e.currentTarget.scrollTop < 60 && conv.more && !loadingMore) loadEarlier(); }}>
@@ -488,7 +497,6 @@ export default function ChatApp({ role }) {
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
                       <button type="submit" disabled={!text.trim() || sending} aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
                     </form>
-                    <small className="lc-foot">Not for emergencies — call 112 or Tele-MANAS 14416.</small>
                   </>
                 )}
               </>
@@ -703,6 +711,10 @@ const CSS = AV_CSS + `
 .lc-hr { flex: none; min-width: 64px; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
 .lc-clear { width: 34px; height: 34px; border: 0; border-radius: 50%; background: none; color: #8e8e93; display: grid; place-items: center; cursor: pointer; }
 .lc-clear:hover { background: #f2f2f7; color: #ff3b30; }
+.lc-clear.lc-sos { color: #d97706; } .lc-clear.lc-sos.on, .lc-clear.lc-sos:hover { background: #fff4e5; color: #b45309; }
+.lc-sosp { position: absolute; z-index: 5; top: calc(100% + 6px); left: 12px; right: 12px; display: flex; flex-direction: column; gap: 2px; padding: 10px 36px 10px 12px; border-radius: 14px; background: #fff8ec; border: 1px solid #fde3b5; box-shadow: 0 12px 24px -14px rgba(0,0,0,.35); font-size: 13.5px; line-height: 1.4; color: #5b3a06; text-align: left; }
+.lc-sosp b { color: #92400e; } .lc-sosp a { color: #b45309; font-weight: 800; }
+.lc-sosp button { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border: 0; border-radius: 50%; background: none; color: #92400e; font-size: 18px; cursor: pointer; }
 .lc-back { justify-content: flex-start !important; color: #0a84ff; font-size: 34px; font-weight: 300; }
 .lc-book { min-width: 64px; justify-content: center; background: none; color: #0a84ff !important; padding: 0; font-size: 15.5px; font-weight: 600; }
 .lc-msgs { padding: 10px 14px 6px; gap: 0; }

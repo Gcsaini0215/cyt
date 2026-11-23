@@ -10,7 +10,7 @@ import ClearSheet from "./clear-sheet";
 const API = `${apiUrl}/live-chat`;
 const time = (d) => new Date(d).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }).toLowerCase();
 
-export default function SupportMini({ page, onOpenAll }) {
+export default function SupportMini({ page, onOpenAll, head, initial, onSent }) {
   const [consent, setConsent] = useState(null);
   const [tid, setTid] = useState(null);
   const [msgs, setMsgs] = useState(null);
@@ -73,14 +73,14 @@ export default function SupportMini({ page, onOpenAll }) {
     setLoadingMore(false);
   };
 
-  const send = async (e) => {
+  const send = async (e, given) => {
     e?.preventDefault();
-    const t = text.trim();
+    const t = (given || text).trim();
     if (!t || !tid || busy) return;
     setBusy(true); setErr("");
     try {
       const r = await postData(`${API}/threads/${tid}/messages`, { text: t, page });
-      if (r?.status) { setText(""); setMsgs((x) => (x && !x.some((y) => y._id === r.data.message._id) ? [...x, r.data.message] : x)); end(); }
+      if (r?.status) { if (!given) setText(""); if (given && onSent) onSent(); setMsgs((x) => (x && !x.some((y) => y._id === r.data.message._id) ? [...x, r.data.message] : x)); end(); }
     } catch (x) {
       const d = x?.response?.data;
       if (d?.code === "consent") setConsent(false);
@@ -89,8 +89,19 @@ export default function SupportMini({ page, onOpenAll }) {
     setBusy(false);
   };
 
+  const sentInitial = useRef(false);
+  useEffect(() => {
+    if (!initial || sentInitial.current || consent !== true || !tid || msgs === null) return;
+    sentInitial.current = true;
+    send(null, initial);
+  }, [initial, consent, tid, msgs]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const headEl = head ? head({ tid, onClear: () => setClearing(true), onFull: () => tid && onOpenAll(tid) }) : null;
+
   if (consent === false) {
     return (
+      <>
+      {headEl}
       <div className="lsm-consent">
         <b>Before you start</b>
         <ul>
@@ -101,10 +112,13 @@ export default function SupportMini({ page, onOpenAll }) {
         <button type="button" onClick={async () => { try { await postData(`${API}/consent`, {}); setConsent(true); } catch { setErr("Couldn't save — try again"); } }}>I agree — start chatting</button>
         {err && <p className="lsm-err">{err}</p>}
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    {headEl}
     <div className="lsm">
       <div className="lsm-msgs" ref={box} onScroll={(e) => { if (e.currentTarget.scrollTop < 40 && more && !loadingMore) loadEarlier(); }}>
         {more && <button type="button" className="lsm-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
@@ -126,12 +140,12 @@ export default function SupportMini({ page, onOpenAll }) {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) send(e); }} />
         <button type="submit" disabled={!text.trim() || busy} aria-label="Send"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
       </form>
-      <div className="lsm-foot"><span>Not for emergencies — 112 · Tele-MANAS 14416</span>{tid && <span className="lsm-acts"><button type="button" className="lsm-clr" onClick={() => setClearing(true)}>Clear</button><button type="button" onClick={() => onOpenAll(tid)}>Full screen ›</button></span>}</div>
       {clearing && tid && (
         <ClearSheet threadId={tid} otherName="The CYT Care Team" onClose={() => setClearing(false)}
           onDone={() => { setClearing(false); fetchById(`${API}/threads/${tid}`).then((t) => setMsgs(Array.isArray(t?.data?.messages) ? t.data.messages : [])).catch(() => {}); }} />
       )}
     </div>
+    </>
   );
 }
 

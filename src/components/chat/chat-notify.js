@@ -127,6 +127,12 @@ export default function ChatNotifier() {
   };
   const resetPos = () => { setPos(null); try { localStorage.removeItem(FAB_KEY); } catch { /* ignore */ } };
   const [who, setWho] = useState(null); // null (loading) | "guest" | "client" | "therapist"
+  const [sos, setSos] = useState(false); // "not for emergencies" pop-up from the header icon
+  const [pending, setPending] = useState(""); // a question picked / typed before logging in — sent right after login
+  const [own, setOwn] = useState("");
+  useEffect(() => { try { const v = sessionStorage.getItem("cyt_chat_pending"); if (v) setPending(v); } catch { /* ignore */ } }, []);
+  const pick = (q) => { setPending(q); try { sessionStorage.setItem("cyt_chat_pending", q); } catch { /* ignore */ } };
+  const sentPending = () => { setPending(""); try { sessionStorage.removeItem("cyt_chat_pending"); } catch { /* ignore */ } };
   const [authTick, setAuthTick] = useState(0); // bumps after logging in inside the widget → reconnect as that user
   const timer = useRef(null);
   const role = useRef(null);
@@ -230,6 +236,35 @@ export default function ChatNotifier() {
   };
   const go = (href) => { setOpen(false); setToast(null); router.push(href); };
 
+  const teamHead = ({ onClear, onFull, tid } = {}) => (
+    <div className="lcf-h lcf-team">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <span className="lcf-av cyt"><img src="/icons/cyt-icon-96.png" alt="" /></span>
+      <span className="lcf-m"><b>CYT Care Team</b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
+      <span className="lcf-icons">
+        <button type="button" className={`lcf-ic sos${sos ? " on" : ""}`} onClick={() => setSos((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
+        {tid && onClear && <button type="button" className="lcf-ic" onClick={onClear} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>}
+        {tid && onFull && <button type="button" className="lcf-ic" onClick={onFull} aria-label="Open full screen" title="Full screen"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M4 4h6v2H7.4l3.3 3.3-1.4 1.4L6 7.4V10H4V4Zm10 0h6v6h-2V7.4l-3.3 3.3-1.4-1.4L16.6 6H14V4ZM9.3 13.3l1.4 1.4L7.4 18H10v2H4v-6h2v2.6l3.3-3.3Zm5.4 0 3.3 3.3V14h2v6h-6v-2h2.6l-3.3-3.3 1.4-1.4Z" /></svg></button>}
+        <button type="button" className="lcf-ic x" onClick={() => setOpen(false)} aria-label="Close">×</button>
+      </span>
+      {sos && (
+        <div className="lcf-sos" role="note">
+          <b>Not for emergencies</b>
+          <span>If you or someone near you is in danger, call <a href="tel:112">112</a> or Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).</span>
+          <button type="button" onClick={() => setSos(false)} aria-label="Close">×</button>
+        </div>
+      )}
+    </div>
+  );
+  const SUGGEST = [
+    "I'm not sure which therapist is right for me",
+    "I've been feeling anxious or low lately",
+    "Can I talk to someone in Hindi?",
+    "Do you have online sessions?",
+    "What happens in the first session?",
+    "I need help for my child or teen",
+  ];
+
   if (typeof document === "undefined" || !who) return null;
   const fabY = pos ? clampY(pos.y) : null;
   const btnStyle = drag ? { left: drag.x, top: drag.y, right: "auto", bottom: "auto", transition: "none" }
@@ -271,21 +306,34 @@ export default function ChatNotifier() {
             </>
           ) : (
             <>
-              <div className="lcf-h lcf-team">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <span className="lcf-av cyt"><img src="/icons/cyt-icon-96.png" alt="" /></span>
-                <span className="lcf-m"><b>CYT Care Team</b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
-                <button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button>
-              </div>
               {who === "guest" ? (
+                <>
+                {teamHead()}
                 <div className="lcf-guest">
                   <p className="lcf-hi">Hi 👋 Not sure which therapist is right for you? Chat with our care team — we&apos;ll help you choose.</p>
-                  {/* log in / sign up right here; the chat starts in the same place (owner, 2026-11-23) */}
+                  {/* first: one-tap questions; the one picked is sent right after logging in, here (owner, 2026-11-24) */}
+                  {!pending ? (
+                    <>
+                      <div className="lcf-sug" role="list">
+                        {SUGGEST.map((q) => <button type="button" role="listitem" key={q} onClick={() => pick(q)}>{q}</button>)}
+                      </div>
+                      <form className="lcf-own" onSubmit={(e) => { e.preventDefault(); if (own.trim()) pick(own.trim().slice(0, 500)); }}>
+                        <input value={own} onChange={(e) => setOwn(e.target.value)} maxLength={500} placeholder="Or type your question…" aria-label="Your question" />
+                        <button type="submit" disabled={!own.trim()} aria-label="Next"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
+                      </form>
+                    </>
+                  ) : (
+                    <>
+                      <div className="lcf-q"><p>{pending}</p><button type="button" onClick={() => { sentPending(); setOwn(""); }}>Change</button></div>
+                      <p className="lcf-why">Log in or create an account to send this — it goes to our care team as soon as you&apos;re in.</p>
+                      <WidgetLogin onDone={() => { setAuthTick((n) => n + 1); window.dispatchEvent(new Event("cyt-auth-changed")); }} />
+                    </>
+                  )}
                   {pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
-                  <WidgetLogin onDone={() => { setAuthTick((n) => n + 1); window.dispatchEvent(new Event("cyt-auth-changed")); }} />
                 </div>
+                </>
               ) : (
-                <SupportMini page={path.slice(0, 180)} onOpenAll={(tid) => go(`/client/messages?t=${tid}`)} />
+                <SupportMini page={path.slice(0, 180)} onOpenAll={(tid) => go(`/client/messages?t=${tid}`)} head={teamHead} initial={pending} onSent={sentPending} />
               )}
             </>
           )}
@@ -296,6 +344,11 @@ export default function ChatNotifier() {
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { dragRef.current = null; setDrag(null); }} title="Drag to move" aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
+          {!open && !drag && (
+            <span className={`lcf-lbl${pos?.side === "left" ? " r" : ""}`} aria-hidden="true">
+              <i />{who === "therapist" ? "Messages" : "Live chat"}<small>{who === "therapist" ? (unread ? `${unread} new` : "Your clients") : "We're here to help"}</small>
+            </span>
+          )}
         </button>
       )}
     </div>
@@ -331,6 +384,35 @@ const CSS = `
 .lcf-h.lcf-team { justify-content: flex-start; gap: 10px; padding: 0 2px 10px; border-bottom: 1px solid rgba(60,60,67,.1); margin-bottom: 6px; }
 .lcf-h.lcf-team .lcf-m b { font-size: 15.5px; } .lcf-h.lcf-team .lcf-m small { color: #34a853; font-weight: 600; } .lcf-h.lcf-team > button { margin-left: auto; }
 .lcf-guest { padding: 4px 2px 2px; }
+/* header icons (owner, 2026-11-24): emergency info, clear, full screen, close */
+.lcf-h.lcf-team { position: relative; }
+.lcf-icons { margin-left: auto; display: inline-flex; gap: 4px; flex: none; }
+.lcf .lcf-ic { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #f2f2f7; color: #6e6e73; display: grid; place-items: center; padding: 0; cursor: pointer; font-size: 18px; line-height: 1; }
+.lcf .lcf-ic:hover { color: #1c1c1e; } .lcf .lcf-ic.sos { color: #d97706; } .lcf .lcf-ic.sos.on { background: #fff4e5; }
+.lcf-sos { position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; right: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 34px 10px 12px; border-radius: 14px; background: #fff8ec; border: 1px solid #fde3b5; box-shadow: 0 12px 24px -14px rgba(0,0,0,.35); font-size: 13px; line-height: 1.4; color: #5b3a06; }
+.lcf-sos b { font-size: 13.5px; color: #92400e; } .lcf-sos a { color: #b45309; font-weight: 800; }
+.lcf-sos button { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: none; color: #92400e; font-size: 17px; cursor: pointer; }
+/* one-tap questions for visitors */
+.lcf-sug { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin: 0 0 10px; }
+.lcf .lcf-sug button { max-width: 92%; border: 1px solid #c7e7d1; background: #fff; color: #15803d; border-radius: 18px; padding: 8px 12px; font: inherit; font-size: 13.5px; font-weight: 600; text-align: right; cursor: pointer; line-height: 1.3; }
+.lcf .lcf-sug button:hover { background: #effaf2; }
+.lcf-own { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.lcf .lcf-own input { flex: 1; min-width: 0; height: 38px; border: 1px solid #d1d1d6; border-radius: 19px; padding: 0 14px; font: inherit; font-size: 16px; background: #fff; }
+.lcf .lcf-own button { flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%; background: #34c759; color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.lcf .lcf-own button:disabled { background: #c7c7cc; }
+.lcf-q { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; margin: 0 0 8px; }
+.lcf .lcf-q p { margin: 0; max-width: 88%; padding: 8px 12px; border-radius: 18px; background: #34c759; color: #fff; font-size: 14.5px; line-height: 1.35; }
+.lcf .lcf-q button { border: 0; background: none; padding: 0 4px; font: inherit; font-size: 12px; color: #0a84ff; cursor: pointer; }
+.lcf .lcf-why { margin: 0 0 8px; font-size: 12.5px; color: #6e6e73; }
+/* "Live chat" label beside the floating button */
+.lcf-lbl { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-start; padding: 7px 14px 7px 26px; border-radius: 16px;
+  background: #fff; color: #14532d; font-size: 14px; font-weight: 800; line-height: 1.15; white-space: nowrap; box-shadow: 0 10px 26px -10px rgba(16,80,45,.45), 0 0 0 1px rgba(20,83,45,.08); pointer-events: auto; animation: lcfLbl .4s ease both .6s; }
+.lcf-lbl.r { right: auto; left: calc(100% + 10px); }
+.lcf-lbl small { font-size: 11.5px; font-weight: 600; color: #6b7a72; }
+.lcf-lbl i { position: absolute; left: 11px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: #34c759; box-shadow: 0 0 0 3px rgba(52,199,89,.22); animation: lcfDot 1.8s ease-in-out infinite; }
+@keyframes lcfLbl { from { opacity: 0; transform: translate(8px, -50%); } }
+@keyframes lcfDot { 50% { box-shadow: 0 0 0 6px rgba(52,199,89,0); } }
+@media (max-width: 600px) { .lcf-lbl { padding: 6px 11px 6px 23px; font-size: 13px; } .lcf-lbl small { display: none; } .lcf-lbl i { left: 9px; } }
 /* the public site has its own styles for headers and lists — keep the widget clean everywhere */
 .lcf .lcf-h, .lcf .lcf-h.lcf-team { background: none !important; background-image: none !important; box-shadow: none !important; }
 .lcf .lcf-guest ul { list-style: disc; } .lcf .lcf-guest li { margin: 0 !important; padding: 0 !important; line-height: 1.5; }

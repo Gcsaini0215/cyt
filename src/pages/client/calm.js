@@ -176,4 +176,8 @@ const CC_CSS = `
 .cc-tool { margin-top: 2vh; } .cc-tool h2 { font-size: 22px; font-weight: 800; } .cc-tool > p { margin: 0 0 12px; font-size: 14px; }
 .cc-tool-b { background: #fff; border-radius: 18px; padding: 16px; }
 @media (max-width: 760px) { .cc-tiles { grid-template-columns: minmax(0, 1fr); } .cc-tiles button { flex-direction: row; align-items: center; gap: 12px; } .cc-tiles small { display: none; } }
+/* the portal app styles buttons as pills — the tiles keep their own shape and the text wraps inside (owner, 2026-11-24) */
+.cc-tiles button { height: auto !important; min-height: 0 !important; width: 100% !important; max-width: 100%; box-sizing: border-box; white-space: normal !important; overflow: hidden; border-radius: 20px !important; line-height: 1.3; }
+.cc-tiles button b, .cc-tiles button small { min-width: 0; white-space: normal !important; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .cc-tiles button { padding: 12px 14px !important; } .cc-tiles button b { flex: 1; font-size: 15px; } .cc-tiles button span { flex: none; font-size: 24px; } }
 `;
