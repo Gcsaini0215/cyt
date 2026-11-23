@@ -189,7 +189,7 @@ export default function ChatNotifier() {
             </>
           ) : (
             <>
-              <div className="lcf-h team">
+              <div className="lcf-h lcf-team">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <span className="lcf-av cyt"><img src="/icons/cyt-icon-96.png" alt="" /></span>
                 <span className="lcf-m"><b>CYT Care Team</b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
@@ -242,9 +242,13 @@ const CSS = `
 .lcf-panel li em { flex: none; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #0a84ff; color: #fff; font-style: normal; font-size: 11.5px; font-weight: 800; display: grid; place-items: center; }
 .lcf-muted { margin: 6px 6px 10px; font-size: 13.5px; color: #8e8e93; }
 .lcf-panel.client, .lcf-panel.guest { width: min(370px, calc(100vw - 24px)); right: 12px; }
-.lcf-h.team { justify-content: flex-start; gap: 10px; padding: 0 2px 10px; border-bottom: 1px solid rgba(60,60,67,.1); margin-bottom: 6px; }
-.lcf-h.team .lcf-m b { font-size: 15.5px; } .lcf-h.team .lcf-m small { color: #34a853; font-weight: 600; } .lcf-h.team > button { margin-left: auto; }
+.lcf-h.lcf-team { justify-content: flex-start; gap: 10px; padding: 0 2px 10px; border-bottom: 1px solid rgba(60,60,67,.1); margin-bottom: 6px; }
+.lcf-h.lcf-team .lcf-m b { font-size: 15.5px; } .lcf-h.lcf-team .lcf-m small { color: #34a853; font-weight: 600; } .lcf-h.lcf-team > button { margin-left: auto; }
 .lcf-guest { padding: 4px 2px 2px; }
+/* the public site has its own styles for headers and lists — keep the widget clean everywhere */
+.lcf .lcf-h, .lcf .lcf-h.lcf-team { background: none !important; background-image: none !important; box-shadow: none !important; }
+.lcf .lcf-guest ul { list-style: disc; } .lcf .lcf-guest li { margin: 0 !important; padding: 0 !important; line-height: 1.5; }
+.lcf .lcf-panel p, .lcf .lcf-panel ul { margin-top: 0; }
 .lcf-hi { margin: 4px 0 10px; padding: 9px 12px; border-radius: 18px; background: #e9e9eb; font-size: 14.5px; line-height: 1.4; color: #000; }
 .lcf-guest ul { margin: 0 0 12px; padding-left: 18px; font-size: 13.5px; color: #3c3c43; display: grid; gap: 3px; }
 .lcf-guest small { display: block; margin-top: 8px; text-align: center; font-size: 12px; color: #8e8e93; }
