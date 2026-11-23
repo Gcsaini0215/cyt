@@ -164,8 +164,9 @@ export default function ChatApp({ role }) {
   const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
   const appRef = useRef(null);
-  /* the chat fills the screen exactly — from under the top bar to just above the bottom dock (or the keyboard).
-     The page itself doesn't scroll; only the message list and the chat list do (owner, 2026-11-23). */
+  /* Messages is the whole page (owner, 2026-11-23): no card — the chat fills the frame from under the top bar to just
+     above the bottom dock (or the keyboard), and from the side menu to the screen edge. The dock stays; the page
+     itself never moves — only the chat list and the message list scroll. */
   useEffect(() => {
     if (consent === false) return undefined;
     const html = document.documentElement, body = document.body;
@@ -174,24 +175,29 @@ export default function ChatApp({ role }) {
     // iPhone-safe lock: overflow:hidden alone still lets Safari drag the page a little
     const prev = body.style.cssText;
     body.style.position = "fixed"; body.style.top = "0"; body.style.left = "0"; body.style.right = "0"; body.style.width = "100%";
+    const shown = (n) => n && n.offsetWidth > 0 && getComputedStyle(n).display !== "none" && getComputedStyle(n).visibility !== "hidden";
     const fit = () => {
       const el = appRef.current;
       if (!el) return;
       const vv = window.visualViewport;
-      const vh = vv ? vv.height : window.innerHeight;
       const keyboard = vv && window.innerHeight - vv.height > 150;
-      const top = el.getBoundingClientRect().top;
-      let gap = 14;
-      if (!keyboard) {
-        const dock = [...document.querySelectorAll(".tn-mob-nav, .cls-mob")].find((d) => d.offsetHeight && getComputedStyle(d).display !== "none");
-        // dock tucked away: leave room for the small handle only
-        if (dock && html.classList.contains("lc-dock-min")) gap = 40;
-        else if (dock) gap = Math.max(gap, window.innerHeight - dock.getBoundingClientRect().top + 10);
+      const bar = [...document.querySelectorAll(".tn-bar, .cls-bar")].find(shown);
+      let top = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+      // the side menu (desktop / iPad landscape) stays visible on the left
+      const rail = [...document.querySelectorAll(".tsn-rail, .cls-rail")].find((r) => shown(r) && r.getBoundingClientRect().left < 4);
+      const left = rail ? Math.max(0, Math.round(rail.getBoundingClientRect().right)) : 0;
+      let bottom;
+      if (keyboard) {
+        // typing: end right above the keyboard; keep the header in sight if the screen slid up
+        top = Math.max(top, Math.round(vv.offsetTop));
+        bottom = Math.round(vv.offsetTop + vv.height);
+      } else {
+        const dock = [...document.querySelectorAll(".tn-mob-nav, .cls-mob")].find(shown);
+        bottom = dock ? Math.round(dock.getBoundingClientRect().top - 8) : Math.round(vv ? vv.height : window.innerHeight);
       }
-      el.style.height = `${Math.max(300, Math.round(vh - top - gap))}px`;
-      // phones: the open conversation is a full-screen view sized to the visible screen (above the keyboard)
-      const root = el.parentElement;
-      if (root) { root.style.setProperty("--lc-vvh", `${Math.round(vh)}px`); root.style.setProperty("--lc-vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`); }
+      el.style.top = `${top}px`;
+      el.style.left = `${left}px`;
+      el.style.height = `${Math.max(240, bottom - top)}px`;
     };
     fit();
     // after the box has its final height, show the newest message
@@ -211,24 +217,6 @@ export default function ChatApp({ role }) {
       body.style.cssText = prev;
     };
   }, [consent, active]);
-  /* the bottom dock tucks away a few seconds after Messages opens (owner, 2026-11-23): a small handle stays, a tap
-     brings the dock back for a few seconds. More room for the conversation on iPad and phones. */
-  const [dockMin, setDockMin] = useState(false);
-  const dockTimer = useRef(null);
-  const tuckLater = (ms = 3000) => { clearTimeout(dockTimer.current); dockTimer.current = setTimeout(() => setDockMin(true), ms); };
-  useEffect(() => {
-    if (consent === false) return undefined;
-    tuckLater(3000);
-    return () => { clearTimeout(dockTimer.current); document.documentElement.classList.remove("lc-dock-min"); };
-  }, [consent]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    document.documentElement.classList.toggle("lc-dock-min", dockMin);
-    // re-size the chat while the dock slides
-    const iv = setInterval(() => window.__lcFit && window.__lcFit(), 60);
-    const stop = setTimeout(() => clearInterval(iv), 450);
-    return () => { clearInterval(iv); clearTimeout(stop); };
-  }, [dockMin]);
-  const hasDock = typeof document !== "undefined" && !!document.querySelector(".tn-mob-nav, .cls-mob");
   const activeRef = useRef(null);
   activeRef.current = active;
   useEffect(() => { window.__lcActive = active || null; return () => { window.__lcActive = null; }; }, [active]);
@@ -351,6 +339,7 @@ export default function ChatApp({ role }) {
         <div className="lc-app" ref={appRef}>
           {/* chat list */}
           <aside className="lc-list" aria-label="Chats">
+            <Link href={role === "therapist" ? "/therapist-dashboard" : "/my-dashboard"} className="lc-home" aria-label="Back to dashboard">‹ Dashboard</Link>
             <div className="lc-list-h">
               <h1>Messages {live && <span className="lc-live" title="Live">● Live</span>}</h1>
               <span className="lc-hbtns">
@@ -469,9 +458,6 @@ export default function ChatApp({ role }) {
             )}
           </section>
         </div>
-      )}
-      {dockMin && hasDock && (
-        <button type="button" className="lc-dock-tab" onClick={() => { setDockMin(false); tuckLater(5000); }} aria-label="Show menu"><i /></button>
       )}
       {clearing && active && (
         <ClearSheet threadId={active} otherName={other?.name} onClose={() => setClearing(false)}
@@ -701,39 +687,30 @@ const CSS = AV_CSS + `
 .lc-on { background: #34c759; }
 .lc-app .lc-av.cyt { background: #fff; box-shadow: inset 0 0 0 1px rgba(60,60,67,.14); } .lc-av.cyt img { object-fit: contain; padding: 5px; box-sizing: border-box; }
 
-/* dock tucked away on Messages: slides down, a small handle brings it back */
-html.lc-dock-min .tn-mob-nav, html.lc-dock-min .cls-mob { translate: 0 calc(100% + 30px); transition: translate .35s cubic-bezier(.3,.8,.3,1); }
-html.lc-lock .tn-mob-nav, html.lc-lock .cls-mob { transition: translate .35s cubic-bezier(.3,.8,.3,1); }
-.lc-dock-tab { position: fixed; z-index: 1250; left: 50%; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: 120px; height: 28px; border: 0; padding: 0; background: none; cursor: pointer; display: grid; place-items: center; animation: lcTab .3s ease; }
-.lc-dock-tab i { display: block; width: 64px; height: 6px; border-radius: 999px; background: rgba(60,60,67,.35); box-shadow: 0 0 0 4px rgba(255,255,255,.7); }
-@keyframes lcTab { from { opacity: 0; } }
 /* the page doesn't scroll on the Messages screen — the chat box is sized to fit (JS above) */
 html.lc-lock, html.lc-lock body { overflow: hidden !important; overscroll-behavior: none; }
 /* the portals open pages with a zoom (transform) — a transformed parent would trap the full-screen conversation */
 html.lc-lock .ts-page.ts-zoom, html.lc-lock .cls-main.cls-zoom, html.lc-lock .ts-page, html.lc-lock .cls-main { animation: none !important; transform: none !important; }
 .lc-app { height: calc(100dvh - 150px); }
+/* the whole page (owner, 2026-11-23): a fixed frame between the top bar, the side menu, the screen edge and the
+   bottom dock (top / left / height set by fit() above) — no card, no rounded corners, nothing moves */
+html.lc-lock .lc-app { position: fixed; right: 0; top: 0; left: 0; z-index: 900; min-height: 0; max-width: none; border-radius: 0; box-shadow: none; border-top: 1px solid rgba(60,60,67,.1); }
+html.lc-lock .lc-list, html.lc-lock .lc-conv { min-height: 0; }
+.lc-items, .lc-msgs { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.lc-conv-h, .lc-comp, .lc-quick, .lc-note, .lc-err, .lc-foot { flex: none; }
+.lc-home { display: none; align-self: flex-start; margin: 10px 0 0 10px; padding: 4px 6px; font-size: 16px; font-weight: 500; color: #0a84ff !important; text-decoration: none !important; }
 
-/* phones + iPad portrait: an open conversation is its own full-screen view, like iPhone Messages — header,
-   messages and the typing box stay put; only the messages scroll; it shrinks above the keyboard (owner, 2026-11-23) */
+/* phones + iPad portrait: one pane at a time — the list, or the open chat with the back arrow at the top */
 @media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
-  .lc.has-active .lc-conv { position: fixed; z-index: 2100; left: 0; right: 0; top: var(--lc-vvt, 0px); height: var(--lc-vvh, 100dvh); background: #fff; border-radius: 0; }
-  .lc.has-active .lc-conv-h { padding-top: calc(8px + env(safe-area-inset-top, 0px)); flex: none; }
-  .lc.has-active .lc-msgs { flex: 1; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  .lc.has-active .lc-comp, .lc.has-active .lc-quick, .lc.has-active .lc-note, .lc.has-active .lc-err { flex: none; }
-  .lc.has-active .lc-foot { flex: none; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
-  html.lc-lock:has(.lc.has-active) .lc-dock-tab { display: none; }
-}
-
-/* phones + iPad portrait: one pane at a time */
-@media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
-  .lc-app { grid-template-columns: minmax(0, 1fr); height: calc(100dvh - 170px); border-radius: 18px; }
+  .lc-app { grid-template-columns: minmax(0, 1fr); }
   .lc.has-active .lc-list { display: none; }
   .lc:not(.has-active) .lc-conv { display: none; }
   .lc-back { display: inline-grid; place-items: center; }
   .lc-list { border-right: 0; }
 }
+/* back to the dashboard: phones and iPads (the desktop has the side menu) */
+@media (max-width: 1199px), (pointer: coarse) { .lc-home { display: inline-block; } .lc-list-h { padding-top: 2px; } }
 @media (max-width: 600px) {
-  .lc-app { height: calc(100dvh - 150px); border-radius: 16px; min-height: 420px; }
   .lc-bub { max-width: 84%; }
 }
 `;
