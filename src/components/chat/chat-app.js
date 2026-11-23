@@ -6,6 +6,7 @@ import { fetchById, postData, putData, deleteById } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
 import { getToken } from "../../utils/jwt";
 import { soundOn, setSound, playChime, enablePush, pushState, iosNeedsInstall } from "./chat-notify";
+import ClearSheet from "./clear-sheet";
 
 /* Live chat (2026-11-23) — one app for therapists (/therapists/messages) and clients (/client/messages).
    Desktop / iPad landscape: chat list + conversation side by side. Phones / iPad portrait: the list, then the
@@ -159,6 +160,7 @@ export default function ChatApp({ role }) {
   const [settings, setSettings] = useState(false);
   const [live, setLive] = useState(false);
   const [alerts, setAlerts] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
   const appRef = useRef(null);
@@ -287,6 +289,11 @@ export default function ChatApp({ role }) {
       if (threadId !== activeRef.current || by === role) return;
       setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m.fromRole === role && !m.readAt ? { ...m, readAt: at } : m)) } : c));
     });
+    es.addEventListener("cleared", (e) => {
+      const { threadId } = JSON.parse(e.data || "{}");
+      if (threadId === activeRef.current) fetchById(`${API}/threads/${threadId}`).then((r) => r?.status && setConv(r.data)).catch(() => {});
+      loadThreads();
+    });
     es.addEventListener("deleted", (e) => {
       const { threadId, id } = JSON.parse(e.data || "{}");
       if (threadId === activeRef.current) setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === id ? { ...m, deleted: true, body: "" } : m)) } : c));
@@ -391,7 +398,10 @@ export default function ChatApp({ role }) {
                     <b>{other.name} <span aria-hidden="true">›</span></b>
                     <small>{other.online ? "Online now" : role === "client" && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
-                  {role === "client" ? <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link> : <span className="lc-hspace" aria-hidden="true" />}
+                  <span className="lc-hr">
+                    {role === "client" && <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link>}
+                    <button type="button" className="lc-clear" onClick={() => setClearing(true)} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
+                  </span>
                 </header>
 
                 <div className="lc-msgs" ref={scroller}>
@@ -457,6 +467,10 @@ export default function ChatApp({ role }) {
       )}
       {dockMin && hasDock && (
         <button type="button" className="lc-dock-tab" onClick={() => { setDockMin(false); tuckLater(5000); }} aria-label="Show menu"><i /></button>
+      )}
+      {clearing && active && (
+        <ClearSheet threadId={active} otherName={other?.name} onClose={() => setClearing(false)}
+          onDone={() => { setClearing(false); fetchById(`${API}/threads/${active}`).then((r) => r?.status && setConv(r.data)).catch(() => {}); loadThreads(); }} />
       )}
       {settings && <Settings onClose={() => setSettings(false)} />}
       {alerts && <Alerts onClose={() => setAlerts(false)} />}
@@ -643,6 +657,9 @@ const CSS = AV_CSS + `
 .lc-conv-who b { font-size: 12.5px; font-weight: 600; color: #1c1c1e; } .lc-conv-who b span { color: #c7c7cc; }
 .lc-conv-who small { font-size: 11px; color: #8e8e93; }
 .lc-back, .lc-hspace { width: 64px; flex: none; }
+.lc-hr { flex: none; min-width: 64px; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.lc-clear { width: 34px; height: 34px; border: 0; border-radius: 50%; background: none; color: #8e8e93; display: grid; place-items: center; cursor: pointer; }
+.lc-clear:hover { background: #f2f2f7; color: #ff3b30; }
 .lc-back { justify-content: flex-start !important; color: #0a84ff; font-size: 34px; font-weight: 300; }
 .lc-book { min-width: 64px; justify-content: center; background: none; color: #0a84ff !important; padding: 0; font-size: 15.5px; font-weight: 600; }
 .lc-msgs { padding: 10px 14px 6px; gap: 0; }

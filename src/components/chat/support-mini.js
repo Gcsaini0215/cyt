@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { apiUrl } from "../../utils/url";
 import { fetchById, postData } from "../../utils/actions";
+import ClearSheet from "./clear-sheet";
 
 /* The CYT Care Team chat inside the floating widget, on any page of the website (2026-11-23, owner).
    Signed-in clients write straight to the team (admin → Live Chats → Care Team); every message carries the page
@@ -16,6 +17,7 @@ export default function SupportMini({ page, onOpenAll }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [clearing, setClearing] = useState(false);
   const box = useRef(null);
   const end = () => requestAnimationFrame(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight; });
 
@@ -43,7 +45,8 @@ export default function SupportMini({ page, onOpenAll }) {
     if (!tid) return undefined;
     window.__lcMini = (threadId, m) => {
       if (threadId !== tid) return false;
-      setMsgs((x) => (x && !x.some((y) => y._id === m._id) ? [...x, m] : x));
+      // "cleared for everyone": only the marker stays on screen
+      setMsgs((x) => (m.kind === "cleared" ? [m] : x && !x.some((y) => y._id === m._id) ? [...x, m] : x));
       end();
       if (m.fromRole !== "client") postData(`${API}/threads/${tid}/read`, {}).catch(() => {});
       return true;
@@ -103,7 +106,11 @@ export default function SupportMini({ page, onOpenAll }) {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) send(e); }} />
         <button type="submit" disabled={!text.trim() || busy} aria-label="Send"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
       </form>
-      <div className="lsm-foot"><span>Not for emergencies — 112 · Tele-MANAS 14416</span>{tid && <button type="button" onClick={() => onOpenAll(tid)}>Full screen ›</button>}</div>
+      <div className="lsm-foot"><span>Not for emergencies — 112 · Tele-MANAS 14416</span>{tid && <span className="lsm-acts"><button type="button" className="lsm-clr" onClick={() => setClearing(true)}>Clear</button><button type="button" onClick={() => onOpenAll(tid)}>Full screen ›</button></span>}</div>
+      {clearing && tid && (
+        <ClearSheet threadId={tid} otherName="The CYT Care Team" onClose={() => setClearing(false)}
+          onDone={() => { setClearing(false); fetchById(`${API}/threads/${tid}`).then((t) => setMsgs(Array.isArray(t?.data?.messages) ? t.data.messages : [])).catch(() => {}); }} />
+      )}
     </div>
   );
 }
@@ -124,6 +131,7 @@ export const SM_CSS = `
 .lsm-comp button { position: absolute; right: 6px; bottom: 6px; width: 30px; height: 30px; border-radius: 50%; border: 0; background: #34c759; color: #fff; display: grid; place-items: center; cursor: pointer; }
 .lsm-comp button:disabled { background: #c7c7cc; }
 .lsm-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 11px; color: #aeaeb2; }
+.lsm-acts { display: inline-flex; gap: 12px; } .lsm-foot .lsm-clr { color: #8e8e93; }
 .lsm-foot button { border: 0; background: none; padding: 0; font: inherit; font-size: 12.5px; font-weight: 700; color: #0a84ff; cursor: pointer; }
 .lsm-consent { padding: 4px 4px 2px; font-size: 13.5px; color: #3c3c43; }
 .lsm-consent b { font-size: 15px; color: #1c1c1e; } .lsm-consent ul { margin: 8px 0 12px; padding-left: 18px; display: grid; gap: 5px; line-height: 1.45; }
