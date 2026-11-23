@@ -28,16 +28,17 @@ export function playChime() {
     ctx = ctx || new AC();
     if (ctx.state === "suspended") ctx.resume();
     const t0 = ctx.currentTime + 0.01;
-    // three quick rising notes, bell-like (sine + a soft overtone), quick fade
-    [[1046.5, 0], [1318.5, 0.11], [1568, 0.22]].forEach(([f, dt]) => {
-      for (const [mult, vol] of [[1, 0.16], [2, 0.035]]) {
+    // "hel-lo": a low note then a higher one, soft mallet sound (fundamental + a few quiet overtones)
+    [[783.99, 0, 0.42, 0.22], [1174.66, 0.15, 0.7, 0.24]].forEach(([f, dt, len, vol]) => {
+      for (const [mult, part] of [[1, 1], [4, 0.14], [2, 0.06], [10, 0.025]]) {
         const o = ctx.createOscillator(), g = ctx.createGain();
         o.type = "sine"; o.frequency.value = f * mult;
+        const end = t0 + dt + len / (mult > 1 ? 2.5 : 1);
         g.gain.setValueAtTime(0.0001, t0 + dt);
-        g.gain.exponentialRampToValueAtTime(vol, t0 + dt + 0.012);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.42);
+        g.gain.exponentialRampToValueAtTime(vol * part, t0 + dt + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, end);
         o.connect(g).connect(ctx.destination);
-        o.start(t0 + dt); o.stop(t0 + dt + 0.45);
+        o.start(t0 + dt); o.stop(end + 0.02);
       }
     });
   } catch { /* no audio */ }
@@ -127,6 +128,10 @@ export default function ChatNotifier() {
   };
   const resetPos = () => { setPos(null); try { localStorage.removeItem(FAB_KEY); } catch { /* ignore */ } };
   const [who, setWho] = useState(null); // null (loading) | "guest" | "client" | "therapist"
+  const [snd, setSnd] = useState(true);
+  useEffect(() => { setSnd(soundOn()); }, []);
+  const toggleSnd = () => { const v = !snd; setSnd(v); setSound(v); if (v) playChime(); };
+  const sndBtn = <button type="button" className={`lcf-ic snd${snd ? "" : " off"}`} onClick={toggleSnd} aria-label={snd ? "Message sound on — tap to turn off" : "Message sound off — tap to turn on"} title={snd ? "Sound on" : "Sound off"}>{snd ? <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4Zm11.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4Zm-2.5-8.8v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6Z" /></svg> : <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4Zm12.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4-2.7-2.7Z" /></svg>}</button>;
   const [sos, setSos] = useState(false); // "not for emergencies" pop-up from the header icon
   const [pending, setPending] = useState(""); // a question picked / typed before logging in — sent right after login
   const [own, setOwn] = useState("");
@@ -244,7 +249,7 @@ export default function ChatNotifier() {
       <span className="lcf-icons">
         <button type="button" className={`lcf-ic sos${sos ? " on" : ""}`} onClick={() => setSos((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
         {tid && onClear && <button type="button" className="lcf-ic" onClick={onClear} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>}
-        {tid && onFull && <button type="button" className="lcf-ic full" onClick={onFull} aria-label="Open full screen" title="Full screen"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M4 4h6v2H7.4l3.3 3.3-1.4 1.4L6 7.4V10H4V4Zm10 0h6v6h-2V7.4l-3.3 3.3-1.4-1.4L16.6 6H14V4ZM9.3 13.3l1.4 1.4L7.4 18H10v2H4v-6h2v2.6l3.3-3.3Zm5.4 0 3.3 3.3V14h2v6h-6v-2h2.6l-3.3-3.3 1.4-1.4Z" /></svg></button>}
+        {sndBtn}
         <button type="button" className="lcf-ic x" onClick={() => setOpen(false)} aria-label="Close">×</button>
       </span>
       {sos && (
@@ -290,7 +295,7 @@ export default function ChatNotifier() {
         <div className={`lcf-panel ${who}${sheet ? " sheet" : ""}`} style={sheet ? undefined : anchor} role="dialog" aria-label={who === "therapist" ? "Recent messages" : "Chat with the CYT Care Team"}>
           {who === "therapist" ? (
             <>
-              <div className="lcf-h"><b>Messages</b><button type="button" onClick={() => setOpen(false)} aria-label="Close">×</button></div>
+              <div className="lcf-h"><b>Messages</b><span className="lcf-icons">{sndBtn}<button type="button" className="lcf-ic x" onClick={() => setOpen(false)} aria-label="Close">×</button></span></div>
               {threads === null ? <p className="lcf-muted">Loading…</p> : !threads.length ? <p className="lcf-muted">No messages yet.</p> : (
                 <ul>{threads.slice(0, 4).map((t) => (
                   <li key={t._id}><button type="button" className={t.unread ? "unread" : ""} onClick={() => go(`${base()}?t=${t._id}`)}>
@@ -384,7 +389,7 @@ const CSS = `
 .lcf-h.lcf-team { position: relative; }
 .lcf-icons { margin-left: auto; display: inline-flex; gap: 4px; flex: none; }
 .lcf .lcf-ic { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #f2f2f7; color: #6e6e73; display: grid; place-items: center; padding: 0; cursor: pointer; font-size: 18px; line-height: 1; }
-.lcf .lcf-ic:hover { color: #1c1c1e; } .lcf .lcf-ic.sos { color: #d97706; } .lcf .lcf-ic.sos.on { background: #fff4e5; }
+.lcf .lcf-ic:hover { color: #1c1c1e; } .lcf .lcf-ic.snd { color: #15803d; } .lcf .lcf-ic.snd.off { color: #8e8e93; } .lcf .lcf-ic.sos { color: #d97706; } .lcf .lcf-ic.sos.on { background: #fff4e5; }
 .lcf-sos { position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; right: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 34px 10px 12px; border-radius: 14px; background: #fff8ec; border: 1px solid #fde3b5; box-shadow: 0 12px 24px -14px rgba(0,0,0,.35); font-size: 13px; line-height: 1.4; color: #5b3a06; }
 .lcf-sos b { font-size: 13.5px; color: #92400e; } .lcf-sos a { color: #b45309; font-weight: 800; }
 .lcf-sos button { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: none; color: #92400e; font-size: 17px; cursor: pointer; }
