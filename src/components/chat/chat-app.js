@@ -166,9 +166,12 @@ export default function ChatApp({ role }) {
      The page itself doesn't scroll; only the message list and the chat list do (owner, 2026-11-23). */
   useEffect(() => {
     if (consent === false) return undefined;
-    const html = document.documentElement;
-    html.classList.add("lc-lock");
+    const html = document.documentElement, body = document.body;
     window.scrollTo(0, 0);
+    html.classList.add("lc-lock");
+    // iPhone-safe lock: overflow:hidden alone still lets Safari drag the page a little
+    const prev = body.style.cssText;
+    body.style.position = "fixed"; body.style.top = "0"; body.style.left = "0"; body.style.right = "0"; body.style.width = "100%";
     const fit = () => {
       const el = appRef.current;
       if (!el) return;
@@ -192,6 +195,7 @@ export default function ChatApp({ role }) {
       window.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("resize", fit);
       html.classList.remove("lc-lock");
+      body.style.cssText = prev;
     };
   }, [consent, active]);
   const activeRef = useRef(null);
