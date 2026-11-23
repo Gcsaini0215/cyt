@@ -161,6 +161,39 @@ export default function ChatApp({ role }) {
   const [alerts, setAlerts] = useState(false);
   const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
+  const appRef = useRef(null);
+  /* the chat fills the screen exactly — from under the top bar to just above the bottom dock (or the keyboard).
+     The page itself doesn't scroll; only the message list and the chat list do (owner, 2026-11-23). */
+  useEffect(() => {
+    if (consent === false) return undefined;
+    const html = document.documentElement;
+    html.classList.add("lc-lock");
+    window.scrollTo(0, 0);
+    const fit = () => {
+      const el = appRef.current;
+      if (!el) return;
+      const vv = window.visualViewport;
+      const vh = vv ? vv.height : window.innerHeight;
+      const keyboard = vv && window.innerHeight - vv.height > 150;
+      const top = el.getBoundingClientRect().top;
+      let gap = 14;
+      if (!keyboard) {
+        const dock = [...document.querySelectorAll(".tn-mob-nav, .cls-mob")].find((d) => d.offsetHeight && getComputedStyle(d).display !== "none");
+        if (dock) gap = Math.max(gap, window.innerHeight - dock.getBoundingClientRect().top + 10);
+      }
+      el.style.height = `${Math.max(300, Math.round(vh - top - gap))}px`;
+    };
+    fit();
+    const t1 = setTimeout(fit, 120), t2 = setTimeout(fit, 600);
+    window.addEventListener("resize", fit);
+    window.visualViewport?.addEventListener("resize", fit);
+    return () => {
+      clearTimeout(t1); clearTimeout(t2);
+      window.removeEventListener("resize", fit);
+      window.visualViewport?.removeEventListener("resize", fit);
+      html.classList.remove("lc-lock");
+    };
+  }, [consent, active]);
   const activeRef = useRef(null);
   activeRef.current = active;
   useEffect(() => { window.__lcActive = active || null; return () => { window.__lcActive = null; }; }, [active]);
@@ -275,7 +308,7 @@ export default function ChatApp({ role }) {
     <div className={`lc${active ? " has-active" : ""}`} data-sm-skip="">
       <style>{CSS}</style>
       {consent === false ? <Consent role={role} onAgree={() => setConsent(true)} /> : (
-        <div className="lc-app">
+        <div className="lc-app" ref={appRef}>
           {/* chat list */}
           <aside className="lc-list" aria-label="Chats">
             <div className="lc-list-h">
@@ -614,6 +647,10 @@ const CSS = AV_CSS + `
 .lc-app .lc-av { background: linear-gradient(180deg, #a5abb8, #858b98); color: #fff; } .lc-app .lc-av b { font-weight: 600; letter-spacing: .02em; }
 .lc-on { background: #34c759; }
 .lc-app .lc-av.cyt { background: #fff; box-shadow: inset 0 0 0 1px rgba(60,60,67,.14); } .lc-av.cyt img { object-fit: contain; padding: 5px; box-sizing: border-box; }
+
+/* the page doesn't scroll on the Messages screen — the chat box is sized to fit (JS above) */
+html.lc-lock, html.lc-lock body { overflow: hidden !important; overscroll-behavior: none; }
+.lc-app { height: calc(100dvh - 150px); }
 
 /* phones + iPad portrait: one pane at a time */
 @media (max-width: 899px), (max-width: 1100px) and (orientation: portrait) {
