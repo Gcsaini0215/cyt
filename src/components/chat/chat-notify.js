@@ -6,6 +6,7 @@ import { getToken, getDecodedToken } from "../../utils/jwt";
 import { postData, fetchById } from "../../utils/actions";
 import SupportMini, { SM_CSS } from "./support-mini";
 import WidgetLogin from "./widget-login";
+import QuickAnswers, { QA_CSS } from "./quick-answers";
 
 /* Message alerts (2026-11-23, owner):
    - In the app: a soft three-note chime (our own, made with Web Audio — not Apple's tone) + a banner at the top,
@@ -106,7 +107,7 @@ const ini = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map((x) => x
    - clients: the CYT Care Team chat right inside the widget (the team answers in admin → Live Chats → Care Team);
    - therapists: their latest chats;
    - new-message pop-ups come out of the button, wherever it is. */
-const HIDE_ON = /^\/(login|register|therapist-app|book\/|therapist-checkout|payment|checkout|noida-reception|offline|therapists\/messages|client\/messages)/;
+const HIDE_ON = /^\/(view-profile\/|login|register|therapist-app|book\/|therapist-checkout|payment|checkout|noida-reception|offline|therapists\/messages|client\/messages)/;
 const BARS = ".tn-mob-nav, .cls-mob, .mab, .ph-sticky, .mobile-bottom-nav";
 
 export default function ChatNotifier() {
@@ -249,6 +250,7 @@ export default function ChatNotifier() {
     const fit = () => {
       const el = rootRef.current; if (!el) return;
       if (vv && vv.offsetTop > 0 && window.innerHeight - vv.height > 150) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
+      el.classList.toggle("kb", !!(vv && window.innerHeight - vv.height > 150));
       el.style.setProperty("--vvh", `${Math.round(vv ? vv.height : window.innerHeight)}px`);
       el.style.setProperty("--vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`);
     };
@@ -310,7 +312,7 @@ export default function ChatNotifier() {
   if (!showFab && !toast) return null;
   return createPortal((
     <div className="lcf" ref={rootRef} style={{ "--lcf-b": `${bottom}px` }}>
-      <style>{CSS + SM_CSS}</style>
+      <style>{CSS + SM_CSS + QA_CSS}</style>
       {toast && (
         <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} style={showFab ? anchor : undefined} onClick={() => go(toast.href)}>
           <span className="lcn-ic" aria-hidden="true">💬</span>
@@ -345,6 +347,7 @@ export default function ChatNotifier() {
                 <div className="lcf-guest">
                   <p className="lcf-hi">Hi 👋 Not sure which therapist is right for you? Chat with our care team — we&apos;ll help you choose.</p>
                   {/* first: one-tap questions; the one picked is sent right after logging in, here (owner, 2026-11-24) */}
+                  {!pending && <QuickAnswers onCta={() => setOpen(false)} />}
                   {!pending ? (
                     <>
                       <div className="lcf-sug" role="list">
@@ -367,7 +370,7 @@ export default function ChatNotifier() {
                 </div>
                 </>
               ) : (
-                <SupportMini page={path.slice(0, 180)} onOpenAll={(tid) => go(`/client/messages?t=${tid}`)} head={teamHead} initial={pending} onSent={sentPending} />
+                <SupportMini onCta={() => setOpen(false)} page={path.slice(0, 180)} onOpenAll={(tid) => go(`/client/messages?t=${tid}`)} head={teamHead} initial={pending} onSent={sentPending} />
               )}
             </>
           )}
@@ -378,7 +381,6 @@ export default function ChatNotifier() {
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { dragRef.current = null; setDrag(null); }} title="Drag to move" aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
-          {!open && !drag && <span className={`lcf-lbl${pos?.side === "left" ? " r" : ""}`} aria-hidden="true"><i />{who === "therapist" ? (unread ? `${unread} new message${unread === 1 ? "" : "s"}` : "Your clients") : "Instant reply"}</span>}
           {!open && !drag && <span className="lcf-ring" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><path id={"lcf-ring-p"} d="M50,50 m-39,0 a39,39 0 1,1 78,0 a39,39 0 1,1 -78,0" /></defs><circle cx="50" cy="50" r="49" /><text><textPath href={`#${"lcf-ring-p"}`} textLength="238" lengthAdjust="spacingAndGlyphs">{who === "therapist" ? "Your clients • Messages • Reply in one tap • " : who === "client" ? "Instant reply • Your care team • Ask anything • " : "Instant reply • Chat with our care team • "}</textPath></text></svg></span>}
         </button>
       )}
@@ -396,7 +398,7 @@ const CSS = `
 .lcf-btn.dragging { transform: scale(1.1); box-shadow: 0 22px 40px -12px rgba(16,110,55,.8); cursor: grabbing; }
 .lcf-reset { display: block; width: 100%; margin-top: 6px; border: 0; background: none; padding: 4px; font: inherit; font-size: 12px; color: #8e8e93; cursor: pointer; text-decoration: underline; }
 .lcf-btn.on { background: #1c1c1e; }
-.lcf-btn em { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; animation: lcfPop .3s ease; }
+.lcf-btn em { position: absolute; z-index: 3 !important; top: -9px; right: -9px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; animation: lcfPop .3s ease; }
 .lcf-x { font-size: 28px; line-height: 1; font-weight: 300; }
 .lcf-panel { position: fixed; z-index: 9998; right: 18px; bottom: calc(var(--lcf-b) + 70px); width: min(340px, calc(100vw - 36px)); background: rgba(255,255,255,.97); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
   border-radius: 22px; box-shadow: 0 24px 60px -20px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.05); padding: 12px; animation: lcfUp .25s cubic-bezier(.2,.9,.3,1.1); transform-origin: bottom right; }
@@ -476,6 +478,7 @@ const CSS = `
   border-radius: 0; display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; overflow-y: auto; animation: lcfSheet .25s ease; background: #fff; }
 .lcf-panel.sheet .lcf-h { flex: none; }
 .lcf-panel.sheet .lsm { flex: 1; min-height: 0; }
+.lcf.kb .lcf-panel.sheet { padding-bottom: 6px !important; } /* keyboard up: the typing box sits right on it */
 .lcf-panel.sheet .lsm-msgs { flex: 1; height: auto; min-height: 120px; }
 .lcf-panel.sheet .lcf-guest { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .lcf-panel.sheet .lcf-own { margin-top: auto; padding-top: 8px; }

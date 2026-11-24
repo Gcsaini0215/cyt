@@ -193,6 +193,7 @@ export default function ChatApp({ role }) {
       let bottom;
       // iOS slides the whole page up when the keyboard opens — put it back; the chat fits above the keyboard instead
       if (keyboard && vv.offsetTop > 0) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
+      document.documentElement.classList.toggle("lc-kb", !!keyboard);
       if (keyboard) {
         // typing: end right above the keyboard; keep the header in sight if the screen slid up
         top = Math.max(top, Math.round(vv.offsetTop));
@@ -224,7 +225,7 @@ export default function ChatApp({ role }) {
       window.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("scroll", fit);
-      html.classList.remove("lc-lock");
+      html.classList.remove("lc-lock", "lc-kb");
       body.style.cssText = prev;
     };
   }, [consent, active]);
@@ -816,6 +817,8 @@ html.lc-has-nav.lc-nav-min .lc-comp { padding-bottom: calc(24px + env(safe-area-
   background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
 .lc-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
 
+/* keyboard up: the typing box sits right on the keyboard — no home-indicator gap (owner, 2026-11-24) */
+html.lc-kb .lc .lc-comp { padding-bottom: 8px !important; }
 `;
 
 const W_CSS = AV_CSS + `

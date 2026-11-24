@@ -18,7 +18,6 @@ import FeelBetter from "../components/home/feel-better";
 const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
 import FindByLocation from "../components/home/find-by-location";
 import LeadCard from "../components/global/lead-card";
-import MobileActionBar from "../components/global/mobile-action-bar";
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
@@ -509,7 +508,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
       }} />
       <BookingPopup showHeading={false} showLocation={false} showSource={false}
         title="Find the right psychologist" sourceTag="Popup · Home" />
-      <MobileActionBar noida />
+      {/* the phone bottom bar (Call / Noida / Get matched) moved into the chat as quick answers (owner, 2026-11-24) */}
     </div>
   );
 }

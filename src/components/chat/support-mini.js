@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { apiUrl } from "../../utils/url";
 import { fetchById, postData } from "../../utils/actions";
 import ClearSheet from "./clear-sheet";
+import QuickAnswers from "./quick-answers";
 
 /* The CYT Care Team chat inside the floating widget, on any page of the website (2026-11-23, owner).
    Signed-in clients write straight to the team (admin → Live Chats → Care Team); every message carries the page
@@ -10,7 +11,7 @@ import ClearSheet from "./clear-sheet";
 const API = `${apiUrl}/live-chat`;
 const time = (d) => new Date(d).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }).toLowerCase();
 
-export default function SupportMini({ page, onOpenAll, head, initial, onSent }) {
+export default function SupportMini({ page, onOpenAll, head, initial, onSent, onCta }) {
   const [consent, setConsent] = useState(null);
   const [tid, setTid] = useState(null);
   const [msgs, setMsgs] = useState(null);
@@ -123,6 +124,7 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent }) 
       <div className="lsm-msgs" ref={box} onScroll={(e) => { if (e.currentTarget.scrollTop < 40 && more && !loadingMore) loadEarlier(); }}>
         {more && <button type="button" className="lsm-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
         <div className="lsm-row in"><p className="lsm-bub">Hi 👋 Not sure who to talk to? Tell us a little about what&apos;s going on — we&apos;ll help you find the right therapist.</p></div>
+        <QuickAnswers onCta={onCta} />
         {msgs === null ? <p className="lsm-muted">Loading…</p> : msgs.map((m) => (
           m.fromRole === "system" ? (
             <p key={m._id} className={`lsm-sys${m.kind === "crisis-help" ? " bad" : ""}`}>{m.body}</p>

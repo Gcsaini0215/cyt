@@ -57,7 +57,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
       setPhone(mq.matches);
       const v = window.visualViewport;
 
-      setVv(v ? { h: Math.round(v.height), t: Math.round(v.offsetTop) } : null);
+      setVv(v ? { h: Math.round(v.height), t: Math.round(v.offsetTop), kb: window.innerHeight - v.height > 150 } : null);
     };
     fit();
     window.visualViewport?.addEventListener("resize", fit);
@@ -220,7 +220,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
       <style>{CSS}</style>
       {phone && <div className="pc-under" aria-hidden="true" />}
       {!phone && <div className="pc-scrim" onClick={onClose} aria-hidden="true" />}
-      <div className={`pc${phone ? " phone" : ""}`} style={sheetStyle} role="dialog" aria-modal="true" aria-label={`Chat with ${name || "the therapist"}`}>
+      <div className={`pc${phone ? " phone" : ""}${vv?.kb ? " kb" : ""}`} style={sheetStyle} role="dialog" aria-modal="true" aria-label={`Chat with ${name || "the therapist"}`}>
         <header className="pc-h">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <span className="pc-av">{av ? <img src={av} alt="" /> : (name || "?").slice(0, 1)}</span>
@@ -264,6 +264,7 @@ const CSS = `
 .pc .pc-why { margin: 6px 0 4px; font-size: 13px; color: #6e6e73; }
 .pc-comp { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 8px 12px 12px; border-top: 1px solid rgba(60,60,67,.1); background: #fff; }
 .pc.phone .pc-comp { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+.pc.phone.kb .pc-comp { padding-bottom: 8px; } /* keyboard up: right on top of it */
 .pc .pc-comp textarea, .pc .pc-comp input { flex: 1; min-width: 0; resize: none; max-height: 110px; min-height: 40px; border: 1px solid #d1d1d6; border-radius: 20px; padding: 9px 14px; font: inherit; font-size: 16px; line-height: 1.35; background: #fff; outline: none; box-sizing: border-box; }
 .pc .pc-comp button { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #34c759; color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; margin-bottom: 1px; }
 .pc .pc-comp button:disabled { background: #c7c7cc; }
