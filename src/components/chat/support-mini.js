@@ -127,8 +127,6 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
     <div className="lsm">
       <div className="lsm-msgs" ref={box} onScroll={(e) => { if (e.currentTarget.scrollTop < 40 && more && !loadingMore) loadEarlier(); }}>
         {more && <button type="button" className="lsm-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
-        <div className="lsm-row in"><p className="lsm-bub">Hi 👋 Not sure who to talk to? Tell us a little about what&apos;s going on — we&apos;ll help you find the right therapist.</p></div>
-        <QuickAnswers onCta={onCta} />
         {assigned && (
           <div className="lsm-conn">
             <b>You&apos;re connected with {assigned.name} 🎉</b>
@@ -137,6 +135,8 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
             {tid && <button type="button" className="lsm-old" onClick={() => onOpenAll(tid)}>Earlier chat with the Care Team — in Messages ›</button>}
           </div>
         )}
+        <div className="lsm-row in"><p className="lsm-bub">Hi 👋 Not sure who to talk to? Tell us a little about what&apos;s going on — we&apos;ll help you find the right therapist.</p></div>
+        <QuickAnswers onCta={onCta} />
         {msgs === null ? <p className="lsm-muted">Loading…</p> : (assigned?.at ? msgs.filter((m) => new Date(m.createdAt) > new Date(assigned.at)) : msgs).map((m) => (
           m.fromRole === "system" ? (
             <p key={m._id} className={`lsm-sys${m.kind === "crisis-help" ? " bad" : ""}`}>{m.body}</p>
