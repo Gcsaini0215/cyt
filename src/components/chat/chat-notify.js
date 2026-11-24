@@ -196,6 +196,8 @@ export default function ChatNotifier() {
     // reconnected: the open widget fetches what it missed, the count is fetched again
     let hellos = 0;
     es.addEventListener("hello", () => { if (hellos++ > 0 || conn > 0) { loadUnread(); window.dispatchEvent(new Event("cyt-chat-resync")); } });
+    // edits / reactions / ratings: the Care Team chat in the widget updates (owner, 2026-11-25)
+    for (const ev of ["edited", "react", "rated"]) es.addEventListener(ev, (e) => window.dispatchEvent(new CustomEvent("cyt-chat-evt", { detail: { type: ev, data: JSON.parse(e.data || "{}") } })));
     es.addEventListener("typing", (e) => { const d = JSON.parse(e.data || "{}"); if (d.threadId) window.dispatchEvent(new CustomEvent("cyt-chat-typing", { detail: d })); });
     es.addEventListener("message", (e) => {
       const { threadId, message } = JSON.parse(e.data || "{}");
@@ -547,4 +549,12 @@ const CSS = `
 .lsm-dots i { width: 7px; height: 7px; border-radius: 50%; background: #8e8e93; animation: lsmDot 1.2s infinite ease-in-out; }
 .lsm-dots i:nth-child(2) { animation-delay: .15s; } .lsm-dots i:nth-child(3) { animation-delay: .3s; }
 @keyframes lsmDot { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+/* widget: quote, edited, reactions, rating (owner, 2026-11-25) */
+.lsm-quote { display: block; margin: 0 0 4px; padding: 4px 8px; border-left: 3px solid #0a84ff; border-radius: 6px; background: rgba(0,0,0,.06); font-size: 12px; opacity: .9; }
+.lsm-row.me .lsm-quote { background: rgba(255,255,255,.22); border-left-color: #fff; }
+.lsm-edited { display: block; font-size: 10px; opacity: .7; text-align: right; }
+.lsm-reacts { display: flex; gap: 4px; margin: -2px 6px 4px; font-size: 12.5px; } .lsm-reacts.me { justify-content: flex-end; }
+.lsm-reacts span { border: 1px solid #e5e5ea; background: #fff; border-radius: 999px; padding: 0 6px; }
+.lsm-rate { margin: 8px auto; padding: 10px 12px; border-radius: 14px; background: #f2f2f7; text-align: center; font-size: 13px; color: #3c3c43; }
+.lsm-rate div { margin-top: 4px; } .lsm-rate button { border: 0; background: none; font-size: 26px; color: #d1d1d6; cursor: pointer; padding: 0 2px; } .lsm-rate button.on { color: #ffcc00; }
 `;

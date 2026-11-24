@@ -76,6 +76,23 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
     return () => { window.__lcMini = null; };
   }, [tid]);
 
+  // edits / reactions / ratings arrive live (chat-notify.js passes them on)
+  useEffect(() => {
+    if (!tid) return undefined;
+    const f = (e) => {
+      const { type, data } = e.detail || {};
+      if (!data || data.threadId !== tid) return;
+      const id = type === "edited" ? data.message?._id : data.id;
+      setMsgs((x) => (x || []).map((m) => (m._id !== id ? m : type === "edited" ? { ...m, body: data.message.body, editedAt: data.message.editedAt } : type === "react" ? { ...m, reactions: data.reactions } : { ...m, meta: { ...(m.meta || {}), stars: data.stars } })));
+    };
+    window.addEventListener("cyt-chat-evt", f);
+    return () => window.removeEventListener("cyt-chat-evt", f);
+  }, [tid]);
+  const rate = async (m, stars) => {
+    setMsgs((x) => (x || []).map((y) => (y._id === m._id ? { ...y, meta: { ...(y.meta || {}), stars } } : y)));
+    try { await postData(`${API}/threads/${tid}/rate`, { stars }); } catch (x) { setErr(x?.response?.data?.message || "Couldn't save your rating"); }
+  };
+
   useEffect(() => {
     if (!tid) return undefined;
     const f = (e) => {
@@ -184,12 +201,21 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
         <QuickAnswers onCta={onCta} />
         {msgs === null ? <p className="lsm-muted">Loading…</p> : (assigned?.at ? msgs.filter((m) => new Date(m.createdAt) > new Date(assigned.at)) : msgs).map((m) => (
           m.fromRole === "system" ? (
-            <p key={m._id} className={`lsm-sys${m.kind === "crisis-help" ? " bad" : ""}`}>{m.body}</p>
+            m.kind === "rate" ? (
+              <div key={m._id} className="lsm-rate">{m.meta?.stars ? "Thanks for rating the CYT Care Team" : m.body}
+                <div>{[1, 2, 3, 4, 5].map((n) => <button type="button" key={n} className={n <= (m.meta?.stars || 0) ? "on" : ""} disabled={!!m.meta?.stars} onClick={() => rate(m, n)} aria-label={`${n} star${n > 1 ? "s" : ""}`}>★</button>)}</div>
+              </div>
+            ) : <p key={m._id} className={`lsm-sys${m.kind === "crisis-help" ? " bad" : ""}`}>{m.body}</p>
           ) : (
             <React.Fragment key={m._id}>
               <div className={`lsm-row${m.fromRole === "client" ? " me" : " in"}`}>
-                <p className={`lsm-bub${m.pending ? " sending" : ""}`} title={time(m.createdAt)}>{m.deleted ? <i>Message deleted</i> : m.body}</p>
+                <p className={`lsm-bub${m.pending ? " sending" : ""}`} title={time(m.createdAt)}>
+                  {m.replyTo && !m.deleted && <span className="lsm-quote">{m.replyTo.fromRole === "client" ? "You" : "CYT Care Team"}: {m.replyTo.body}</span>}
+                  {m.deleted ? <i>Message deleted</i> : m.body}
+                  {m.editedAt && !m.deleted && <span className="lsm-edited">edited</span>}
+                </p>
               </div>
+              {m.reactions && m.reactions.length > 0 && !m.deleted && <div className={`lsm-reacts${m.fromRole === "client" ? " me" : ""}`}>{m.reactions.map((r, i) => <span key={i}>{r.emoji}</span>)}</div>}
               {m.pending && <p className="lsm-sending">Sending…</p>}
               {m.failed && (
                 <div className="lsm-fail">

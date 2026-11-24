@@ -152,6 +152,8 @@ function Alerts({ onClose }) {
 const DKEY = (id) => `cyt_chat_draft_${id}`;
 const saveDraft = (id, v) => { try { if (!id) return; if (v) localStorage.setItem(DKEY(id), v); else localStorage.removeItem(DKEY(id)); } catch { /* private mode */ } };
 const useIsoLayout = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const EMOJI = ["👍", "❤️", "😂", "🙏", "😮", "😢"];
+const groupReacts = (rs) => { const g = {}; (rs || []).forEach((r) => { g[r.emoji] = (g[r.emoji] || 0) + 1; }); return Object.entries(g); };
 
 export default function ChatApp({ role }) {
   const router = useRouter();
@@ -168,6 +170,14 @@ export default function ChatApp({ role }) {
   const [conn, setConn] = useState(0); // bumps → the live connection starts again (after the phone was locked / offline)
   const lastTyped = useRef(0);
   const restore = useRef(null); // keep the place on screen after older messages are added above
+  const [replyTo, setReplyTo] = useState(null); // the message being answered
+  const [editing, setEditing] = useState(null); // my message being changed
+  const [menu, setMenu] = useState(null); // long-press menu for a message
+  const [findOpen, setFindOpen] = useState(false);
+  const [fq, setFq] = useState("");
+  const [found, setFound] = useState(null);
+  const [hl, setHl] = useState(null); // message flashed after jumping to it
+  const press = useRef(null);
   const [err, setErr] = useState("");
   const [settings, setSettings] = useState(false);
   const [live, setLive] = useState(false);
@@ -287,6 +297,7 @@ export default function ChatApp({ role }) {
     let v = "";
     try { if (active) v = localStorage.getItem(DKEY(active)) || ""; } catch { /* ignore */ }
     setText(v); setNewCount(0); atBottom.current = true;
+    setReplyTo(null); setEditing(null); setMenu(null); setFindOpen(false); setFq(""); setFound(null);
   }, [active]);
   useIsoLayout(() => { const r = restore.current; if (r && r.el) { r.el.scrollTop = r.top + (r.el.scrollHeight - r.before); restore.current = null; } }, [conv]);
 
@@ -384,6 +395,10 @@ export default function ChatApp({ role }) {
       if (threadId === activeRef.current) fetchById(`${API}/threads/${threadId}`).then((r) => r?.status && setConv(r.data)).catch(() => {});
       loadThreads();
     });
+    const patchMsg = (threadId, id, fn) => { if (threadId === activeRef.current) setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === id ? fn(m) : m)) } : c)); };
+    es.addEventListener("edited", (e) => { const { threadId, message } = JSON.parse(e.data || "{}"); if (message) patchMsg(threadId, message._id, (m) => ({ ...m, body: message.body, editedAt: message.editedAt, masked: message.masked })); });
+    es.addEventListener("react", (e) => { const { threadId, id, reactions } = JSON.parse(e.data || "{}"); patchMsg(threadId, id, (m) => ({ ...m, reactions })); });
+    es.addEventListener("rated", (e) => { const { threadId, id, stars } = JSON.parse(e.data || "{}"); patchMsg(threadId, id, (m) => ({ ...m, meta: { ...(m.meta || {}), stars } })); });
     es.addEventListener("deleted", (e) => {
       const { threadId, id } = JSON.parse(e.data || "{}");
       if (threadId === activeRef.current) setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === id ? { ...m, deleted: true, body: "" } : m)) } : c));
@@ -393,8 +408,11 @@ export default function ChatApp({ role }) {
 
   // the bubble shows straight away ("Sending…"); no internet → "Not sent · Tap to retry", nothing is lost
   const send = async (body, retry) => {
+    if (editing && !retry) { saveEdit(); return; }
     const t = (retry ? retry.body : (body ?? text)).trim();
     if (!t || !active) return;
+    const quote = retry ? retry.replyTo : replyTo ? { id: replyTo._id, body: replyTo.body.slice(0, 140), fromRole: replyTo.fromRole } : undefined;
+    if (!retry) setReplyTo(null);
     const tid = active;
     const tmp = retry ? retry._id : `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setErr("");
@@ -402,10 +420,10 @@ export default function ChatApp({ role }) {
       setText(""); saveDraft(tid, "");
       const ta = typeof document !== "undefined" && document.querySelector(".lc-comp textarea"); if (ta) ta.style.height = "auto";
     }
-    setConv((c) => (c ? { ...c, messages: retry ? c.messages.map((m) => (m._id === tmp ? { ...m, pending: true, failed: false } : m)) : [...c.messages, { _id: tmp, pending: true, fromRole: role, kind: "text", body: t, createdAt: new Date().toISOString() }] } : c));
+    setConv((c) => (c ? { ...c, messages: retry ? c.messages.map((m) => (m._id === tmp ? { ...m, pending: true, failed: false } : m)) : [...c.messages, { _id: tmp, pending: true, fromRole: role, kind: "text", body: t, createdAt: new Date().toISOString(), ...(quote ? { replyTo: quote } : {}) }] } : c));
     scrollDown(true);
     try {
-      const r = await postData(`${API}/threads/${tid}/messages`, { text: t });
+      const r = await postData(`${API}/threads/${tid}/messages`, { text: t, ...(quote ? { replyTo: quote.id } : {}) });
       if (!r?.status) { const x = new Error("refused"); x.response = { status: 400, data: { message: r?.message } }; throw x; }
       const real = r.data.message;
       setConv((c) => { if (!c || activeRef.current !== tid) return c; const rest = c.messages.filter((m) => m._id !== tmp); return { ...c, messages: rest.some((m) => m._id === real._id) ? rest : [...rest, real] }; });
@@ -426,6 +444,57 @@ export default function ChatApp({ role }) {
       }
     }
   };
+  const saveEdit = async () => {
+    const m = editing, t = text.trim(); if (!m || !t) return;
+    try {
+      const r = await putData(`${API}/messages/${m._id}`, { text: t });
+      if (r?.status) { setConv((c) => (c ? { ...c, messages: c.messages.map((x) => (x._id === m._id ? { ...x, body: r.data.message.body, editedAt: r.data.message.editedAt } : x)) } : c)); setEditing(null); setText(""); saveDraft(active, ""); if (r.data.masked) setErr("Phone numbers, emails and outside links are hidden to keep your conversation safe on CYT."); }
+    } catch (e) { setErr(e?.response?.data?.message || "Couldn't edit"); }
+  };
+  const react = async (m, emoji) => {
+    setMenu(null);
+    try { const r = await postData(`${API}/messages/${m._id}/react`, { emoji }); if (r?.status) setConv((c) => (c ? { ...c, messages: c.messages.map((x) => (x._id === m._id ? { ...x, reactions: r.data.reactions } : x)) } : c)); }
+    catch (e) { setErr(e?.response?.data?.message || "Couldn't react"); }
+  };
+  const copyMsg = (m) => { setMenu(null); try { navigator.clipboard.writeText(m.body); } catch { /* ignore */ } };
+  const startEdit = (m) => { setMenu(null); setReplyTo(null); setEditing(m); setText(m.body); setTimeout(() => { const ta = document.querySelector(".lc-comp textarea"); if (ta) { ta.focus(); ta.style.height = "auto"; ta.style.height = `${Math.min(140, ta.scrollHeight)}px`; } }, 50); };
+  const startReply = (m) => { setMenu(null); setEditing(null); setReplyTo(m); setTimeout(() => { const ta = document.querySelector(".lc-comp textarea"); if (ta) ta.focus(); }, 50); };
+  const sendCard = async () => {
+    try {
+      const r = await postData(`${API}/threads/${active}/booking-card`, {});
+      if (r?.status) { setConv((c) => (c && !c.messages.some((m) => m._id === r.data.message._id) ? { ...c, messages: [...c.messages, r.data.message] } : c)); scrollDown(true); }
+    } catch (e) { setErr(e?.response?.data?.message || "Couldn't send the booking link"); }
+  };
+  const rate = async (m, stars) => {
+    setConv((c) => (c ? { ...c, messages: c.messages.map((x) => (x._id === m._id ? { ...x, meta: { ...(x.meta || {}), stars } } : x)) } : c));
+    try { await postData(`${API}/threads/${active}/rate`, { stars }); } catch (e) { setErr(e?.response?.data?.message || "Couldn't save your rating"); }
+  };
+  // jump to a message (search result / quote); older ones are loaded first if needed
+  const jumpTo = async (id) => {
+    setFindOpen(false);
+    const show = () => { const el = typeof document !== "undefined" && document.getElementById(`lcm-${id}`); if (!el) return false; el.scrollIntoView({ block: "center", behavior: "smooth" }); atBottom.current = false; setHl(id); setTimeout(() => setHl((h) => (h === id ? null : h)), 2200); return true; };
+    if (show()) return;
+    let c = conv;
+    for (let i = 0; i < 15 && c && c.more && !c.messages.some((m) => m._id === id); i++) {
+      const r = await fetchById(`${API}/threads/${active}`, { before: c.messages[0].createdAt }).catch(() => null);
+      if (!r?.status) break;
+      c = { ...c, more: r.data.more, messages: [...r.data.messages.filter((m) => !c.messages.some((x) => x._id === m._id)), ...c.messages] };
+    }
+    if (c) setConv(c);
+    setTimeout(show, 120);
+  };
+  useEffect(() => {
+    if (!findOpen || fq.trim().length < 2 || !active) { setFound(null); return undefined; }
+    const tm = setTimeout(() => fetchById(`${API}/threads/${active}/search`, { q: fq.trim() }).then((r) => setFound(r?.status ? r.data : [])).catch(() => setFound([])), 300);
+    return () => clearTimeout(tm);
+  }, [fq, findOpen, active]);
+  // long-press (or right-click) opens the menu; a swipe to the right replies
+  const touchFor = (m) => ({
+    onTouchStart: (e) => { const p = e.touches[0]; press.current = { id: m._id, x: p.clientX, y: p.clientY, t: setTimeout(() => { press.current = null; if (navigator.vibrate) try { navigator.vibrate(15); } catch { /* ignore */ } setMenu(m); }, 450) }; },
+    onTouchMove: (e) => { const g = press.current; if (!g) return; const p = e.touches[0]; const dx = p.clientX - g.x, dy = p.clientY - g.y; if (Math.abs(dx) > 10 || Math.abs(dy) > 10) clearTimeout(g.t); if (dx > 60 && Math.abs(dy) < 30) { press.current = null; if (!m.deleted && !m.pending && !m.failed) startReply(m); } },
+    onTouchEnd: () => { const g = press.current; if (g) clearTimeout(g.t); press.current = null; },
+    onContextMenu: (e) => { e.preventDefault(); setMenu(m); },
+  });
   const typed = (v) => {
     setText(v); saveDraft(active, v);
     // "typing…" for the other side, at most every 3 seconds
@@ -537,9 +606,22 @@ export default function ChatApp({ role }) {
                     <small>{typingIn[active] > Date.now() ? <span className="lc-typing">typing…</span> : other.online ? "Online now" : (role === "client" || isSupport) && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
                   <span className="lc-hr">
+                    <button type="button" className={`lc-clear lc-find${findOpen ? " on" : ""}`} onClick={() => { setFindOpen((v) => !v); setFq(""); setFound(null); }} aria-label="Search in this chat" title="Search in this chat"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 0 1 5.6 11.2l4.6 4.6-1.4 1.4-4.6-4.6A7 7 0 1 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" /></svg></button>
                     <button type="button" className="lc-clear" onClick={() => { setDelMode(true); setClearing(active); }} aria-label="Delete chat" title="Delete chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
                   </span>
                 </header>
+                {findOpen && (
+                  <div className="lc-findbar">
+                    <input autoFocus value={fq} onChange={(e) => setFq(e.target.value)} placeholder="Search this chat" autoComplete="off" aria-label="Search this chat" />
+                    {fq.trim().length >= 2 && (
+                      <div className="lc-found">
+                        {found === null ? <p>Searching…</p> : !found.length ? <p>No messages found</p> : found.map((f) => (
+                          <button type="button" key={f._id} onClick={() => jumpTo(f._id)}><b>{f.fromRole === role ? "You" : f.fromRole === "admin" ? "CYT Care Team" : other.name}</b><span>{f.body}</span><time>{dayLabel(f.createdAt)} {timeOf(f.createdAt)}</time></button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="lc-msgs" ref={scroller} onScroll={(e) => { const el = e.currentTarget; if (Date.now() > autoUntil.current) atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80; if (atBottom.current && newCount) setNewCount(0); if (el.scrollTop < 60 && conv.more && !loadingMore && Date.now() > autoUntil.current) loadEarlier(); }}>
                   {conv.more && <button type="button" className="lc-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
@@ -560,15 +642,33 @@ export default function ChatApp({ role }) {
                         <React.Fragment key={m._id}>
                           {stamp && <div className="lc-day"><b>{dayLabel(m.createdAt)}</b> {timeOf(m.createdAt)}</div>}
                           {m.fromRole === "system" ? (
-                            <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
+                            m.kind === "rate" ? (
+                              <div className="lc-rate">
+                                <span>{m.meta?.stars ? "Thanks for rating the CYT Care Team" : m.body}</span>
+                                <div role="radiogroup" aria-label="Rate the CYT Care Team">{[1, 2, 3, 4, 5].map((n) => <button type="button" key={n} className={n <= (m.meta?.stars || 0) ? "on" : ""} disabled={!!m.meta?.stars} onClick={() => rate(m, n)} aria-label={`${n} star${n > 1 ? "s" : ""}`}>★</button>)}</div>
+                              </div>
+                            ) : <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
                           ) : (
-                            <div className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}`}>
-                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}`} title={timeOf(m.createdAt)}>
+                            <div id={`lcm-${m._id}`} className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}${hl === m._id ? " hl" : ""}`}>
+                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${m.kind === "booking" ? " card" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
                                 {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
-                                {m.deleted ? <i>This message was deleted</i> : <p>{m.body}</p>}
-                                {canDel && <button type="button" className="lc-del" onClick={() => remove(m)} aria-label="Delete for everyone">×</button>}
+                                {m.replyTo && !m.deleted && (
+                                  <button type="button" className="lc-quote" onClick={() => jumpTo(m.replyTo.id)}><b>{m.replyTo.fromRole === role ? "You" : m.replyTo.fromRole === "admin" ? "CYT Care Team" : other.name}</b><span>{m.replyTo.body}</span></button>
+                                )}
+                                {m.deleted ? <i>This message was deleted</i> : m.kind === "booking" ? (
+                                  <div className="lc-bookcard">
+                                    <b>📅 Book a session with {m.meta?.name || other.name}</b>
+                                    <span>Pick a time that suits you — it takes a minute.</span>
+                                    {role === "client" ? <Link href={`/book/${m.meta?.therapistId || conv.thread.therapistId}`} className="lc-btn sm">Book a slot ›</Link> : <em>Booking link sent</em>}
+                                  </div>
+                                ) : <p>{m.body}</p>}
+                                {m.editedAt && !m.deleted && <small className="lc-edited">edited</small>}
+                                {!m.deleted && !m.pending && !m.failed && <button type="button" className="lc-more" onClick={() => setMenu(m)} aria-label="Message options">⋯</button>}
                               </div>
                             </div>
+                          )}
+                          {m.reactions && m.reactions.length > 0 && !m.deleted && (
+                            <div className={`lc-reacts${mine ? " me" : ""}`}>{groupReacts(m.reactions).map(([e, n]) => <button type="button" key={e} onClick={() => react(m, e)}>{e}{n > 1 ? ` ${n}` : ""}</button>)}</div>
                           )}
                           {m.pending && <div className="lc-receipt">Sending…</div>}
                           {m.failed && (
@@ -590,25 +690,47 @@ export default function ChatApp({ role }) {
                   <div className={`lc-note ${st.mode}`}>
                     <span>{st.note}</span>
                     {role === "client" && (st.mode !== "open") && <Link href={bookHref} className="lc-btn sm">Book a session</Link>}
+                    {role === "therapist" && !isSupport && st.mode !== "open" && <button type="button" className="lc-btn sm" onClick={sendCard}>📅 Send booking link</button>}
                   </div>
                 )}
                 {err && <div className="lc-err" role="alert">{err}</div>}
                 {st?.canSend && (
                   <>
                     {role === "therapist" && !isSupport && st.mode === "open" && !text && (
-                      <div className="lc-quick">{QUICK.map((x) => <button type="button" key={x} onClick={() => typed(x)}>{x}</button>)}</div>
+                      <div className="lc-quick"><button type="button" className="card" onClick={sendCard}>📅 Send booking link</button>{QUICK.map((x) => <button type="button" key={x} onClick={() => typed(x)}>{x}</button>)}</div>
+                    )}
+                    {(replyTo || editing) && (
+                      <div className="lc-replybar">
+                        <span><b>{editing ? "Editing your message" : `Replying to ${replyTo.fromRole === role ? "yourself" : replyTo.fromRole === "admin" ? "CYT Care Team" : other.name}`}</b>{(editing || replyTo).body}</span>
+                        <button type="button" onClick={() => { if (editing) { setText(""); } setEditing(null); setReplyTo(null); }} aria-label="Cancel">✕</button>
+                      </div>
                     )}
                     <form className="lc-comp" onSubmit={(e) => { e.preventDefault(); send(); }}>
                       <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
                         onChange={(e) => { typed(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
-                      <button type="submit" disabled={!text.trim()} aria-label="Send">Send</button>
+                      <button type="submit" disabled={!text.trim()} aria-label={editing ? "Save" : "Send"}>{editing ? "Save" : "Send"}</button>
                     </form>
                   </>
                 )}
               </>
             )}
           </section>
+        </div>
+      )}
+      {menu && conv && (
+        <div className="lc-scrim lc-menu-scrim" role="dialog" aria-label="Message options" onClick={(e) => e.target === e.currentTarget && setMenu(null)}>
+          <div className="lc-menu">
+            <p className="lc-menu-msg">{menu.kind === "booking" ? "📅 Booking link" : menu.body}</p>
+            <div className="lc-menu-emo">{EMOJI.map((e) => <button type="button" key={e} onClick={() => react(menu, e)} aria-label={`React ${e}`}>{e}</button>)}</div>
+            <div className="lc-menu-acts">
+              {st?.canSend && <button type="button" onClick={() => startReply(menu)}>↩ Reply</button>}
+              {menu.kind !== "booking" && <button type="button" onClick={() => copyMsg(menu)}>⧉ Copy</button>}
+              {menu.fromRole === role && ["text", "pre-question", "pre-answer"].includes(menu.kind || "text") && Date.now() - new Date(menu.createdAt).getTime() < 10 * 60000 && <button type="button" onClick={() => startEdit(menu)}>✎ Edit</button>}
+              {menu.fromRole === role && Date.now() - new Date(menu.createdAt).getTime() < 10 * 60000 && <button type="button" className="bad" onClick={() => { const m = menu; setMenu(null); remove(m); }}>🗑 Delete for everyone</button>}
+              <button type="button" className="cancel" onClick={() => setMenu(null)}>Cancel</button>
+            </div>
+          </div>
         </div>
       )}
       {clearing && (
@@ -936,6 +1058,49 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 @media (prefers-reduced-motion: reduce) { .lc-dots i { animation: none; opacity: .6; } }
 .lc-newmsg { position: sticky; bottom: 8px; align-self: center; z-index: 5; flex: none; margin-top: 8px; border: 0; border-radius: 999px; padding: 8px 16px; background: #0a84ff; color: #fff;
   font: inherit; font-size: 13.5px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.18); cursor: pointer; }
+/* Phase C (owner, 2026-11-25): quote, reactions, edited, menu, booking card, search, rating */
+.lc-bub { position: relative; -webkit-touch-callout: none; }
+.lc-quote { display: flex; flex-direction: column; gap: 1px; width: 100%; margin: 0 0 5px; padding: 5px 9px; border: 0; border-left: 3px solid #0a84ff; border-radius: 8px; background: rgba(0,0,0,.06); text-align: left; font: inherit; cursor: pointer; color: inherit; }
+.lc-row.me .lc-quote { background: rgba(255,255,255,.2); border-left-color: #fff; }
+.lc-quote b { font-size: 12px; } .lc-quote span { font-size: 12.5px; opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lc-edited { display: block; font-size: 10.5px; opacity: .7; text-align: right; margin-top: 1px; }
+.lc-more { position: absolute; top: 50%; transform: translateY(-50%); right: -30px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: #fff; color: #636366; box-shadow: 0 1px 3px rgba(0,0,0,.15); font-size: 15px; line-height: 1; cursor: pointer; opacity: 0; transition: opacity .15s; }
+.lc-row.me .lc-more { right: auto; left: -30px; }
+.lc-bub:hover .lc-more, .lc-more:focus-visible { opacity: 1; }
+@media (hover: none) { .lc-more { display: none; } }
+.lc-bub > .lc-del { display: none !important; }
+.lc-reacts { display: flex; gap: 4px; margin: -4px 14px 4px; } .lc-reacts.me { justify-content: flex-end; }
+.lc-reacts button { border: 1px solid #e5e5ea; background: #fff; border-radius: 999px; padding: 1px 7px; font: inherit; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.lc-row.hl .lc-bub { animation: lcHl 2s ease; } @keyframes lcHl { 0%, 60% { box-shadow: 0 0 0 3px #ffd60a; } 100% { box-shadow: none; } }
+.lc-bub.card { padding: 0 !important; overflow: hidden; }
+.lc-bookcard { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 220px; background: #fff; color: #1c1c1e; border: 1px solid #d1fae5; border-radius: inherit; }
+.lc-bookcard b { font-size: 15px; } .lc-bookcard span { font-size: 13px; color: #6e6e73; } .lc-bookcard em { font-size: 12px; color: #15803d; font-style: normal; font-weight: 700; }
+.lc-bookcard .lc-btn { align-self: flex-start; margin-top: 4px; }
+.lc-rate { margin: 10px auto; padding: 12px 16px; max-width: 300px; border-radius: 16px; background: #f2f2f7; text-align: center; }
+.lc-rate span { display: block; font-size: 13.5px; color: #3c3c43; margin-bottom: 6px; }
+.lc-rate button { border: 0; background: none; font-size: 30px; line-height: 1; color: #d1d1d6; cursor: pointer; padding: 0 3px; } .lc-rate button.on { color: #ffcc00; } .lc-rate button:disabled { cursor: default; }
+.lc-replybar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #f2f2f7; border-top: 1px solid rgba(60,60,67,.12); }
+.lc-replybar span { flex: 1; min-width: 0; display: flex; flex-direction: column; border-left: 3px solid #0a84ff; padding-left: 8px; font-size: 13px; color: #3c3c43; }
+.lc-replybar span b { font-size: 12px; color: #0a84ff; } .lc-replybar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lc-replybar button { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #e5e5ea; font-size: 13px; cursor: pointer; }
+.lc-quick button.card { background: #ecfdf3; border-color: #bbf7d0; color: #14532d; }
+.lc-findbar { position: relative; flex: none; padding: 8px 12px; background: #fff; border-bottom: 1px solid #eef1f0; z-index: 6; }
+.lc-findbar input { width: 100%; box-sizing: border-box; height: 38px; border: 0; border-radius: 10px; background: #eeeef0; padding: 0 12px; font: inherit; font-size: 16px; }
+.lc-found { position: absolute; left: 8px; right: 8px; top: 100%; max-height: 50vh; overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,.18); padding: 4px; }
+.lc-found p { margin: 10px; font-size: 13.5px; color: #8e8e93; }
+.lc-found button { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; width: 100%; padding: 9px 10px; border: 0; border-bottom: 1px solid #f2f2f7; background: none; text-align: left; font: inherit; cursor: pointer; }
+.lc-found button b { font-size: 12.5px; } .lc-found button time { font-size: 11px; color: #8e8e93; }
+.lc-found button span { grid-column: 1 / -1; font-size: 13.5px; color: #3c3c43; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lc-find.on { color: #0a84ff; }
+.lc-menu-scrim { align-items: end; padding: 0; }
+.lc-menu { width: 100%; max-width: 420px; margin: 0 auto; background: #fff; border-radius: 18px 18px 0 0; padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; }
+@media (min-width: 700px) { .lc-menu-scrim { align-items: center; } .lc-menu { border-radius: 18px; } }
+.lc-menu-msg { margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; background: #f2f2f7; font-size: 14px; max-height: 96px; overflow: hidden; }
+.lc-menu-emo { display: flex; justify-content: space-between; gap: 4px; margin-bottom: 10px; }
+.lc-menu-emo button { flex: 1; height: 46px; border: 0; border-radius: 12px; background: #f2f2f7; font-size: 24px; cursor: pointer; }
+.lc-menu-acts { display: flex; flex-direction: column; border-radius: 14px; overflow: hidden; background: #f2f2f7; }
+.lc-menu-acts button { height: 48px; border: 0; border-bottom: 1px solid #e5e5ea; background: #fff; text-align: left; padding: 0 16px; font: inherit; font-size: 16px; cursor: pointer; color: #1c1c1e; }
+.lc-menu-acts button.bad { color: #ff3b30; } .lc-menu-acts button.cancel { text-align: center; font-weight: 600; color: #0a84ff; border-bottom: 0; }
 `;
 
 const W_CSS = AV_CSS + `
