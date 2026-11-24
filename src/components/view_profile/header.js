@@ -269,13 +269,13 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         .ph-wl-form input:focus, .ph-wl-form select:focus { border-color: #14532d; background: #fff; }
 
         /* ── mobile sticky Book / Chat bar ── */
-        body.ph-has-sticky-cta { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
+        body.ph-has-sticky-cta { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
         .ph-sticky {
-          position: fixed; left: 0; right: 0; z-index: 99990;
-          display: flex; align-items: center; gap: 10px;
-          padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+          position: fixed; left: 10px; right: 10px; z-index: 99990; margin-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+          display: flex; align-items: center; gap: 10px; border-radius: 18px; border: 1px solid #e3ebe6 !important;
+          padding: 10px 10px 10px 14px;
           background: rgba(255,255,255,0.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-          border-top: 1px solid #e3ebe6; box-shadow: 0 -8px 24px rgba(15,61,36,0.12);
+          box-shadow: 0 12px 32px -12px rgba(15,61,36,0.4), 0 2px 6px rgba(15,61,36,0.06);
           transition: bottom 0.25s ease; animation: phStickyIn 0.3s ease;
         }
         @keyframes phStickyIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -502,7 +502,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                   </button>
                 </>
               )}
-              <AskButton therapistId={pageData._id} />
+              <AskButton therapistId={pageData._id} name={pageData.user?.name} photo={pageData.user?.profile || null} onBook={handleClick} />
               <div style={{ paddingTop: 4, borderTop: "1px solid #ecefec", marginTop: 2 }}>{shareRow}</div>
             </div>
           )}
@@ -519,7 +519,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               <div className="ph-sticky-fee"><b>{pageData.user?.name?.split(" ")[0] || "Therapist"}</b><small>{pageData.profile_type || "Therapist"}</small></div>
             );
           })()}
-          <AskButton therapistId={pageData._id} variant="icon" />
+          <AskButton therapistId={pageData._id} variant="icon" name={pageData.user?.name} photo={pageData.user?.profile || null} onBook={handleClick} />
           <button type="button" className="ph-sticky-book" onClick={handleClick}>Book Session</button>
         </div>,
         document.body
@@ -534,6 +534,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               return <small>{price && price !== "--" ? price : pageData.profile_type || "Therapist"}{nextSlot ? <> · Next: <span className="ph-sticky-next">{nextSlot.label}</span></> : null}</small>;
             })()}
           </div>
+          <AskButton therapistId={pageData._id} variant="round" name={pageData.user?.name} photo={pageData.user?.profile || null} onBook={handleClick} />
           <button type="button" className="ph-sticky-book" onClick={handleClick}>Book Session</button>
         </div>,
         document.body
