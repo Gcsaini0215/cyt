@@ -57,7 +57,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
       setPhone(mq.matches);
       const v = window.visualViewport;
 
-      setVv(v ? { h: Math.round(v.height), t: Math.round(v.offsetTop), kb: window.innerHeight - v.height > 150 } : null);
+      setVv(v ? { h: Math.round(v.height), t: Math.round(v.offsetTop), kb: !!((v && window.innerHeight - v.height > 150) || (v && /^(TEXTAREA|INPUT)$/.test(document.activeElement?.tagName || "") && window.matchMedia("(pointer: coarse)").matches && window.screen.height - v.height > 200)) } : null);
     };
     fit();
     window.visualViewport?.addEventListener("resize", fit);

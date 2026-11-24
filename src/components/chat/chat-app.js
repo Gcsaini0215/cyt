@@ -193,7 +193,7 @@ export default function ChatApp({ role }) {
       let bottom;
       // iOS slides the whole page up when the keyboard opens — put it back; the chat fits above the keyboard instead
       if (keyboard && vv.offsetTop > 0) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
-      document.documentElement.classList.toggle("lc-kb", !!keyboard);
+      document.documentElement.classList.toggle("lc-kb", !!((vv && window.innerHeight - vv.height > 150) || (vv && /^(TEXTAREA|INPUT)$/.test(document.activeElement?.tagName || "") && window.matchMedia("(pointer: coarse)").matches && window.screen.height - vv.height > 200)));
       if (keyboard) {
         // typing: end right above the keyboard; keep the header in sight if the screen slid up
         top = Math.max(top, Math.round(vv.offsetTop));
@@ -218,6 +218,8 @@ export default function ChatApp({ role }) {
     window.addEventListener("resize", fit);
     window.visualViewport?.addEventListener("resize", fit);
     window.visualViewport?.addEventListener("scroll", fit);
+    const fitLater = () => setTimeout(fit, 300);
+    document.addEventListener("focusin", fitLater); document.addEventListener("focusout", fitLater);
     window.__lcFit = fit;
     return () => {
       clearTimeout(t1); clearTimeout(t2);
@@ -225,6 +227,7 @@ export default function ChatApp({ role }) {
       window.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("scroll", fit);
+      document.removeEventListener("focusin", fitLater); document.removeEventListener("focusout", fitLater);
       html.classList.remove("lc-lock", "lc-kb");
       body.style.cssText = prev;
     };
@@ -828,7 +831,7 @@ html.lc-has-nav.lc-nav-min .lc-comp { padding-bottom: calc(24px + env(safe-area-
 .lc-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
 
 /* keyboard up: the typing box sits right on the keyboard — no home-indicator gap (owner, 2026-11-24) */
-html.lc-kb .lc .lc-comp { padding-bottom: 8px !important; }
+html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-nav.lc-nav-min .lc .lc-comp { padding-bottom: 8px !important; }
 `;
 
 const W_CSS = AV_CSS + `

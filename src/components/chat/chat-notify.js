@@ -260,7 +260,7 @@ export default function ChatNotifier() {
     const fit = () => {
       const el = rootRef.current; if (!el) return;
       if (vv && vv.offsetTop > 0 && window.innerHeight - vv.height > 150) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
-      el.classList.toggle("kb", !!(vv && window.innerHeight - vv.height > 150));
+      el.classList.toggle("kb", !!((vv && window.innerHeight - vv.height > 150) || (vv && /^(TEXTAREA|INPUT)$/.test(document.activeElement?.tagName || "") && window.matchMedia("(pointer: coarse)").matches && window.screen.height - vv.height > 200)));
       el.style.setProperty("--vvh", `${Math.round(vv ? vv.height : window.innerHeight)}px`);
       el.style.setProperty("--vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`);
     };
