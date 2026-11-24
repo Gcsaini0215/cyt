@@ -8,6 +8,8 @@ import { getToken } from "../../utils/jwt";
 import { soundOn, setSound, playChime, enablePush, pushState, iosNeedsInstall } from "./chat-notify";
 import ClearSheet from "./clear-sheet";
 import { isKeyboardUp, lockPagePan } from "./kb-lock";
+import VTick, { VTICK_CSS } from "./vtick";
+import { usePullRefresh, PullBar, settle, PTR_CSS } from "./pull-refresh";
 
 /* Live chat (2026-11-23) — one app for therapists (/therapists/messages) and clients (/client/messages).
    Desktop / iPad landscape: chat list + conversation side by side. Phones / iPad portrait: the list, then the
@@ -73,7 +75,7 @@ function Settings({ onClose }) {
   };
   return createPortal((
     <div className="lc-scrim" role="dialog" aria-modal="true" aria-label="Message settings" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <style>{CSS}</style>
+      <style>{CSS + VTICK_CSS + PTR_CSS}</style>
       <div className="lc-sheet">
         <button type="button" className="lc-x" onClick={onClose} aria-label="Close">×</button>
         <h3>Message settings</h3>
@@ -123,7 +125,7 @@ function Alerts({ onClose }) {
   const turnOn = async () => { setBusy(true); try { setPerm(await enablePush()); } catch { setPerm(pushState()); } setBusy(false); };
   return createPortal((
     <div className="lc-scrim" role="dialog" aria-modal="true" aria-label="Message alerts" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <style>{CSS}</style>
+      <style>{CSS + VTICK_CSS + PTR_CSS}</style>
       <div className="lc-sheet">
         <button type="button" className="lc-x" onClick={onClose} aria-label="Close">×</button>
         <h3>Message alerts</h3>
@@ -320,6 +322,9 @@ export default function ChatApp({ role }) {
       if (atBottom.current) scrollDown();
     }).catch(() => {});
   };
+  const listRef = useRef(null);
+  const listPull = usePullRefresh(listRef, () => settle(loadThreads()), threads !== null && consent === true);
+  const msgPull = usePullRefresh(scroller, () => settle(resync.current && resync.current()), !!conv);
   useEffect(() => {
     let hiddenAt = 0;
     const vis = () => { if (document.visibilityState === "hidden") { hiddenAt = Date.now(); return; } if (hiddenAt && Date.now() - hiddenAt > 3000) setConn((k) => k + 1); };
@@ -533,7 +538,7 @@ export default function ChatApp({ role }) {
   return (
     <div className={`lc${active ? " has-active" : ""}`} data-sm-skip="">
       {navMin && <button type="button" className="lc-navtab" onClick={showNav} aria-label="Show the menu"><i /></button>}
-      <style>{CSS}</style>
+      <style>{CSS + VTICK_CSS + PTR_CSS}</style>
       {consent === false ? <Consent role={role} onAgree={() => setConsent(true)} /> : (
         <div className="lc-app" ref={appRef}>
           {/* chat list */}
@@ -555,7 +560,8 @@ export default function ChatApp({ role }) {
               </div>
             )}
             <label className="lc-search"><span aria-hidden="true">⌕</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" aria-label="Search chats" /></label>
-            <div className="lc-items">
+            <div className="lc-items" ref={listRef}>
+              <PullBar {...listPull} />
               {threads === null ? <p className="lc-muted pad">Loading…</p> : !shown.length ? (
                 <div className="lc-empty">
                   <span aria-hidden="true">💬</span>
@@ -578,7 +584,7 @@ export default function ChatApp({ role }) {
                   <i className="lc-dot" aria-label={t.unread ? `${t.unread} unread` : undefined} />
                   <Avatar p={t.other} size={50} />
                   <span className="lc-item-m">
-                    <span className="lc-item-t"><b>{t.other.name}</b><time>{listTime(t.lastMessageAt)} <span aria-hidden="true">›</span></time></span>
+                    <span className="lc-item-t"><b>{t.other.name}{t.other.support ? <VTick kind="team" /> : role === "client" ? <VTick /> : null}</b><time>{listTime(t.lastMessageAt)} <span aria-hidden="true">›</span></time></span>
                     <span className="lc-item-p">{typingIn[t._id] > Date.now() ? <span className="lc-typing">typing…</span> : <>{t.lastFrom === role ? "You: " : ""}{t.preview || "…"}</>}</span>
                   </span>
                 </button>
@@ -602,7 +608,7 @@ export default function ChatApp({ role }) {
                   <button type="button" className="lc-back" onClick={() => { setActive(null); router.replace({ pathname: router.pathname }, undefined, { shallow: true }); }} aria-label="Back to chats"><span aria-hidden="true">‹</span> Back</button>
                   <div className="lc-conv-who">
                     <Avatar p={other} size={44} />
-                    <b>{other.name} <span aria-hidden="true">›</span></b>
+                    <b>{other.name}{other.support ? <VTick kind="team" /> : role === "client" ? <VTick /> : null} <span aria-hidden="true">›</span></b>
                     <small>{typingIn[active] > Date.now() ? <span className="lc-typing">typing…</span> : other.online ? "Online now" : (role === "client" || isSupport) && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
                   <span className="lc-hr">
@@ -624,8 +630,9 @@ export default function ChatApp({ role }) {
                 )}
 
                 <div className="lc-msgs" ref={scroller} onScroll={(e) => { const el = e.currentTarget; if (Date.now() > autoUntil.current) atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80; if (atBottom.current && newCount) setNewCount(0); if (el.scrollTop < 60 && conv.more && !loadingMore && Date.now() > autoUntil.current) loadEarlier(); }}>
+                  <PullBar {...msgPull} />
                   {conv.more && <button type="button" className="lc-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
-                  {conv.messages.length === 0 && <p className="lc-start">Say hello 👋 — {role === "client" ? "keep it short and simple." : "your reply goes to the client right away."}</p>}
+                  {conv.messages.length === 0 && <p className="lc-start">{isSupport ? "Write to the CYT Care Team 👋 — we reply every day, 9 AM – 9 PM." : <>Say hello 👋 — {role === "client" ? "keep it short and simple." : "your reply goes to the client right away."}</>}</p>}
                   {(() => {
                     const ms = conv.messages;
                     const lastMine = [...ms].reverse().find((x) => x.fromRole === role && !x.deleted && !x.pending && !x.failed);
@@ -762,7 +769,7 @@ export function MessagesWidget({ role }) {
   const unread = (threads || []).reduce((n, t) => n + (t.unread || 0), 0);
   return (
     <section className="chw">
-      <style>{W_CSS}</style>
+      <style>{W_CSS + VTICK_CSS}</style>
       <div className="chw-h">
         <span className="chw-ic" aria-hidden="true">💬</span>
         <b>Messages</b>
@@ -777,7 +784,7 @@ export function MessagesWidget({ role }) {
             <li key={t._id}>
               <Link href={`${href}?t=${t._id}`} className={t.unread ? "unread" : ""}>
                 <Avatar p={t.other} size={36} />
-                <span><b>{t.other.name}</b><small>{t.lastFrom === role ? "You: " : ""}{t.preview}</small></span>
+                <span><b>{t.other.name}{t.other.support ? <VTick kind="team" size={13} /> : role === "client" ? <VTick size={13} /> : null}</b><small>{t.lastFrom === role ? "You: " : ""}{t.preview}</small></span>
                 <time>{listTime(t.lastMessageAt)}</time>
                 {t.unread > 0 && <em className="lc-badge">{t.unread}</em>}
               </Link>
@@ -1112,6 +1119,8 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc .lc-msgs { overflow-x: hidden !important; }
 .lc-quick button { display: inline-flex !important; align-items: center; gap: 5px; line-height: 1 !important; padding-top: 0 !important; padding-bottom: 0 !important; }
 
+/* the last message in the chat list: one line with "…" (the second line was cut) — owner, 2026-11-25 */
+.lc .lc-item-p { display: block !important; -webkit-line-clamp: unset !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
 `;
 
 const W_CSS = AV_CSS + `

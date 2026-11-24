@@ -8,6 +8,8 @@ import SupportMini, { SM_CSS } from "./support-mini";
 import WidgetLogin from "./widget-login";
 import { isKeyboardUp, lockPagePan } from "./kb-lock";
 import QuickAnswers, { QA_CSS } from "./quick-answers";
+import VTick, { VTICK_CSS } from "./vtick";
+import { PTR_CSS } from "./pull-refresh";
 
 /* Message alerts (2026-11-23, owner):
    - In the app: a soft three-note chime (our own, made with Web Audio — not Apple's tone) + a banner at the top,
@@ -302,7 +304,7 @@ export default function ChatNotifier() {
     <div className="lcf-h lcf-team">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <span className="lcf-av cyt"><img src="/icons/cyt-icon-96.png" alt="" /></span>
-      <span className="lcf-m"><b>CYT Care Team</b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
+      <span className="lcf-m"><b>CYT Care Team<VTick kind="team" /></b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
       <span className="lcf-icons">
         {tid && onClear && <button type="button" className="lcf-ic" onClick={onClear} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>}
         {sndBtn}
@@ -339,7 +341,7 @@ export default function ChatNotifier() {
   if (!showFab && !toast) return null;
   return createPortal((
     <div className="lcf" ref={rootRef} style={{ "--lcf-b": `${bottom}px` }}>
-      <style>{CSS + SM_CSS + QA_CSS}</style>
+      <style>{CSS + SM_CSS + QA_CSS + VTICK_CSS + PTR_CSS}</style>
       {toast && (
         <button type="button" className={`lcn${showFab ? " at-fab" : ""}`} style={showFab ? anchor : undefined} onClick={() => go(toast.href)}>
           <span className="lcn-ic" aria-hidden="true">💬</span>
@@ -358,7 +360,7 @@ export default function ChatNotifier() {
                   <li key={t._id}><button type="button" className={t.unread ? "unread" : ""} onClick={() => go(`${base()}?t=${t._id}`)}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <span className="lcf-av">{t.other?.support ? <img src="/icons/cyt-icon-192.png" alt="" /> : photoSrc(t.other?.photo) ? <img src={photoSrc(t.other.photo)} alt="" /> : ini(t.other?.name)}</span>
-                    <span className="lcf-m"><b>{t.other?.name}</b><small>{t.lastFrom === role.current ? "You: " : ""}{t.preview}</small></span>
+                    <span className="lcf-m"><b>{t.other?.name}{t.other?.support ? <VTick kind="team" size={13} /> : null}</b><small>{t.lastFrom === role.current ? "You: " : ""}{t.preview}</small></span>
                     {t.unread > 0 && <em>{t.unread}</em>}
                   </button></li>
                 ))}</ul>

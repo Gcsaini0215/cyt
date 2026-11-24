@@ -3,6 +3,7 @@ import { apiUrl } from "../../utils/url";
 import { fetchById, postData } from "../../utils/actions";
 import ClearSheet from "./clear-sheet";
 import QuickAnswers from "./quick-answers";
+import { usePullRefresh, PullBar, settle } from "./pull-refresh";
 
 /* The CYT Care Team chat inside the floating widget, on any page of the website (2026-11-23, owner).
    Signed-in clients write straight to the team (admin → Live Chats → Care Team); every message carries the page
@@ -28,6 +29,7 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
   const [teamTyping, setTeamTyping] = useState(0); // "typing…" from the team, until (ms)
   const lastTyped = useRef(0);
   const box = useRef(null);
+  const pull = usePullRefresh(box, () => settle(setReloadKey((k) => k + 1), 700), msgs !== null);
   // back after the phone was locked: fetch what was missed (chat-notify.js says when)
   useEffect(() => { const f = () => setReloadKey((k) => k + 1); window.addEventListener("cyt-chat-resync", f); return () => window.removeEventListener("cyt-chat-resync", f); }, []);
   const end = () => requestAnimationFrame(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight; });
@@ -188,6 +190,7 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
     {headEl}
     <div className="lsm">
       <div className="lsm-msgs" ref={box} onScroll={(e) => { if (e.currentTarget.scrollTop < 40 && more && !loadingMore) loadEarlier(); }}>
+        <PullBar {...pull} />
         {more && <button type="button" className="lsm-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
         {assigned && (
           <div className="lsm-conn">

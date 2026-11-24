@@ -4,6 +4,8 @@ import { apiUrl, imagePath } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
 import { fetchById, postData } from "../../utils/actions";
 import WidgetLogin from "./widget-login";
+import VTick, { VTICK_CSS } from "./vtick";
+import { usePullRefresh, PullBar, settle, PTR_CSS } from "./pull-refresh";
 import { isKeyboardUp, lockPagePan } from "./kb-lock";
 
 /* Chat with a therapist right on their profile (owner, 2026-11-24): the 💬 on the profile opens this sheet instead of
@@ -40,6 +42,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
   const box = useRef(null);
   const sentPending = useRef(false);
   const end = () => requestAnimationFrame(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight; });
+  const pull = usePullRefresh(box, () => settle(tid ? fetchById(`${API}/threads/${tid}`).then((x) => { if (x?.status) { setSt(x.data.state); setMsgs(x.data.messages); } }) : null), !!tid && msgs !== null);
   const first = (name || "").split(" ")[0] || "the therapist";
 
   // who is here + a question picked before logging in (survives the login)
@@ -188,6 +191,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
     return (
       <>
         <div className="pc-msgs" ref={box}>
+          <PullBar {...pull} />
           {msgs === null ? <p className="pc-note">Loading…</p> : (
             <>
               {!msgs.length && <div className="pc-row in"><p className="pc-bub">Hi 👋 Ask {first} a quick question — tap one below or type your own.</p></div>}
@@ -220,14 +224,14 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
 
   return createPortal((
     <>
-      <style>{CSS}</style>
+      <style>{CSS + VTICK_CSS + PTR_CSS}</style>
       {phone && <div className="pc-under" aria-hidden="true" />}
       {!phone && <div className="pc-scrim" onClick={onClose} aria-hidden="true" />}
       <div className={`pc${phone ? " phone" : ""}${vv?.kb ? " kb" : ""}`} style={sheetStyle} role="dialog" aria-modal="true" aria-label={`Chat with ${name || "the therapist"}`}>
         <header className="pc-h">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <span className="pc-av">{av ? <img src={av} alt="" /> : (name || "?").slice(0, 1)}</span>
-          <span className="pc-who"><b>{name || "Therapist"}</b><small>{st?.hours ? `Replies ${st.hours}` : "Ask a quick question before you book"}</small></span>
+          <span className="pc-who"><b>{name || "Therapist"}<VTick /></b><small>{st?.hours ? `Replies ${st.hours}` : "Ask a quick question before you book"}</small></span>
           <button type="button" className="pc-x" onClick={onClose} aria-label="Close">×</button>
         </header>
         {body}

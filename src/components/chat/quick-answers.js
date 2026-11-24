@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { PHONE } from "../global/lead-card";
+import { ADDRESS, DIRECTIONS, MAP_EMBED } from "../contact/centre";
 
 /* Quick answers inside the Care Team chat (owner, 2026-11-24): the home page's bottom bar (Call us / Therapist @ Noida /
    Get matched) moved into the chat as one-tap questions. They're answered right away on this screen — no login,
@@ -16,6 +17,7 @@ const QA = [
     q: "📍 Do you have a therapist in Noida?",
     a: "Yes — you can meet a psychologist in person at our Noida centre in Sector 51. Pick a time on the Noida page.",
     cta: { label: "Book at the Noida centre", href: "/noida-appointment" },
+    map: true, // the centre on Google Maps, like the contact page (owner, 2026-11-25)
   },
   {
     q: "🤝 Help me find the right therapist",
@@ -35,6 +37,13 @@ export default function QuickAnswers({ onCta }) {
           <div className="qa-row in">
             <div className="qa-bub">
               <p>{QA[i].a}</p>
+              {QA[i].map && (
+                <div className="qa-map">
+                  <iframe src={MAP_EMBED} title="CYT Noida centre, Sector 51, on Google Maps" loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+                  <span>📍 {ADDRESS}</span>
+                  <a href={DIRECTIONS} target="_blank" rel="noopener noreferrer">Get directions ›</a>
+                </div>
+              )}
               {QA[i].cta.event ? (
                 <button type="button" className="qa-cta" onClick={() => { if (onCta) onCta(); setTimeout(() => window.dispatchEvent(new Event(QA[i].cta.event)), 60); }}>{QA[i].cta.label} ›</button>
               ) : QA[i].cta.ext ? (
@@ -64,6 +73,10 @@ export const QA_CSS = `
 .qa .qa-bub p { margin: 0; }
 .qa .qa-cta { display: inline-flex; align-items: center; margin-top: 8px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: #fff; color: #0a84ff !important;
   font: inherit; font-size: 13.5px; font-weight: 700; text-decoration: none !important; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.qa-map { margin-top: 8px; border-radius: 14px; overflow: hidden; background: #fff; }
+.qa-map iframe { display: block; width: 100%; height: 170px; border: 0; }
+.qa-map span { display: block; padding: 8px 10px 2px; font-size: 12.5px; color: #3c3c43; line-height: 1.35; }
+.qa-map a { display: inline-block; padding: 2px 10px 9px; font-size: 13px; font-weight: 700; color: #0a84ff !important; text-decoration: none !important; }
 .qa-chips { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .qa .qa-chips button { max-width: 92%; border: 1px solid #cfe0f7; background: #f4f8ff; color: #1d4ed8; border-radius: 18px; padding: 8px 12px; font: inherit; font-size: 13.5px; font-weight: 600; text-align: right; cursor: pointer; line-height: 1.3; }
 .qa .qa-chips button:hover { background: #e9f1ff; }
