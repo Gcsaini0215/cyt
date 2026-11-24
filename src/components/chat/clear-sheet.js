@@ -47,7 +47,7 @@ export default function ClearSheet({ threadId, otherName, onClose, onDone, remov
 }
 
 const CSS = `
-.lcs-scrim { position: fixed; inset: 0; z-index: 100002; display: flex; align-items: flex-end; justify-content: center; padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(0,0,0,.35); animation: lcsIn .2s ease; }
+.lcs-scrim { position: fixed; inset: 0; z-index: 2147483600; /* above the full-screen chat widget on phones (it sits at 2147483000) — owner, 2026-11-25 */ display: flex; align-items: flex-end; justify-content: center; padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(0,0,0,.35); animation: lcsIn .2s ease; }
 @media (min-width: 700px) { .lcs-scrim { align-items: center; } }
 .lcs { width: min(420px, 100%); display: flex; flex-direction: column; gap: 8px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; animation: lcsUp .28s cubic-bezier(.2,.9,.3,1.1); }
 .lcs-card { background: rgba(250,250,250,.96); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-radius: 16px; overflow: hidden; }

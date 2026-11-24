@@ -279,4 +279,11 @@ export const SM_CSS = `
 .lsm-conn button { margin-top: 6px; height: 38px; border: 0; border-radius: 12px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
 .lsm-conn button.lsm-old { height: auto; margin-top: 2px; padding: 4px 0; background: none; color: #0a84ff; font-size: 12.5px; font-weight: 600; text-align: left; }
 
+/* typing box like admin Live Chats (owner, 2026-11-25): white bar, rounded box with a light border, blue "Send" pill */
+.lsm .lsm-comp { background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-top: 1px solid #eef1f0 !important; padding-top: 10px !important; padding-left: 12px !important; padding-right: 12px !important; gap: 8px !important; align-items: flex-end !important; }
+.lsm .lsm-comp textarea { border: 1px solid #dfe6e2 !important; border-radius: 18px !important; background: #fff !important; padding: 9px 14px !important; min-height: 40px; box-sizing: border-box; font-size: 16px !important; line-height: 1.35; box-shadow: none !important; outline: none; }
+.lsm .lsm-comp textarea:focus { border-color: #94a3b8 !important; }
+.lsm .lsm-comp button[type="submit"] { position: static !important; flex: none; height: 40px !important; min-width: 0 !important; width: auto !important; padding: 0 18px !important; border: 0 !important; border-radius: 999px !important; background: #1d4ed8 !important; color: #fff !important; font: inherit; font-size: 15px !important; font-weight: 800 !important; display: inline-flex !important; align-items: center; justify-content: center; margin: 0 !important; cursor: pointer; }
+.lsm .lsm-comp button[type="submit"]:disabled { background: #b7c8ee !important; color: #fff !important; cursor: default; }
+
 `;

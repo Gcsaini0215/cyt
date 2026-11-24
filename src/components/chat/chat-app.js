@@ -650,7 +650,7 @@ export default function ChatApp({ role }) {
                             ) : <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
                           ) : (
                             <div id={`lcm-${m._id}`} className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}${hl === m._id ? " hl" : ""}`}>
-                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${m.kind === "booking" ? " card" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
+                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${m.kind === "booking" ? " lc-bubcard" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
                                 {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
                                 {m.replyTo && !m.deleted && (
                                   <button type="button" className="lc-quote" onClick={() => jumpTo(m.replyTo.id)}><b>{m.replyTo.fromRole === role ? "You" : m.replyTo.fromRole === "admin" ? "CYT Care Team" : other.name}</b><span>{m.replyTo.body}</span></button>
@@ -697,7 +697,7 @@ export default function ChatApp({ role }) {
                 {st?.canSend && (
                   <>
                     {role === "therapist" && !isSupport && st.mode === "open" && !text && (
-                      <div className="lc-quick"><button type="button" className="card" onClick={sendCard}>📅 Send booking link</button>{QUICK.map((x) => <button type="button" key={x} onClick={() => typed(x)}>{x}</button>)}</div>
+                      <div className="lc-quick"><button type="button" className="lc-bk" onClick={sendCard}>📅 Send booking link</button>{QUICK.map((x) => <button type="button" key={x} onClick={() => typed(x)}>{x}</button>)}</div>
                     )}
                     {(replyTo || editing) && (
                       <div className="lc-replybar">
@@ -1072,7 +1072,7 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc-reacts { display: flex; gap: 4px; margin: -4px 14px 4px; } .lc-reacts.me { justify-content: flex-end; }
 .lc-reacts button { border: 1px solid #e5e5ea; background: #fff; border-radius: 999px; padding: 1px 7px; font: inherit; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 .lc-row.hl .lc-bub { animation: lcHl 2s ease; } @keyframes lcHl { 0%, 60% { box-shadow: 0 0 0 3px #ffd60a; } 100% { box-shadow: none; } }
-.lc-bub.card { padding: 0 !important; overflow: hidden; }
+.lc-bub.lc-bubcard { padding: 0 !important; overflow: hidden; }
 .lc-bookcard { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 220px; background: #fff; color: #1c1c1e; border: 1px solid #d1fae5; border-radius: inherit; }
 .lc-bookcard b { font-size: 15px; } .lc-bookcard span { font-size: 13px; color: #6e6e73; } .lc-bookcard em { font-size: 12px; color: #15803d; font-style: normal; font-weight: 700; }
 .lc-bookcard .lc-btn { align-self: flex-start; margin-top: 4px; }
@@ -1083,7 +1083,7 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc-replybar span { flex: 1; min-width: 0; display: flex; flex-direction: column; border-left: 3px solid #0a84ff; padding-left: 8px; font-size: 13px; color: #3c3c43; }
 .lc-replybar span b { font-size: 12px; color: #0a84ff; } .lc-replybar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lc-replybar button { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #e5e5ea; font-size: 13px; cursor: pointer; }
-.lc-quick button.card { background: #ecfdf3; border-color: #bbf7d0; color: #14532d; }
+.lc-quick button.lc-bk { /* not "card": Bootstrap .card stacks it in a column */ background: #ecfdf3; border-color: #bbf7d0; color: #14532d; }
 .lc-findbar { position: relative; flex: none; padding: 8px 12px; background: #fff; border-bottom: 1px solid #eef1f0; z-index: 6; }
 .lc-findbar input { width: 100%; box-sizing: border-box; height: 38px; border: 0; border-radius: 10px; background: #eeeef0; padding: 0 12px; font: inherit; font-size: 16px; }
 .lc-found { position: absolute; left: 8px; right: 8px; top: 100%; max-height: 50vh; overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,.18); padding: 4px; }
@@ -1101,6 +1101,17 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc-menu-acts { display: flex; flex-direction: column; border-radius: 14px; overflow: hidden; background: #f2f2f7; }
 .lc-menu-acts button { height: 48px; border: 0; border-bottom: 1px solid #e5e5ea; background: #fff; text-align: left; padding: 0 16px; font: inherit; font-size: 16px; cursor: pointer; color: #1c1c1e; }
 .lc-menu-acts button.bad { color: #ff3b30; } .lc-menu-acts button.cancel { text-align: center; font-weight: 600; color: #0a84ff; border-bottom: 0; }
+/* typing box like admin Live Chats (owner, 2026-11-25): white bar, rounded box with a light border, blue "Send" pill */
+.lc .lc-comp { background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-top: 1px solid #eef1f0 !important; padding-top: 10px !important; padding-left: 12px !important; padding-right: 12px !important; gap: 8px !important; align-items: flex-end !important; }
+.lc .lc-comp textarea { border: 1px solid #dfe6e2 !important; border-radius: 18px !important; background: #fff !important; padding: 9px 14px !important; min-height: 40px; box-sizing: border-box; font-size: 16px !important; line-height: 1.35; box-shadow: none !important; outline: none; }
+.lc .lc-comp textarea:focus { border-color: #94a3b8 !important; }
+.lc .lc-comp button[type="submit"] { position: static !important; flex: none; height: 40px !important; min-width: 0 !important; width: auto !important; padding: 0 18px !important; border: 0 !important; border-radius: 999px !important; background: #1d4ed8 !important; color: #fff !important; font: inherit; font-size: 15px !important; font-weight: 800 !important; display: inline-flex !important; align-items: center; justify-content: center; margin: 0 !important; cursor: pointer; }
+.lc .lc-comp button[type="submit"]:disabled { background: #b7c8ee !important; color: #fff !important; cursor: default; }
+
+/* the message list never scrolls sideways (the "⋯" button sits just outside a bubble) */
+.lc .lc-msgs { overflow-x: hidden !important; }
+.lc-quick button { display: inline-flex !important; align-items: center; gap: 5px; line-height: 1 !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+
 `;
 
 const W_CSS = AV_CSS + `
