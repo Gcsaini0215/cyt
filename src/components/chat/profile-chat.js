@@ -4,6 +4,7 @@ import { apiUrl, imagePath } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
 import { fetchById, postData } from "../../utils/actions";
 import WidgetLogin from "./widget-login";
+import { isKeyboardUp, lockPagePan } from "./kb-lock";
 
 /* Chat with a therapist right on their profile (owner, 2026-11-24): the 💬 on the profile opens this sheet instead of
    leaving the page. Visitors pick a one-tap question (or type one), log in / sign up inside the sheet, and the question
@@ -57,7 +58,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
       setPhone(mq.matches);
       const v = window.visualViewport;
 
-      setVv(v ? { h: Math.round(v.height), t: Math.round(v.offsetTop), kb: !!((v && window.innerHeight - v.height > 150) || (v && /^(TEXTAREA|INPUT)$/.test(document.activeElement?.tagName || "") && window.matchMedia("(pointer: coarse)").matches && window.screen.height - v.height > 200)) } : null);
+      setVv(v ? { h: Math.round(v.height), t: Math.round(v.offsetTop), kb: isKeyboardUp(v) } : null);
     };
     fit();
     window.visualViewport?.addEventListener("resize", fit);
@@ -65,6 +66,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
     mq.addEventListener?.("change", fit);
     const b = document.body, y = window.scrollY, prev = b.style.cssText;
     if (mq.matches) { b.style.position = "fixed"; b.style.top = `-${y}px`; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%"; b.style.overflow = "hidden"; }
+    const unpan = mq.matches ? lockPagePan() : () => {}; // keyboard up: the screen doesn't slide / shake
     const k = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", k);
     return () => {
@@ -72,6 +74,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
       window.visualViewport?.removeEventListener("scroll", fit);
       mq.removeEventListener?.("change", fit);
       document.removeEventListener("keydown", k);
+      unpan();
       if (mq.matches) { b.style.cssText = prev; window.scrollTo(0, y); }
     };
   }, [onClose]);

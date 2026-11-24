@@ -7,6 +7,7 @@ import { apiUrl, imagePath } from "../../utils/url";
 import { getToken } from "../../utils/jwt";
 import { soundOn, setSound, playChime, enablePush, pushState, iosNeedsInstall } from "./chat-notify";
 import ClearSheet from "./clear-sheet";
+import { isKeyboardUp, lockPagePan } from "./kb-lock";
 
 /* Live chat (2026-11-23) — one app for therapists (/therapists/messages) and clients (/client/messages).
    Desktop / iPad landscape: chat list + conversation side by side. Phones / iPad portrait: the list, then the
@@ -193,7 +194,7 @@ export default function ChatApp({ role }) {
       let bottom;
       // iOS slides the whole page up when the keyboard opens — put it back; the chat fits above the keyboard instead
       if (keyboard && vv.offsetTop > 0) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
-      document.documentElement.classList.toggle("lc-kb", !!((vv && window.innerHeight - vv.height > 150) || (vv && /^(TEXTAREA|INPUT)$/.test(document.activeElement?.tagName || "") && window.matchMedia("(pointer: coarse)").matches && window.screen.height - vv.height > 200)));
+      document.documentElement.classList.toggle("lc-kb", isKeyboardUp(vv));
       if (keyboard) {
         // typing: end right above the keyboard; keep the header in sight if the screen slid up
         top = Math.max(top, Math.round(vv.offsetTop));
@@ -221,9 +222,11 @@ export default function ChatApp({ role }) {
     const fitLater = () => setTimeout(fit, 300);
     document.addEventListener("focusin", fitLater); document.addEventListener("focusout", fitLater);
     window.__lcFit = fit;
+    const unpan = lockPagePan(); // keyboard up: the screen doesn't slide / shake
     return () => {
       clearTimeout(t1); clearTimeout(t2);
       window.__lcFit = null;
+      unpan();
       window.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("scroll", fit);

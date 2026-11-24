@@ -6,6 +6,7 @@ import { getToken, getDecodedToken } from "../../utils/jwt";
 import { postData, fetchById } from "../../utils/actions";
 import SupportMini, { SM_CSS } from "./support-mini";
 import WidgetLogin from "./widget-login";
+import { isKeyboardUp, lockPagePan } from "./kb-lock";
 import QuickAnswers, { QA_CSS } from "./quick-answers";
 
 /* Message alerts (2026-11-23, owner):
@@ -260,7 +261,7 @@ export default function ChatNotifier() {
     const fit = () => {
       const el = rootRef.current; if (!el) return;
       if (vv && vv.offsetTop > 0 && window.innerHeight - vv.height > 150) { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; }
-      el.classList.toggle("kb", !!((vv && window.innerHeight - vv.height > 150) || (vv && /^(TEXTAREA|INPUT)$/.test(document.activeElement?.tagName || "") && window.matchMedia("(pointer: coarse)").matches && window.screen.height - vv.height > 200)));
+      el.classList.toggle("kb", isKeyboardUp(vv));
       el.style.setProperty("--vvh", `${Math.round(vv ? vv.height : window.innerHeight)}px`);
       el.style.setProperty("--vvt", `${Math.round(vv ? vv.offsetTop : 0)}px`);
     };
@@ -268,7 +269,9 @@ export default function ChatNotifier() {
     vv?.addEventListener("resize", fit); vv?.addEventListener("scroll", fit); window.addEventListener("resize", fit);
     const b = document.body, y = window.scrollY, prev = b.style.cssText;
     b.style.position = "fixed"; b.style.top = `-${y}px`; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%"; b.style.overflow = "hidden";
+    const unpan = lockPagePan(); // keyboard up: the screen doesn't slide / shake
     return () => {
+      unpan();
       vv?.removeEventListener("resize", fit); vv?.removeEventListener("scroll", fit); window.removeEventListener("resize", fit);
       b.style.cssText = prev; window.scrollTo(0, y);
     };
