@@ -152,6 +152,30 @@ function Alerts({ onClose }) {
   ), document.body);
 }
 
+// a review card's own little form: stars + a few words, posted right from the chat (owner, 2026-11-25)
+function ReviewForm({ m, onDone }) {
+  const [stars, setStars] = useState(0);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const post = async () => {
+    if (!stars) { setErr("Tap the stars first"); return; }
+    if (text.trim().length < 3) { setErr("Write a few words about your sessions"); return; }
+    setBusy(true); setErr("");
+    try { const r = await postData(`${API}/messages/${m._id}/review`, { stars, text: text.trim() }); if (r?.status) onDone(r.data.stars, r.data.text); else setErr(r?.message || "Couldn't post"); }
+    catch (e) { setErr(e?.response?.data?.message || "Couldn't post — try again"); }
+    setBusy(false);
+  };
+  return (
+    <div className="lc-rvform">
+      <div className="lc-rvstars" role="radiogroup" aria-label="Your rating">{[1, 2, 3, 4, 5].map((n) => <button type="button" key={n} className={n <= stars ? "on" : ""} onClick={() => setStars(n)} aria-label={`${n} star${n > 1 ? "s" : ""}`}>★</button>)}</div>
+      <textarea rows={2} maxLength={1000} value={text} onChange={(e) => setText(e.target.value)} placeholder="A few words about your sessions" aria-label="Your review" />
+      {err && <small className="lc-rverr">{err}</small>}
+      <button type="button" className="lc-btn sm" disabled={busy} onClick={post}>{busy ? "Posting…" : "Post review"}</button>
+    </div>
+  );
+}
+
 // what you were typing stays with each chat (this device only) until it's sent
 const DKEY = (id) => `cyt_chat_draft_${id}`;
 const saveDraft = (id, v) => { try { if (!id) return; if (v) localStorage.setItem(DKEY(id), v); else localStorage.removeItem(DKEY(id)); } catch { /* private mode */ } };
@@ -409,6 +433,7 @@ export default function ChatApp({ role }) {
     const patchMsg = (threadId, id, fn) => { if (threadId === activeRef.current) setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === id ? fn(m) : m)) } : c)); };
     es.addEventListener("edited", (e) => { const { threadId, message } = JSON.parse(e.data || "{}"); if (message) patchMsg(threadId, message._id, (m) => ({ ...m, body: message.body, editedAt: message.editedAt, masked: message.masked })); });
     es.addEventListener("react", (e) => { const { threadId, id, reactions } = JSON.parse(e.data || "{}"); patchMsg(threadId, id, (m) => ({ ...m, reactions })); });
+    es.addEventListener("reviewed", (e) => { const { threadId, id, stars, text } = JSON.parse(e.data || "{}"); patchMsg(threadId, id, (m) => ({ ...m, meta: { ...(m.meta || {}), reviewed: stars, reviewText: text } })); });
     es.addEventListener("rated", (e) => { const { threadId, id, stars } = JSON.parse(e.data || "{}"); patchMsg(threadId, id, (m) => ({ ...m, meta: { ...(m.meta || {}), stars } })); });
     es.addEventListener("deleted", (e) => {
       const { threadId, id } = JSON.parse(e.data || "{}");
@@ -695,9 +720,15 @@ export default function ChatApp({ role }) {
                                 )}
                                 {m.deleted ? <i>This message was deleted</i> : m.kind === "review" ? (
                                   <div className="lc-bookcard">
-                                    <b>⭐ {m.meta?.name || other.name} would love a short review</b>
-                                    <span>A few words about your sessions help others find the right support.</span>
-                                    {role === "client" ? <Link href={`/view-profile/${m.meta?.therapistId || conv.thread.therapistId}#write-review`} className="lc-btn sm">Write a review ›</Link> : <em>Review request sent</em>}
+                                    <div className="lc-thcard-p"><Avatar p={{ name: m.meta?.name || other.name, photo: m.meta?.photo }} size={46} /><span><b>{m.meta?.name || other.name}<VTick /></b><small>{m.meta?.title || "would love a short review"}</small></span></div>
+                                    {m.meta?.reviewed ? (
+                                      <div className="lc-rvdone"><b>{"★".repeat(m.meta.reviewed)}<i>{"★".repeat(5 - m.meta.reviewed)}</i></b>{m.meta.reviewText && <span>“{m.meta.reviewText}”</span>}<em>{role === "client" ? "Thank you — your review is on their profile" : "Review posted on your profile"}</em></div>
+                                    ) : role === "client" ? (
+                                      <>
+                                        <span>How were your sessions? A few words help others find the right support.</span>
+                                        <ReviewForm m={m} onDone={(stars, text) => setConv((c) => (c ? { ...c, messages: c.messages.map((x) => (x._id === m._id ? { ...x, meta: { ...(x.meta || {}), reviewed: stars, reviewText: text } } : x)) } : c))} />
+                                      </>
+                                    ) : <em>Review request sent</em>}
                                   </div>
                                 ) : m.kind === "tool" ? (
                                   <div className="lc-bookcard">
@@ -725,8 +756,8 @@ export default function ChatApp({ role }) {
                                   </div>
                                 ) : m.kind === "booking" ? (
                                   <div className="lc-bookcard">
-                                    <b>📅 Book a session with {m.meta?.name || other.name}</b>
-                                    <span>Pick a time that suits you — it takes a minute.</span>
+                                    <div className="lc-thcard-p"><Avatar p={{ name: m.meta?.name || other.name, photo: m.meta?.photo }} size={46} /><span><b>{m.meta?.name || other.name}<VTick /></b><small>{m.meta?.title || "Book a session"}</small></span></div>
+                                    <span>📅 Pick a time that suits you — it takes a minute.</span>
                                     {role === "client" ? <Link href={`/book/${m.meta?.therapistId || conv.thread.therapistId}`} className="lc-btn sm">Book a slot ›</Link> : <em>Booking link sent</em>}
                                   </div>
                                 ) : <p>{m.body}</p>}
@@ -1236,6 +1267,13 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc-thcard-p > span:not(.lc-av) { display: flex; flex-direction: column; min-width: 0; color: #1c1c1e; } .lc-thcard-p b { font-size: 15.5px; color: #1c1c1e; } .lc-thcard-p small { font-size: 12.5px; color: #6e6e73; }
 .lc-thcard-b { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; } .lc-thcard-b .lc-btn { margin-top: 0 !important; }
 .lc-btn.sm.ghost { background: #fff !important; color: #14532d !important; border: 1px solid #bbf7d0 !important; }
+/* review right in the chat (owner, 2026-11-25) */
+.lc-rvform { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.lc-rvstars button { border: 0; background: none; padding: 0 3px 0 0; font-size: 30px; line-height: 1; color: #d1d1d6; cursor: pointer; } .lc-rvstars button.on { color: #ffcc00; }
+.lc-rvform textarea { width: 100%; box-sizing: border-box; border: 1px solid #dfe6e2; border-radius: 12px; padding: 8px 10px; font: inherit; font-size: 16px; resize: none; background: #fff; color: #1c1c1e; }
+.lc-rvform .lc-btn { align-self: flex-start; } .lc-rverr { color: #b91c1c; font-size: 12.5px; }
+.lc-rvdone { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; } .lc-rvdone b { font-size: 20px; color: #ffcc00; letter-spacing: 1px; } .lc-rvdone b i { color: #d1d1d6; font-style: normal; }
+.lc-rvdone span { font-size: 13.5px; color: #3c3c43; } .lc-rvdone em { font-size: 12px; color: #15803d; font-style: normal; font-weight: 700; }
 `;
 
 const W_CSS = AV_CSS + `
