@@ -24,10 +24,10 @@ export const setSound = (on) => { try { localStorage.setItem(SOUND, on ? "1" : "
 let ctx = null;
 export function playChime() {
   if (!soundOn()) return;
-  // iPhone: let the short tone play even with the silent switch on, then hand the audio back (owner, 2026-11-24)
+  // iPhone: the tone follows the ring / silent switch like any notification (owner, 2026-11-25)
   try {
     if (navigator.audioSession) {
-      navigator.audioSession.type = "playback";
+      navigator.audioSession.type = "ambient"; // obeys the silent switch: phone on silent = no tone (owner, 2026-11-25)
       clearTimeout(window.__cytToneT);
       window.__cytToneT = setTimeout(() => { try { navigator.audioSession.type = "auto"; } catch (e) { /* ignore */ } }, 1500);
     }
