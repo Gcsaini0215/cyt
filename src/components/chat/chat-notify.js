@@ -221,6 +221,7 @@ export default function ChatNotifier() {
       timer.current = setTimeout(() => setToast(null), 6000);
     });
     es.addEventListener("read", loadUnread);
+    es.addEventListener("cleared", loadUnread); // a chat deleted / cleared: its unread count goes too
     // CYT connected this client with a therapist: the widget / Messages move to that chat (owner, 2026-11-24)
     es.addEventListener("assigned", (e) => {
       const d = JSON.parse(e.data || "{}");

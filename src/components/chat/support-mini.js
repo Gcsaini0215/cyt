@@ -218,7 +218,7 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
               <div key={m._id} className="lsm-row in"><div className="lsm-card">
                 {m.kind === "therapist" ? (
                   <>
-                    <div className="lsm-card-p">{m.meta?.photo ? <img src={/^https?:/.test(m.meta.photo) ? m.meta.photo : `${imagePath}/${m.meta.photo}`} alt="" /> : <i>{(m.meta?.name || "?").slice(0, 1)}</i>}<span><b>{m.meta?.name}<VTick size={13} /></b><small>{[m.meta?.title, m.meta?.place].filter(Boolean).join(" · ")}</small></span></div>
+                    <div className="lsm-card-p">{m.meta?.photo && !/pngegg|default/i.test(m.meta.photo) ? <img src={/^https?:/.test(m.meta.photo) ? m.meta.photo : `${imagePath}/${m.meta.photo}`} alt="" /> : <i>{(m.meta?.name || "?").slice(0, 1)}</i>}<span><b>{m.meta?.name}<VTick size={13} /></b><small>{[m.meta?.title, m.meta?.place].filter(Boolean).join(" · ")}</small></span></div>
                     <div className="lsm-card-b"><Link href={`/view-profile/${m.meta?.therapistId}`} className="ghost">View profile</Link><Link href={`/book/${m.meta?.therapistId}`}>Book ›</Link></div>
                   </>
                 ) : m.kind === "assessment" ? (
