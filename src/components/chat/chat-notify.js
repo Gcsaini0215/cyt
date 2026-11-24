@@ -458,7 +458,7 @@ const CSS = `
 .lcf-ring text { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; font-size: 9.6px; font-weight: 800; letter-spacing: .5px; fill: #14532d; text-transform: uppercase; }
 @keyframes lcfSpin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .lcf-ring { animation: none; } }
-.lcf-btn { isolation: isolate; } .lcf-btn > :not(.lcf-ring):not(.lcf-lbl) { position: relative; z-index: 1; } .lcf-btn > .lcf-lbl { z-index: 1; }
+.lcf-btn { isolation: isolate; } .lcf-btn > :not(.lcf-ring):not(.lcf-lbl):not(em) { position: relative; z-index: 1; } .lcf-btn > .lcf-lbl { z-index: 1; }
 .lcf-btn::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; z-index: 0; }
 
 .lcf .lcf-lbl { display: none; }
