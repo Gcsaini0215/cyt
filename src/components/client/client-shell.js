@@ -1,4 +1,4 @@
-import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import MsgIcon, { MSG_ICON_CSS } from "../chat/msg-icon";
 import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
@@ -29,21 +29,6 @@ import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
 
-// Messages in the top bar, with the unread count (chat-notify.js keeps it up to date)
-function MsgIcon() {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (typeof window.__cytUnread === "number") setN(window.__cytUnread);
-    const f = (e) => setN(Number(e.detail) || 0);
-    window.addEventListener("cyt-chat-unread", f);
-    return () => window.removeEventListener("cyt-chat-unread", f);
-  }, []);
-  return (
-    <Link href="/client/messages" className="cls-ic cls-msg" aria-label={n ? `Messages, ${n} unread` : "Messages"} title="Messages">
-      <ChatBubbleOutlineRoundedIcon />{n > 0 && <em className="cls-msg-n">{n > 9 ? "9+" : n}</em>}
-    </Link>
-  );
-}
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import { WalletChip } from "./wallet";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
@@ -309,7 +294,7 @@ export default function ClientShell({ title, children }) {
         <div className="cls-right">
           <WalletChip />
           <AppClock />
-          <MsgIcon />
+          <MsgIcon href="/client/messages" className="cls-ic cls-msg" />
           <ClientNotifications ready={ready} />
           <a href="/" className="cls-ic hide-sm" title="Go to website" aria-label="Go to website"><LanguageRoundedIcon /></a>
           <div className="cls-me" ref={menuRef}>
@@ -846,5 +831,6 @@ body:has(.cls)::before { content: ""; position: fixed; left: 0; right: 0; bottom
 @media (max-width: 380px) { .cls-right > a.cls-wallet { padding: 0 9px 0 7px !important; font-size: 12.5px; } }
 /* Messages icon in the top bar (owner, 2026-11-25) */
 .cls-msg { position: relative; display: grid !important; place-items: center; }
-.cls-msg-n { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; box-shadow: 0 0 0 2px #fff; }
+.cls-msg-n-old { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #ff3b30; color: #fff; font-style: normal; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; box-shadow: 0 0 0 2px #fff; }
+` + MSG_ICON_CSS + `
 `;

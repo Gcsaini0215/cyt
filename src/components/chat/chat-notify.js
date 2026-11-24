@@ -562,5 +562,9 @@ const CSS = `
 .lsm-rate { margin: 8px auto; padding: 10px 12px; border-radius: 14px; background: #f2f2f7; text-align: center; font-size: 13px; color: #3c3c43; }
 .lsm-rate div { margin-top: 4px; } .lsm-rate button { border: 0; background: none; font-size: 26px; color: #d1d1d6; cursor: pointer; padding: 0 2px; } .lsm-rate button.on { color: #ffcc00; }
 /* the client dashboard has Messages in its top bar — no floating button there (owner, 2026-11-25) */
-html.has-cls .lcf-btn, html.has-cls .lcf-ring { display: none !important; }
+html.has-cls .lcf-btn, html.has-cls .lcf-ring, html.has-tn .lcf-btn, html.has-tn .lcf-ring { display: none !important; }
+html.has-cls .lcn, html.has-tn .lcn { top: calc(var(--cls-h, 60px) + 6px + env(safe-area-inset-top, 0px)) !important; bottom: auto !important; left: auto !important; right: 12px !important;
+  transform: none !important; width: min(340px, calc(100vw - 24px)) !important; transform-origin: top right; }
+html.has-cls .lcn::after, html.has-tn .lcn::after { content: ""; position: absolute; top: -7px; bottom: auto !important; right: calc(var(--msg-ic-x, 76px) - 19px); width: 14px; height: 14px; background: #fff; transform: rotate(45deg); border-radius: 4px 0 0 0; box-shadow: -3px -3px 6px -4px rgba(0,0,0,.18); }
+html.has-tn .lcn { top: calc(64px + 6px + env(safe-area-inset-top, 0px)) !important; }
 `;

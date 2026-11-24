@@ -33,7 +33,7 @@ import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlin
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
-import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import MsgIcon, { MSG_ICON_CSS } from "../chat/msg-icon";
 
 const WIDE_KEY = "cyt_tsn_wide";
 // phones + touch tablets get the app shell (bottom bar, tile menu, no side rail) — same query in side-nav / main-layout CSS
@@ -78,6 +78,7 @@ function AppClock() {
    get an always-visible bottom bar. */
 export default function DashboardTopNav() {
   const { therapistInfo, fetchTherapistInfo, setNotificationCount } = useTherapistStore();
+  useEffect(() => { document.documentElement.classList.add("has-tn"); return () => document.documentElement.classList.remove("has-tn"); }, []);
   const router = useRouter();
   const pathname = router.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
@@ -323,9 +324,7 @@ export default function DashboardTopNav() {
         <div className="tn-right">
           <PlanChip />
           <AppClock />
-          <button type="button" className="tn-icon-btn tn-refresh" aria-label="Refresh" title="Refresh" onClick={(e) => {
-            const b = e.currentTarget; b.classList.add("spin"); setTimeout(() => window.location.reload(), 200);
-          }}><RefreshRoundedIcon /></button>
+          <MsgIcon href="/therapists/messages" className="tn-icon-btn tn-msg" />
           <button type="button" className="tn-icon-btn tn-search-ic" onClick={() => { setMSearch(true); setTimeout(() => searchRef.current?.focus(), 30); }} aria-label="Search pages" title="Search">
             <SearchRoundedIcon />
           </button>
@@ -947,4 +946,7 @@ html.cyt-sa, html.cyt-sa body { overscroll-behavior-y: none; }
 .tn-right > a.tn-wallet svg { font-size: 18px !important; color: #15803d; }
 .tn-right > a.tn-wallet.soon { background: #fff1e0 !important; color: #b45309 !important; } .tn-right > a.tn-wallet.soon svg { color: #d97706; }
 .tn-right > a.tn-wallet.off { background: #fde8e8 !important; color: #b42318 !important; } .tn-right > a.tn-wallet.off svg { color: #dc2626; }
+/* Messages beside the bell (owner, 2026-11-25) */
+.tn-msg { display: grid !important; }
+` + MSG_ICON_CSS + `
 `;
