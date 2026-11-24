@@ -10,6 +10,7 @@ import ClearSheet from "./clear-sheet";
 import { isKeyboardUp, lockPagePan } from "./kb-lock";
 import VTick, { VTICK_CSS } from "./vtick";
 import { pathOf as assessmentPath } from "../self-assessment/seo";
+import { DIRECTIONS as NOIDA_DIRECTIONS } from "../contact/centre";
 import { usePullRefresh, PullBar, settle, PTR_CSS } from "./pull-refresh";
 
 /* Live chat (2026-11-23) — one app for therapists (/therapists/messages) and clients (/client/messages).
@@ -687,7 +688,7 @@ export default function ChatApp({ role }) {
                             ) : <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
                           ) : (
                             <div id={`lcm-${m._id}`} className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}${hl === m._id ? " hl" : ""}`}>
-                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${["booking", "review", "tool", "assessment"].includes(m.kind) ? " lc-bubcard" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
+                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${["booking","review","tool","assessment","therapist","noida"].includes(m.kind) ? " lc-bubcard" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
                                 {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
                                 {m.replyTo && !m.deleted && (
                                   <button type="button" className="lc-quote" onClick={() => jumpTo(m.replyTo.id)}><b>{m.replyTo.fromRole === role ? "You" : m.replyTo.fromRole === "admin" ? "CYT Care Team" : other.name}</b><span>{m.replyTo.body}</span></button>
@@ -709,6 +710,18 @@ export default function ChatApp({ role }) {
                                     <b>📋 {m.meta?.title || "Assessment"}{m.meta?.short ? ` (${m.meta.short})` : ""}</b>
                                     <span>{m.meta?.price != null ? `₹${m.meta.price} · ` : ""}a clinical assessment with your report right after.</span>
                                     {role === "client" ? <Link href={`${assessmentPath(m.meta?.tool || "")}?mode=self`} className="lc-btn sm">Take the assessment ›</Link> : <em>Assessment sent</em>}
+                                  </div>
+                                ) : m.kind === "therapist" ? (
+                                  <div className="lc-bookcard lc-thcard">
+                                    <div className="lc-thcard-p"><Avatar p={{ name: m.meta?.name, photo: m.meta?.photo }} size={52} /><span><b>{m.meta?.name}<VTick /></b><small>{[m.meta?.title, m.meta?.place].filter(Boolean).join(" · ")}</small></span></div>
+                                    <span>Suggested for you by the CYT Care Team.</span>
+                                    <div className="lc-thcard-b"><Link href={`/view-profile/${m.meta?.therapistId}`} className="lc-btn sm ghost">View profile</Link><Link href={`/book/${m.meta?.therapistId}`} className="lc-btn sm">Book ›</Link></div>
+                                  </div>
+                                ) : m.kind === "noida" ? (
+                                  <div className="lc-bookcard">
+                                    <b>📍 CYT Noida centre · Sector 51</b>
+                                    <span>Meet a psychologist in person — pick a time that suits you.</span>
+                                    <div className="lc-thcard-b"><Link href="/noida-appointment" className="lc-btn sm">Book at the centre ›</Link><a href={NOIDA_DIRECTIONS} target="_blank" rel="noopener noreferrer" className="lc-btn sm ghost">Directions</a></div>
                                   </div>
                                 ) : m.kind === "booking" ? (
                                   <div className="lc-bookcard">
@@ -817,7 +830,7 @@ export default function ChatApp({ role }) {
             <div className="lc-menu-emo">{EMOJI.map((e) => <button type="button" key={e} onClick={() => react(menu, e)} aria-label={`React ${e}`}>{e}</button>)}</div>
             <div className="lc-menu-acts">
               {st?.canSend && <button type="button" onClick={() => startReply(menu)}>↩ Reply</button>}
-              {!["booking", "review", "tool", "assessment"].includes(menu.kind) && <button type="button" onClick={() => copyMsg(menu)}>⧉ Copy</button>}
+              {!["booking","review","tool","assessment","therapist","noida"].includes(menu.kind) && <button type="button" onClick={() => copyMsg(menu)}>⧉ Copy</button>}
               {menu.fromRole === role && ["text", "pre-question", "pre-answer"].includes(menu.kind || "text") && Date.now() - new Date(menu.createdAt).getTime() < 10 * 60000 && <button type="button" onClick={() => startEdit(menu)}>✎ Edit</button>}
               {menu.fromRole === role && Date.now() - new Date(menu.createdAt).getTime() < 10 * 60000 && <button type="button" className="bad" onClick={() => { const m = menu; setMenu(null); remove(m); }}>🗑 Delete for everyone</button>}
               <button type="button" className="cancel" onClick={() => setMenu(null)}>Cancel</button>
@@ -1166,7 +1179,7 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc-row.hl .lc-bub { animation: lcHl 2s ease; } @keyframes lcHl { 0%, 60% { box-shadow: 0 0 0 3px #ffd60a; } 100% { box-shadow: none; } }
 .lc-bub.lc-bubcard { padding: 0 !important; overflow: hidden; }
 .lc-bookcard { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 220px; background: #fff; color: #1c1c1e; border: 1px solid #d1fae5; border-radius: inherit; }
-.lc-bookcard b { font-size: 15px; } .lc-bookcard span { font-size: 13px; color: #6e6e73; } .lc-bookcard em { font-size: 12px; color: #15803d; font-style: normal; font-weight: 700; }
+.lc-bookcard > b { font-size: 15px; } .lc-bookcard > span { font-size: 13px; color: #6e6e73; } .lc-bookcard em { font-size: 12px; color: #15803d; font-style: normal; font-weight: 700; }
 .lc-bookcard .lc-btn { align-self: flex-start; margin-top: 4px; }
 .lc-rate { margin: 10px auto; padding: 12px 16px; max-width: 300px; border-radius: 16px; background: #f2f2f7; text-align: center; }
 .lc-rate span { display: block; font-size: 13.5px; color: #3c3c43; margin-bottom: 6px; }
@@ -1219,6 +1232,10 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 .lc-kit-list button:disabled { opacity: .6; }
 .lc-kit-err { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: #fff1f0; color: #b91c1c; font-size: 13.5px; }
 .lc-kit-mut { margin: 12px; color: #8e8e93; font-size: 13.5px; }
+.lc-thcard-p { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+.lc-thcard-p > span:not(.lc-av) { display: flex; flex-direction: column; min-width: 0; color: #1c1c1e; } .lc-thcard-p b { font-size: 15.5px; color: #1c1c1e; } .lc-thcard-p small { font-size: 12.5px; color: #6e6e73; }
+.lc-thcard-b { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; } .lc-thcard-b .lc-btn { margin-top: 0 !important; }
+.lc-btn.sm.ghost { background: #fff !important; color: #14532d !important; border: 1px solid #bbf7d0 !important; }
 `;
 
 const W_CSS = AV_CSS + `

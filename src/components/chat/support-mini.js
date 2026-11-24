@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { apiUrl } from "../../utils/url";
+import { apiUrl, imagePath } from "../../utils/url";
+import Link from "next/link";
+import VTick from "./vtick";
+import { pathOf as assessmentPath } from "../self-assessment/seo";
+import { DIRECTIONS as NOIDA_DIRECTIONS } from "../contact/centre";
 import { fetchById, postData } from "../../utils/actions";
 import ClearSheet from "./clear-sheet";
 import QuickAnswers from "./quick-answers";
@@ -210,6 +214,28 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
               </div>
             ) : <p key={m._id} className={`lsm-sys${m.kind === "crisis-help" ? " bad" : ""}`}>{m.body}</p>
           ) : (
+            ["therapist", "assessment", "noida"].includes(m.kind) && !m.deleted ? (
+              <div key={m._id} className="lsm-row in"><div className="lsm-card">
+                {m.kind === "therapist" ? (
+                  <>
+                    <div className="lsm-card-p">{m.meta?.photo ? <img src={/^https?:/.test(m.meta.photo) ? m.meta.photo : `${imagePath}/${m.meta.photo}`} alt="" /> : <i>{(m.meta?.name || "?").slice(0, 1)}</i>}<span><b>{m.meta?.name}<VTick size={13} /></b><small>{[m.meta?.title, m.meta?.place].filter(Boolean).join(" · ")}</small></span></div>
+                    <div className="lsm-card-b"><Link href={`/view-profile/${m.meta?.therapistId}`} className="ghost">View profile</Link><Link href={`/book/${m.meta?.therapistId}`}>Book ›</Link></div>
+                  </>
+                ) : m.kind === "assessment" ? (
+                  <>
+                    <b>📋 {m.meta?.title}{m.meta?.short ? ` (${m.meta.short})` : ""}</b>
+                    <small>{m.meta?.price != null ? `₹${m.meta.price} · ` : ""}report right after</small>
+                    <div className="lsm-card-b"><Link href={`${assessmentPath(m.meta?.tool || "")}?mode=self`}>Take the assessment ›</Link></div>
+                  </>
+                ) : (
+                  <>
+                    <b>📍 CYT Noida centre · Sector 51</b>
+                    <small>Meet a psychologist in person</small>
+                    <div className="lsm-card-b"><Link href="/noida-appointment">Book at the centre ›</Link><a href={NOIDA_DIRECTIONS} target="_blank" rel="noopener noreferrer" className="ghost">Directions</a></div>
+                  </>
+                )}
+              </div></div>
+            ) : (
             <React.Fragment key={m._id}>
               <div className={`lsm-row${m.fromRole === "client" ? " me" : " in"}`}>
                 <p className={`lsm-bub${m.pending ? " sending" : ""}`} title={time(m.createdAt)}>
@@ -227,6 +253,7 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
                 </div>
               )}
             </React.Fragment>
+            )
           )
         ))}
         {teamTyping > Date.now() && <div className="lsm-row in"><p className="lsm-bub lsm-dots" aria-label="The Care Team is typing"><i /><i /><i /></p></div>}
@@ -289,4 +316,12 @@ export const SM_CSS = `
 .lsm .lsm-comp button[type="submit"] { position: static !important; flex: none; height: 40px !important; min-width: 0 !important; width: auto !important; padding: 0 18px !important; border: 0 !important; border-radius: 999px !important; background: #1d4ed8 !important; color: #fff !important; font: inherit; font-size: 15px !important; font-weight: 800 !important; display: inline-flex !important; align-items: center; justify-content: center; margin: 0 !important; cursor: pointer; }
 .lsm .lsm-comp button[type="submit"]:disabled { background: #b7c8ee !important; color: #fff !important; cursor: default; }
 
+/* cards from the Care Team (owner, 2026-11-25) */
+.lsm-card { max-width: 86%; display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 16px; background: #fff; border: 1px solid #d1fae5; }
+.lsm-card b { font-size: 14px; } .lsm-card small { font-size: 12.5px; color: #6e6e73; }
+.lsm-card-p { display: flex; align-items: center; gap: 9px; } .lsm-card-p img, .lsm-card-p i { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex: none; }
+.lsm-card-p i { display: grid; place-items: center; background: #e3f4e9; color: #14532d; font-style: normal; font-weight: 800; } .lsm-card-p span { display: flex; flex-direction: column; min-width: 0; }
+.lsm-card-b { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.lsm-card-b a { padding: 7px 12px; border-radius: 999px; background: #14532d; color: #fff !important; font-size: 13px; font-weight: 700; text-decoration: none !important; }
+.lsm-card-b a.ghost { background: #fff; color: #14532d !important; border: 1px solid #bbf7d0; }
 `;
