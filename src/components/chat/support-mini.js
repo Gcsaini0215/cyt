@@ -20,6 +20,9 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
   const [err, setErr] = useState("");
   const [clearing, setClearing] = useState(false);
   const [more, setMore] = useState(false);
+  const [assigned, setAssigned] = useState(null); // { thread, name, at } once CYT connected them with a therapist
+  const [reloadKey, setReloadKey] = useState(0);
+  useEffect(() => { const f = () => setReloadKey((k) => k + 1); window.addEventListener("cyt-chat-assigned", f); return () => window.removeEventListener("cyt-chat-assigned", f); }, []);
   const [loadingMore, setLoadingMore] = useState(false);
   const box = useRef(null);
   const end = () => requestAnimationFrame(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight; });
@@ -36,13 +39,14 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
         const t = await fetchById(`${API}/threads/${s.data.id}`);
         if (!live) return;
         setMsgs(Array.isArray(t?.data?.messages) ? t.data.messages : []);
+        setAssigned(t?.data?.thread?.assigned || null);
         setMore(!!t?.data?.more);
         end();
         postData(`${API}/threads/${s.data.id}/read`, {}).catch(() => {});
       } catch { if (live) { setErr("Couldn't open the chat — check your internet."); setMsgs([]); } }
     })();
     return () => { live = false; };
-  }, []);
+  }, [reloadKey]);
 
   // live messages for this chat land here (chat-notify.js asks before showing a pop-up)
   useEffect(() => {
@@ -125,7 +129,15 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent, on
         {more && <button type="button" className="lsm-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
         <div className="lsm-row in"><p className="lsm-bub">Hi 👋 Not sure who to talk to? Tell us a little about what&apos;s going on — we&apos;ll help you find the right therapist.</p></div>
         <QuickAnswers onCta={onCta} />
-        {msgs === null ? <p className="lsm-muted">Loading…</p> : msgs.map((m) => (
+        {assigned && (
+          <div className="lsm-conn">
+            <b>You&apos;re connected with {assigned.name} 🎉</b>
+            <span>Chat with them directly — they&apos;ll reply in your Messages.</span>
+            <button type="button" onClick={() => onOpenAll(assigned.thread)}>Chat with {assigned.name} ›</button>
+            {tid && <button type="button" className="lsm-old" onClick={() => onOpenAll(tid)}>Earlier chat with the Care Team — in Messages ›</button>}
+          </div>
+        )}
+        {msgs === null ? <p className="lsm-muted">Loading…</p> : (assigned?.at ? msgs.filter((m) => new Date(m.createdAt) > new Date(assigned.at)) : msgs).map((m) => (
           m.fromRole === "system" ? (
             <p key={m._id} className={`lsm-sys${m.kind === "crisis-help" ? " bad" : ""}`}>{m.body}</p>
           ) : (
@@ -179,5 +191,11 @@ export const SM_CSS = `
 .lsm-comp button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
   background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
 .lsm-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
+
+/* connected with a therapist (owner, 2026-11-24) */
+.lsm-conn { display: flex; flex-direction: column; gap: 4px; margin: 0 0 10px; padding: 12px; border-radius: 16px; background: #eefaf2; border: 1px solid #c9ead5; }
+.lsm-conn b { font-size: 14.5px; color: #14532d; } .lsm-conn span { font-size: 13px; color: #3c3c43; }
+.lsm-conn button { margin-top: 6px; height: 38px; border: 0; border-radius: 12px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
+.lsm-conn button.lsm-old { height: auto; margin-top: 2px; padding: 4px 0; background: none; color: #0a84ff; font-size: 12.5px; font-weight: 600; text-align: left; }
 
 `;

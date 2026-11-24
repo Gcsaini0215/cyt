@@ -305,6 +305,13 @@ export default function ChatApp({ role }) {
       if (threadId !== activeRef.current || by === role) return;
       setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m.fromRole === role && !m.readAt ? { ...m, readAt: at } : m)) } : c));
     });
+    es.addEventListener("assigned", (e) => {
+      const d = JSON.parse(e.data || "{}");
+      loadThreads();
+      // the Care Team chat (or nothing) is open: move straight to the new therapist chat
+      const cur = activeRef.current;
+      if (d.threadId && (!cur || cur === d.supportId)) { setActive(d.threadId); router.replace({ pathname: router.pathname, query: { t: d.threadId } }, undefined, { shallow: true }); }
+    });
     es.addEventListener("cleared", (e) => {
       const { threadId } = JSON.parse(e.data || "{}");
       if (threadId === activeRef.current) fetchById(`${API}/threads/${threadId}`).then((r) => r?.status && setConv(r.data)).catch(() => {});
@@ -315,7 +322,7 @@ export default function ChatApp({ role }) {
       if (threadId === activeRef.current) setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === id ? { ...m, deleted: true, body: "" } : m)) } : c));
     });
     return () => es.close();
-  }, [role, loadThreads, markRead]);
+  }, [role, loadThreads, markRead]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const send = async (body) => {
     const t = (body ?? text).trim();
@@ -438,7 +445,7 @@ export default function ChatApp({ role }) {
             ) : (
               <>
                 <header className="lc-conv-h">
-                  <button type="button" className="lc-back" onClick={() => { setActive(null); router.replace({ pathname: router.pathname }, undefined, { shallow: true }); }} aria-label="Back to chats">‹</button>
+                  <button type="button" className="lc-back" onClick={() => { setActive(null); router.replace({ pathname: router.pathname }, undefined, { shallow: true }); }} aria-label="Back to chats"><span aria-hidden="true">‹</span> Back</button>
                   <div className="lc-conv-who">
                     <Avatar p={other} size={44} />
                     <b>{other.name} <span aria-hidden="true">›</span></b>
@@ -806,9 +813,12 @@ html.lc-has-nav.lc-nav-min .lc-comp { padding-bottom: calc(24px + env(safe-area-
 }
 /* header: the person in the exact centre, whatever sits left / right (owner, 2026-11-24) */
 .lc-conv-h { position: relative; }
-.lc-conv-h .lc-conv-who { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100% - 130px); pointer-events: auto; }
-.lc.has-active .lc-conv-h { min-height: 74px; }
-.lc-hr { margin-left: auto; min-width: 44px; }
+.lc-conv-h .lc-back, .lc-conv-h .lc-hr { flex: 0 0 78px !important; width: 78px; min-width: 0; }
+.lc-conv-h .lc-conv-who { flex: 1 1 auto; min-width: 0; position: static; transform: none; padding: 2px 0; }
+.lc-conv-h { align-items: center; }
+.lc-conv-h .lc-back { display: inline-flex !important; align-items: center; gap: 2px; height: 36px; padding: 0; border-radius: 0; font-size: 16px !important; font-weight: 500 !important; color: #0a84ff; white-space: nowrap; }
+.lc-conv-h .lc-back span { font-size: 30px; font-weight: 300; line-height: 1; margin-top: -3px; }
+@media (min-width: 900px) and (orientation: landscape) { .lc-conv-h .lc-back { display: none !important; } .lc-conv-h .lc-hr { flex-basis: auto !important; width: auto; } }
 
 /* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
 .lc-comp { display: flex !important; align-items: flex-end; gap: 8px; }

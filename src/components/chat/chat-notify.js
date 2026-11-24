@@ -202,6 +202,16 @@ export default function ChatNotifier() {
       timer.current = setTimeout(() => setToast(null), 6000);
     });
     es.addEventListener("read", loadUnread);
+    // CYT connected this client with a therapist: the widget / Messages move to that chat (owner, 2026-11-24)
+    es.addEventListener("assigned", (e) => {
+      const d = JSON.parse(e.data || "{}");
+      if (!d.threadId) return;
+      window.dispatchEvent(new CustomEvent("cyt-chat-assigned", { detail: d }));
+      playChime();
+      setToast({ threadId: d.threadId, name: `You're connected with ${d.name || "a therapist"}`, body: "Tap to chat with them now", href: `${base()}?t=${d.threadId}` });
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setToast(null), 8000);
+    });
     return () => { es.close(); clearTimeout(timer.current); };
   }, [authTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
