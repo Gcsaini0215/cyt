@@ -803,6 +803,19 @@ html.lc-has-nav.lc-nav-min .lc-comp { padding-bottom: calc(24px + env(safe-area-
 @media (max-width: 600px) {
   .lc-bub { max-width: 84%; }
 }
+/* header: the person in the exact centre, whatever sits left / right (owner, 2026-11-24) */
+.lc-conv-h { position: relative; }
+.lc-conv-h .lc-conv-who { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100% - 130px); pointer-events: auto; }
+.lc.has-active .lc-conv-h { min-height: 74px; }
+.lc-hr { margin-left: auto; min-width: 44px; }
+
+/* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
+.lc-comp { display: flex !important; align-items: flex-end; gap: 8px; }
+.lc-comp textarea { flex: 1; min-width: 0; padding-right: 14px !important; }
+.lc-comp button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
+  background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
+.lc-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
+
 `;
 
 const W_CSS = AV_CSS + `
@@ -821,17 +834,5 @@ const W_CSS = AV_CSS + `
 .chw li b { font-size: 14px; } .chw li small { font-size: 12.5px; color: #6e6e73; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chw li a.unread b, .chw li a.unread small { font-weight: 800; color: #1c1c1e; }
 .chw li time { flex: none; font-size: 11.5px; color: #8e8e93; }
-/* header: the person in the exact centre, whatever sits left / right (owner, 2026-11-24) */
-.lc-conv-h { position: relative; }
-.lc-conv-h .lc-conv-who { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100% - 130px); pointer-events: auto; }
-.lc.has-active .lc-conv-h { min-height: 74px; }
-.lc-hr { margin-left: auto; min-width: 44px; }
-
-/* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
-.lc-comp { display: flex !important; align-items: flex-end; gap: 8px; }
-.lc-comp textarea { flex: 1; min-width: 0; padding-right: 14px !important; }
-.lc-comp button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
-  background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
-.lc-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
 
 `;
