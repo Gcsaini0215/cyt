@@ -275,7 +275,6 @@ export default function ChatNotifier() {
       <span className="lcf-av cyt"><img src="/icons/cyt-icon-96.png" alt="" /></span>
       <span className="lcf-m"><b>CYT Care Team</b><small>Usually replies within minutes · 9 AM – 9 PM</small></span>
       <span className="lcf-icons">
-        <button type="button" className={`lcf-ic sos${sos ? " on" : ""}`} onClick={() => setSos((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
         {tid && onClear && <button type="button" className="lcf-ic" onClick={onClear} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>}
         {sndBtn}
         <button type="button" className="lcf-ic x" onClick={() => setOpen(false)} aria-label="Close">×</button>
@@ -354,7 +353,7 @@ export default function ChatNotifier() {
                       {pos && <button type="button" className="lcf-reset" onClick={resetPos}>Move the chat button back to the corner</button>}
                       <form className="lcf-own" onSubmit={(e) => { e.preventDefault(); if (own.trim()) pick(own.trim().slice(0, 500)); }}>
                         <input autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-question" value={own} onChange={(e) => setOwn(e.target.value)} maxLength={500} placeholder="Or type your question…" aria-label="Your question" />
-                        <button type="submit" disabled={!own.trim()} aria-label="Next"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
+                        <button type="submit" disabled={!own.trim()} aria-label="Next">Send</button>
                       </form>
                     </>
                   ) : (
@@ -504,4 +503,11 @@ const CSS = `
 .lcn-x { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #eef2f0; color: #6e6e73; font-size: 17px; }
 @keyframes lcnIn { from { opacity: 0; transform: translate(-50%, -24px) scale(.96); } }
 @media (prefers-reduced-motion: reduce) { .lcn { animation: none; } }
+/* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
+.lcf .lcf-own { display: flex !important; align-items: flex-end; gap: 8px; }
+.lcf .lcf-own input { flex: 1; min-width: 0; padding-right: 14px !important; }
+.lcf .lcf-own button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
+  background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
+.lcf .lcf-own button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
+
 `;

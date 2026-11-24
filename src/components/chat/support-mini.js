@@ -138,10 +138,10 @@ export default function SupportMini({ page, onOpenAll, head, initial, onSent }) 
         <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder="Type your message…" aria-label="Message"
           onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(110, e.target.scrollHeight)}px`; }}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) send(e); }} />
-        <button type="submit" disabled={!text.trim() || busy} aria-label="Send"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
+        <button type="submit" disabled={!text.trim() || busy} aria-label="Send">Send</button>
       </form>
       {clearing && tid && (
-        <ClearSheet threadId={tid} otherName="The CYT Care Team" onClose={() => setClearing(false)}
+        <ClearSheet threadId={tid} remove otherName="The CYT Care Team" onClose={() => setClearing(false)}
           onDone={() => { setClearing(false); fetchById(`${API}/threads/${tid}`).then((t) => setMsgs(Array.isArray(t?.data?.messages) ? t.data.messages : [])).catch(() => {}); }} />
       )}
     </div>
@@ -171,4 +171,11 @@ export const SM_CSS = `
 .lsm-consent { padding: 4px 4px 2px; font-size: 13.5px; color: #3c3c43; }
 .lsm-consent b { font-size: 15px; color: #1c1c1e; } .lsm-consent ul { margin: 8px 0 12px; padding-left: 18px; display: grid; gap: 5px; line-height: 1.45; }
 .lsm-consent button { width: 100%; height: 42px; border: 0; border-radius: 13px; background: #34c759; color: #fff; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
+/* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
+.lsm-comp { display: flex !important; align-items: flex-end; gap: 8px; }
+.lsm-comp textarea { flex: 1; min-width: 0; padding-right: 14px !important; }
+.lsm-comp button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
+  background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
+.lsm-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
+
 `;

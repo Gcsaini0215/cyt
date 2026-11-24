@@ -165,7 +165,6 @@ export default function ChatApp({ role }) {
   const [swiped, setSwiped] = useState(null); // list row showing its Delete button
   const swipe = useRef(null);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [sosOpen, setSosOpen] = useState(false);
   const [askPush, setAskPush] = useState(false);
   const scroller = useRef(null);
   const appRef = useRef(null);
@@ -445,17 +444,8 @@ export default function ChatApp({ role }) {
                     <small>{other.online ? "Online now" : role === "client" && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
                   <span className="lc-hr">
-                    {role === "client" && <Link href={bookHref} className="lc-book">{isSupport ? "Find" : "Book"}</Link>}
-                    <button type="button" className={`lc-clear lc-sos${sosOpen ? " on" : ""}`} onClick={() => setSosOpen((v) => !v)} aria-label="In an emergency" title="In an emergency"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4.2L19.5 19h-15L12 6.2ZM11 10v4h2v-4h-2Zm0 6v2h2v-2h-2Z" /></svg></button>
-                    <button type="button" className="lc-clear" onClick={() => { setDelMode(false); setClearing(active); }} aria-label="Clear chat" title="Clear chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
+                    <button type="button" className="lc-clear" onClick={() => { setDelMode(true); setClearing(active); }} aria-label="Delete chat" title="Delete chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
                   </span>
-                  {sosOpen && (
-                    <div className="lc-sosp" role="note">
-                      <b>Not for emergencies</b>
-                      <span>If you or someone near you is in danger, call <a href="tel:112">112</a> or Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).</span>
-                      <button type="button" onClick={() => setSosOpen(false)} aria-label="Close">×</button>
-                    </div>
-                  )}
                 </header>
 
                 <div className="lc-msgs" ref={scroller} onScroll={(e) => { if (e.currentTarget.scrollTop < 60 && conv.more && !loadingMore) loadEarlier(); }}>
@@ -510,7 +500,7 @@ export default function ChatApp({ role }) {
                       <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
                         onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
-                      <button type="submit" disabled={!text.trim() || sending} aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
+                      <button type="submit" disabled={!text.trim() || sending} aria-label="Send">Send</button>
                     </form>
                   </>
                 )}
@@ -831,4 +821,17 @@ const W_CSS = AV_CSS + `
 .chw li b { font-size: 14px; } .chw li small { font-size: 12.5px; color: #6e6e73; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chw li a.unread b, .chw li a.unread small { font-weight: 800; color: #1c1c1e; }
 .chw li time { flex: none; font-size: 11.5px; color: #8e8e93; }
+/* header: the person in the exact centre, whatever sits left / right (owner, 2026-11-24) */
+.lc-conv-h { position: relative; }
+.lc-conv-h .lc-conv-who { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100% - 130px); pointer-events: auto; }
+.lc.has-active .lc-conv-h { min-height: 74px; }
+.lc-hr { margin-left: auto; min-width: 44px; }
+
+/* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
+.lc-comp { display: flex !important; align-items: flex-end; gap: 8px; }
+.lc-comp textarea { flex: 1; min-width: 0; padding-right: 14px !important; }
+.lc-comp button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
+  background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
+.lc-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
+
 `;

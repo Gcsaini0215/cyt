@@ -160,7 +160,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
           {!pending && (
             <form className="pc-comp" onSubmit={(e) => { e.preventDefault(); if (own.trim()) pick(own.trim().slice(0, 500)); }}>
               <input {...NOFILL} name="cyt-pchat-question" value={own} onChange={(e) => setOwn(e.target.value)} maxLength={500} placeholder="Or type your question…" aria-label="Your question" />
-              <button type="submit" disabled={!own.trim()} aria-label="Next"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
+              <button type="submit" disabled={!own.trim()} aria-label="Next">Send</button>
             </form>
           )}
         </div>
@@ -208,7 +208,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
             <textarea rows={1} {...NOFILL} name="cyt-pchat-message" value={text} maxLength={2000} placeholder={st.mode === "pre" ? "Ask your one question…" : "Message"} aria-label="Message"
               onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(110, e.target.scrollHeight)}px`; }}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) send(e); }} />
-            <button type="submit" disabled={!text.trim() || busy} aria-label="Send"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 4.5 5.5 11l1.4 1.4 4.1-4.1V20h2V8.3l4.1 4.1 1.4-1.4z" fill="currentColor" /></svg></button>
+            <button type="submit" disabled={!text.trim() || busy} aria-label="Send">Send</button>
           </form>
         )}
       </>
@@ -242,14 +242,14 @@ const CSS = `
 .pc-under { position: fixed; z-index: 100000; left: 0; right: 0; top: 0; height: 100vh; height: 100lvh; background: #fff; }
 @keyframes pcIn { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 @keyframes pcSheet { from { opacity: 0; transform: translateY(24px); } }
-.pc-h { flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 12px 10px 14px; border-bottom: 1px solid rgba(60,60,67,.12); background: #fff; }
-.pc.phone .pc-h { padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+.pc-h { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; min-height: 64px; padding: 12px 12px 10px 14px; border-bottom: 1px solid rgba(60,60,67,.12); background: #fff; }
+.pc.phone .pc-h { padding-top: calc(10px + env(safe-area-inset-top, 0px)); } .pc.phone .pc-x { top: calc(50% + env(safe-area-inset-top, 0px) / 2); }
 .pc-av { flex: none; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: linear-gradient(160deg, #d9f2e3, #a7dcbc); color: #14532d; font-weight: 800; }
 .pc-av img { width: 100%; height: 100%; object-fit: cover; }
-.pc-who { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.pc-who { min-width: 0; max-width: calc(100% - 90px); display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
 .pc-who b { font-size: 15.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pc-who small { font-size: 12.5px; color: #34a853; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pc .pc-x { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: #f2f2f7; color: #6e6e73; font-size: 20px; line-height: 1; cursor: pointer; padding: 0; }
+.pc .pc-x { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: #f2f2f7; color: #6e6e73; font-size: 20px; line-height: 1; cursor: pointer; padding: 0; }
 .pc-guest { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .pc-msgs { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 6px; }
 .pc-row { display: flex; } .pc-row.me { justify-content: flex-end; }
@@ -275,4 +275,11 @@ const CSS = `
 .pc-consent { padding: 4px 2px; font-size: 14px; color: #3c3c43; }
 .pc-consent b { font-size: 16px; color: #1c1c1e; } .pc-consent ul { margin: 8px 0 12px; padding-left: 18px; display: grid; gap: 4px; }
 .pc .pc-consent button { width: 100%; height: 44px; border: 0; border-radius: 13px; background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+/* "Send" written on the button, beside the typing box (owner, 2026-11-24) */
+.pc .pc-comp { display: flex !important; align-items: flex-end; gap: 8px; }
+.pc .pc-comp textarea, .pc .pc-comp input { flex: 1; min-width: 0; padding-right: 14px !important; }
+.pc .pc-comp button[type="submit"] { position: static !important; flex: none; width: auto !important; height: 38px !important; min-width: 64px; padding: 0 16px !important; border-radius: 19px !important; border: 0;
+  background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
+.pc .pc-comp button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
+
 `;
