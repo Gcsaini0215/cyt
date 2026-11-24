@@ -9,6 +9,7 @@ import { soundOn, setSound, playChime, enablePush, pushState, iosNeedsInstall } 
 import ClearSheet from "./clear-sheet";
 import { isKeyboardUp, lockPagePan } from "./kb-lock";
 import VTick, { VTICK_CSS } from "./vtick";
+import { pathOf as assessmentPath } from "../self-assessment/seo";
 import { usePullRefresh, PullBar, settle, PTR_CSS } from "./pull-refresh";
 
 /* Live chat (2026-11-23) — one app for therapists (/therapists/messages) and clients (/client/messages).
@@ -180,6 +181,10 @@ export default function ChatApp({ role }) {
   const [found, setFound] = useState(null);
   const [hl, setHl] = useState(null); // message flashed after jumping to it
   const press = useRef(null);
+  const [kitOpen, setKitOpen] = useState(null); // null | "menu" | "tools" | "tests"
+  const [kit, setKit] = useState(null);
+  const [kitBusy, setKitBusy] = useState("");
+  const [kitMsg, setKitMsg] = useState("");
   const [err, setErr] = useState("");
   const [settings, setSettings] = useState(false);
   const [live, setLive] = useState(false);
@@ -470,6 +475,31 @@ export default function ChatApp({ role }) {
       if (r?.status) { setConv((c) => (c && !c.messages.some((m) => m._id === r.data.message._id) ? { ...c, messages: [...c.messages, r.data.message] } : c)); scrollDown(true); }
     } catch (e) { setErr(e?.response?.data?.message || "Couldn't send the booking link"); }
   };
+  const addCard = (msg) => { setConv((c) => (c && !c.messages.some((m) => m._id === msg._id) ? { ...c, messages: [...c.messages, msg] } : c)); scrollDown(true); };
+  const openKit = (step = "menu") => {
+    setKitMsg(""); setKitOpen(step);
+    if (!kit) fetchById(`${API}/therapist-kit`).then((r) => setKit(r?.status ? r.data : { tools: [], tests: [] })).catch(() => setKit({ tools: [], tests: [] }));
+  };
+  const postCard = async (body, label) => {
+    setKitBusy(label); setKitMsg("");
+    try { const r = await postData(`${API}/threads/${active}/card`, body); if (r?.status) { addCard(r.data.message); setKitOpen(null); } else setKitMsg(r?.message || "Couldn't send"); }
+    catch (e) { setKitMsg(e?.response?.data?.message || "Couldn't send — try again"); }
+    setKitBusy("");
+  };
+  // a worksheet: sent straight to this client when they're yours (it waits in their My Space), otherwise a share link
+  const sendTool = async (tool) => {
+    setKitBusy(tool); setKitMsg("");
+    let link = null;
+    try { const r = await postData(`${apiUrl}/therapist/worksheets/link`, { tool, client: other?.id }); if (r?.status) link = r.data; }
+    catch (e) {
+      const code = e?.response?.status;
+      if (code === 402) { setKitMsg(e.response.data?.message || "Sharing worksheets comes with the yearly plan"); setKitBusy(""); return; }
+      if (code === 403) { try { const r2 = await postData(`${apiUrl}/therapist/worksheets/link`, { tool }); if (r2?.status) link = r2.data; } catch (e2) { setKitMsg(e2?.response?.data?.message || "Couldn't make the link"); } }
+      else setKitMsg(e?.response?.data?.message || "Couldn't make the link");
+    }
+    setKitBusy("");
+    if (link?.path) await postCard({ type: "tool", path: link.path }, tool);
+  };
   const rate = async (m, stars) => {
     setConv((c) => (c ? { ...c, messages: c.messages.map((x) => (x._id === m._id ? { ...x, meta: { ...(x.meta || {}), stars } } : x)) } : c));
     try { await postData(`${API}/threads/${active}/rate`, { stars }); } catch (e) { setErr(e?.response?.data?.message || "Couldn't save your rating"); }
@@ -657,12 +687,30 @@ export default function ChatApp({ role }) {
                             ) : <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
                           ) : (
                             <div id={`lcm-${m._id}`} className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}${hl === m._id ? " hl" : ""}`}>
-                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${m.kind === "booking" ? " lc-bubcard" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
+                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}${["booking", "review", "tool", "assessment"].includes(m.kind) ? " lc-bubcard" : ""}`} title={timeOf(m.createdAt)} {...(!m.deleted && !m.pending && !m.failed ? touchFor(m) : {})}>
                                 {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
                                 {m.replyTo && !m.deleted && (
                                   <button type="button" className="lc-quote" onClick={() => jumpTo(m.replyTo.id)}><b>{m.replyTo.fromRole === role ? "You" : m.replyTo.fromRole === "admin" ? "CYT Care Team" : other.name}</b><span>{m.replyTo.body}</span></button>
                                 )}
-                                {m.deleted ? <i>This message was deleted</i> : m.kind === "booking" ? (
+                                {m.deleted ? <i>This message was deleted</i> : m.kind === "review" ? (
+                                  <div className="lc-bookcard">
+                                    <b>⭐ {m.meta?.name || other.name} would love a short review</b>
+                                    <span>A few words about your sessions help others find the right support.</span>
+                                    {role === "client" ? <Link href={`/view-profile/${m.meta?.therapistId || conv.thread.therapistId}#write-review`} className="lc-btn sm">Write a review ›</Link> : <em>Review request sent</em>}
+                                  </div>
+                                ) : m.kind === "tool" ? (
+                                  <div className="lc-bookcard">
+                                    <b>🧰 {m.meta?.name || "Worksheet"}</b>
+                                    {m.meta?.note ? <span>“{m.meta.note}”</span> : <span>Fill it in your CYT account — it takes a few minutes.</span>}
+                                    {role === "client" ? <Link href={m.meta?.path || "/client/worksheets"} className="lc-btn sm">Open worksheet ›</Link> : <em>Worksheet sent</em>}
+                                  </div>
+                                ) : m.kind === "assessment" ? (
+                                  <div className="lc-bookcard">
+                                    <b>📋 {m.meta?.title || "Assessment"}{m.meta?.short ? ` (${m.meta.short})` : ""}</b>
+                                    <span>{m.meta?.price != null ? `₹${m.meta.price} · ` : ""}a clinical assessment with your report right after.</span>
+                                    {role === "client" ? <Link href={`${assessmentPath(m.meta?.tool || "")}?mode=self`} className="lc-btn sm">Take the assessment ›</Link> : <em>Assessment sent</em>}
+                                  </div>
+                                ) : m.kind === "booking" ? (
                                   <div className="lc-bookcard">
                                     <b>📅 Book a session with {m.meta?.name || other.name}</b>
                                     <span>Pick a time that suits you — it takes a minute.</span>
@@ -697,7 +745,7 @@ export default function ChatApp({ role }) {
                   <div className={`lc-note ${st.mode}`}>
                     <span>{st.note}</span>
                     {role === "client" && (st.mode !== "open") && <Link href={bookHref} className="lc-btn sm">Book a session</Link>}
-                    {role === "therapist" && !isSupport && st.mode !== "open" && <button type="button" className="lc-btn sm" onClick={sendCard}>📅 Send booking link</button>}
+                    {role === "therapist" && !isSupport && st.mode !== "open" && <button type="button" className="lc-btn sm" onClick={() => openKit()}>＋ Send booking link, review, worksheet…</button>}
                   </div>
                 )}
                 {err && <div className="lc-err" role="alert">{err}</div>}
@@ -713,6 +761,7 @@ export default function ChatApp({ role }) {
                       </div>
                     )}
                     <form className="lc-comp" onSubmit={(e) => { e.preventDefault(); send(); }}>
+                      {role === "therapist" && !isSupport && <button type="button" className="lc-plus" onClick={() => openKit()} aria-label="Send a booking link, review request, worksheet or assessment" title="Send…">＋</button>}
                       <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
                         onChange={(e) => { typed(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
@@ -725,6 +774,42 @@ export default function ChatApp({ role }) {
           </section>
         </div>
       )}
+      {kitOpen && conv && (
+        <div className="lc-scrim lc-menu-scrim" role="dialog" aria-label="Send to your client" onClick={(e) => e.target === e.currentTarget && setKitOpen(null)}>
+          <div className="lc-menu lc-kit">
+            <div className="lc-kit-h">
+              {kitOpen !== "menu" && <button type="button" onClick={() => setKitOpen("menu")} aria-label="Back">‹</button>}
+              <b>{kitOpen === "tools" ? "Send a worksheet" : kitOpen === "tests" ? "Send an assessment" : `Send to ${other.name}`}</b>
+              <button type="button" onClick={() => setKitOpen(null)} aria-label="Close">✕</button>
+            </div>
+            {kitMsg && <p className="lc-kit-err">{kitMsg}</p>}
+            {kitOpen === "menu" && (
+              <div className="lc-menu-acts">
+                <button type="button" onClick={async () => { await sendCard(); setKitOpen(null); }}>📅 Booking link <small>They pick a time and book you</small></button>
+                <button type="button" disabled={!!kitBusy} onClick={() => postCard({ type: "review" }, "review")}>⭐ Ask for a review <small>{kitBusy === "review" ? "Sending…" : "Opens the review box on your profile"}</small></button>
+                <button type="button" onClick={() => setKitOpen("tools")}>🧰 Send a worksheet <small>From your Toolkit</small></button>
+                <button type="button" onClick={() => setKitOpen("tests")}>📋 Send an assessment <small>At the price CYT has set</small></button>
+              </div>
+            )}
+            {kitOpen === "tools" && (
+              <div className="lc-kit-list">
+                {kit === null ? <p className="lc-kit-mut">Loading…</p> : kit.tools.map((x) => (
+                  <button type="button" key={x.key} disabled={!!kitBusy} onClick={() => sendTool(x.key)}>{x.name}{kitBusy === x.key ? <small>Sending…</small> : null}</button>
+                ))}
+              </div>
+            )}
+            {kitOpen === "tests" && (
+              <div className="lc-kit-list">
+                {kit === null ? <p className="lc-kit-mut">Loading…</p> : kit.tests.map((x) => (
+                  <button type="button" key={x.key} disabled={!!kitBusy} onClick={() => postCard({ type: "assessment", tool: x.key }, x.key)}>
+                    <span>{x.title} <i>{x.short}</i></span><small>{kitBusy === x.key ? "Sending…" : x.price != null ? `₹${x.price}` : ""}</small>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {menu && conv && (
         <div className="lc-scrim lc-menu-scrim" role="dialog" aria-label="Message options" onClick={(e) => e.target === e.currentTarget && setMenu(null)}>
           <div className="lc-menu">
@@ -732,7 +817,7 @@ export default function ChatApp({ role }) {
             <div className="lc-menu-emo">{EMOJI.map((e) => <button type="button" key={e} onClick={() => react(menu, e)} aria-label={`React ${e}`}>{e}</button>)}</div>
             <div className="lc-menu-acts">
               {st?.canSend && <button type="button" onClick={() => startReply(menu)}>↩ Reply</button>}
-              {menu.kind !== "booking" && <button type="button" onClick={() => copyMsg(menu)}>⧉ Copy</button>}
+              {!["booking", "review", "tool", "assessment"].includes(menu.kind) && <button type="button" onClick={() => copyMsg(menu)}>⧉ Copy</button>}
               {menu.fromRole === role && ["text", "pre-question", "pre-answer"].includes(menu.kind || "text") && Date.now() - new Date(menu.createdAt).getTime() < 10 * 60000 && <button type="button" onClick={() => startEdit(menu)}>✎ Edit</button>}
               {menu.fromRole === role && Date.now() - new Date(menu.createdAt).getTime() < 10 * 60000 && <button type="button" className="bad" onClick={() => { const m = menu; setMenu(null); remove(m); }}>🗑 Delete for everyone</button>}
               <button type="button" className="cancel" onClick={() => setMenu(null)}>Cancel</button>
@@ -1121,6 +1206,19 @@ html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-n
 
 /* the last message in the chat list: one line with "…" (the second line was cut) — owner, 2026-11-25 */
 .lc .lc-item-p { display: block !important; -webkit-line-clamp: unset !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+/* therapist's chat kit (owner, 2026-11-25) */
+.lc .lc-comp .lc-plus { flex: none; width: 40px !important; height: 40px !important; min-width: 0 !important; padding: 0 !important; border-radius: 50% !important; border: 1px solid #dfe6e2 !important; background: #fff !important; color: #14532d !important; font-size: 22px !important; font-weight: 600 !important; display: grid !important; place-items: center; position: static !important; }
+.lc-kit { max-height: min(640px, 85vh); display: flex; flex-direction: column; }
+.lc-kit-h { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.lc-kit-h b { flex: 1; font-size: 16px; text-align: center; } .lc-kit-h button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: #f2f2f7; font-size: 16px; cursor: pointer; }
+.lc-kit .lc-menu-acts button { display: flex; flex-direction: column; justify-content: center; height: auto; min-height: 56px; padding: 8px 16px; }
+.lc-kit .lc-menu-acts button small { font-size: 12.5px; color: #8e8e93; font-weight: 400; }
+.lc-kit-list { overflow-y: auto; min-height: 0; display: flex; flex-direction: column; border-radius: 14px; background: #f2f2f7; }
+.lc-kit-list button { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 8px 16px; border: 0; border-bottom: 1px solid #e5e5ea; background: #fff; text-align: left; font: inherit; font-size: 15px; cursor: pointer; }
+.lc-kit-list button i { font-style: normal; font-size: 12px; color: #8e8e93; margin-left: 4px; } .lc-kit-list button small { flex: none; font-size: 13px; font-weight: 700; color: #14532d; }
+.lc-kit-list button:disabled { opacity: .6; }
+.lc-kit-err { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: #fff1f0; color: #b91c1c; font-size: 13.5px; }
+.lc-kit-mut { margin: 12px; color: #8e8e93; font-size: 13.5px; }
 `;
 
 const W_CSS = AV_CSS + `

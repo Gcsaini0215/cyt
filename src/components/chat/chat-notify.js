@@ -183,6 +183,8 @@ export default function ChatNotifier() {
   const path = router.asPath.split("#")[0];
   const hidden = HIDE_ON.test(path);
 
+  // the client top bar's Messages icon shows the same count
+  useEffect(() => { window.__cytUnread = unread; window.dispatchEvent(new CustomEvent("cyt-chat-unread", { detail: unread })); }, [unread]);
   const loadUnread = () => fetchById(`${apiUrl}/live-chat/unread`).then((r) => r?.status && setUnread(r.data.count || 0)).catch(() => {});
 
   useEffect(() => {
@@ -559,4 +561,6 @@ const CSS = `
 .lsm-reacts span { border: 1px solid #e5e5ea; background: #fff; border-radius: 999px; padding: 0 6px; }
 .lsm-rate { margin: 8px auto; padding: 10px 12px; border-radius: 14px; background: #f2f2f7; text-align: center; font-size: 13px; color: #3c3c43; }
 .lsm-rate div { margin-top: 4px; } .lsm-rate button { border: 0; background: none; font-size: 26px; color: #d1d1d6; cursor: pointer; padding: 0 2px; } .lsm-rate button.on { color: #ffcc00; }
+/* the client dashboard has Messages in its top bar — no floating button there (owner, 2026-11-25) */
+html.has-cls .lcf-btn, html.has-cls .lcf-ring { display: none !important; }
 `;
