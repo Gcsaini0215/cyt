@@ -455,7 +455,7 @@ export default function ChatApp({ role }) {
                   <div className="lc-conv-who">
                     <Avatar p={other} size={44} />
                     <b>{other.name} <span aria-hidden="true">›</span></b>
-                    <small>{other.online ? "Online now" : role === "client" && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
+                    <small>{other.online ? "Online now" : (role === "client" || isSupport) && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
                   <span className="lc-hr">
                     <button type="button" className="lc-clear" onClick={() => { setDelMode(true); setClearing(active); }} aria-label="Delete chat" title="Delete chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
@@ -507,7 +507,7 @@ export default function ChatApp({ role }) {
                 {err && <div className="lc-err" role="alert">{err}</div>}
                 {st?.canSend && (
                   <>
-                    {role === "therapist" && st.mode === "open" && !text && (
+                    {role === "therapist" && !isSupport && st.mode === "open" && !text && (
                       <div className="lc-quick">{QUICK.map((x) => <button type="button" key={x} onClick={() => setText(x)}>{x}</button>)}</div>
                     )}
                     <form className="lc-comp" onSubmit={(e) => { e.preventDefault(); send(); }}>

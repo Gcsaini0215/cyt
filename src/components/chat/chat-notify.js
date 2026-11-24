@@ -343,7 +343,7 @@ export default function ChatNotifier() {
                 <ul>{threads.slice(0, 4).map((t) => (
                   <li key={t._id}><button type="button" className={t.unread ? "unread" : ""} onClick={() => go(`${base()}?t=${t._id}`)}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <span className="lcf-av">{photoSrc(t.other?.photo) ? <img src={photoSrc(t.other.photo)} alt="" /> : ini(t.other?.name)}</span>
+                    <span className="lcf-av">{t.other?.support ? <img src="/icons/cyt-icon-192.png" alt="" /> : photoSrc(t.other?.photo) ? <img src={photoSrc(t.other.photo)} alt="" /> : ini(t.other?.name)}</span>
                     <span className="lcf-m"><b>{t.other?.name}</b><small>{t.lastFrom === role.current ? "You: " : ""}{t.preview}</small></span>
                     {t.unread > 0 && <em>{t.unread}</em>}
                   </button></li>
