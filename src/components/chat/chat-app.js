@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -148,6 +148,11 @@ function Alerts({ onClose }) {
   ), document.body);
 }
 
+// what you were typing stays with each chat (this device only) until it's sent
+const DKEY = (id) => `cyt_chat_draft_${id}`;
+const saveDraft = (id, v) => { try { if (!id) return; if (v) localStorage.setItem(DKEY(id), v); else localStorage.removeItem(DKEY(id)); } catch { /* private mode */ } };
+const useIsoLayout = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 export default function ChatApp({ role }) {
   const router = useRouter();
   const [consent, setConsent] = useState(null);
@@ -156,7 +161,13 @@ export default function ChatApp({ role }) {
   const [active, setActive] = useState(null); // thread id
   const [conv, setConv] = useState(null); // { thread, state, messages, more }
   const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
+  const [typingIn, setTypingIn] = useState({}); // threadId -> showing "typing…" until (ms)
+  const [newCount, setNewCount] = useState(0); // messages that came in while you were reading further up
+  const atBottom = useRef(true);
+  const autoUntil = useRef(0); // while the chat scrolls itself to the newest message, it still counts as "at the bottom"
+  const [conn, setConn] = useState(0); // bumps → the live connection starts again (after the phone was locked / offline)
+  const lastTyped = useRef(0);
+  const restore = useRef(null); // keep the place on screen after older messages are added above
   const [err, setErr] = useState("");
   const [settings, setSettings] = useState(false);
   const [live, setLive] = useState(false);
@@ -268,8 +279,43 @@ export default function ChatApp({ role }) {
     }
   }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const scrollDown = (smooth = false) => requestAnimationFrame(() => { const el = scroller.current; if (el) el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" }); });
+  const scrollDown = (smooth = false) => { atBottom.current = true; autoUntil.current = Date.now() + 900; setNewCount(0); requestAnimationFrame(() => { const el = scroller.current; if (el) el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" }); }); };
   const markRead = useCallback((id) => postData(`${API}/threads/${id}/read`, {}).then(() => setThreads((ts) => (ts || []).map((t) => (t._id === id ? { ...t, unread: 0 } : t)))).catch(() => {}), []);
+
+  // the draft for this chat
+  useEffect(() => {
+    let v = "";
+    try { if (active) v = localStorage.getItem(DKEY(active)) || ""; } catch { /* ignore */ }
+    setText(v); setNewCount(0); atBottom.current = true;
+  }, [active]);
+  useIsoLayout(() => { const r = restore.current; if (r && r.el) { r.el.scrollTop = r.top + (r.el.scrollHeight - r.before); restore.current = null; } }, [conv]);
+
+  // back after the phone was locked / the internet dropped: fetch what was missed, keep what's on screen
+  const resync = useRef(null);
+  resync.current = () => {
+    loadThreads();
+    const id = activeRef.current;
+    if (!id) return;
+    fetchById(`${API}/threads/${id}`).then((r) => {
+      if (!r?.status || activeRef.current !== id) return;
+      setConv((c) => {
+        if (!c) return r.data;
+        const have = new Map(c.messages.filter((m) => !m.pending && !m.failed).map((m) => [m._id, m]));
+        r.data.messages.forEach((m) => have.set(m._id, m));
+        const merged = [...have.values()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        return { ...c, thread: r.data.thread, state: r.data.state, messages: [...merged, ...c.messages.filter((m) => m.pending || m.failed)] };
+      });
+      markRead(id);
+      if (atBottom.current) scrollDown();
+    }).catch(() => {});
+  };
+  useEffect(() => {
+    let hiddenAt = 0;
+    const vis = () => { if (document.visibilityState === "hidden") { hiddenAt = Date.now(); return; } if (hiddenAt && Date.now() - hiddenAt > 3000) setConn((k) => k + 1); };
+    const online = () => setConn((k) => k + 1);
+    document.addEventListener("visibilitychange", vis); window.addEventListener("online", online);
+    return () => { document.removeEventListener("visibilitychange", vis); window.removeEventListener("online", online); };
+  }, []);
 
   // load a conversation
   useEffect(() => {
@@ -287,15 +333,30 @@ export default function ChatApp({ role }) {
     const token = getToken();
     if (!token || typeof EventSource === "undefined") return undefined;
     const es = new EventSource(`${API}/stream?token=${encodeURIComponent(token)}`);
-    es.addEventListener("hello", () => setLive(true));
+    let hellos = 0;
+    es.addEventListener("hello", () => { setLive(true); if (hellos++ > 0 || conn > 0) resync.current && resync.current(); });
+    es.addEventListener("typing", (e) => {
+      const { threadId, by } = JSON.parse(e.data || "{}");
+      if (!threadId || by === role) return;
+      const until = Date.now() + 5000;
+      setTypingIn((x) => ({ ...x, [threadId]: until }));
+      setTimeout(() => setTypingIn((x) => (x[threadId] === until ? { ...x, [threadId]: 0 } : x)), 5100);
+    });
     es.onerror = () => setLive(false);
     es.addEventListener("message", (e) => {
       const { threadId, message } = JSON.parse(e.data || "{}");
       if (!threadId || !message) return;
       const mine = message.fromRole === role;
+      if (!mine) setTypingIn((x) => (x[threadId] ? { ...x, [threadId]: 0 } : x));
       if (threadId === activeRef.current) {
-        setConv((c) => (c && !c.messages.some((m) => m._id === message._id) ? { ...c, messages: [...c.messages, message] } : c));
-        scrollDown(true);
+        setConv((c) => {
+          if (!c || c.messages.some((m) => m._id === message._id)) return c;
+          // my own message coming back: it takes the place of the "Sending…" bubble
+          const i = mine ? c.messages.findIndex((m) => m.pending && m.body === message.body) : -1;
+          if (i >= 0) { const ms = [...c.messages]; ms[i] = message; return { ...c, messages: ms }; }
+          return { ...c, messages: [...c.messages, message] };
+        });
+        if (mine || atBottom.current) scrollDown(true); else setNewCount((n) => n + 1);
         if (!mine && document.visibilityState === "visible") markRead(threadId);
       }
       setThreads((ts) => {
@@ -328,29 +389,47 @@ export default function ChatApp({ role }) {
       if (threadId === activeRef.current) setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === id ? { ...m, deleted: true, body: "" } : m)) } : c));
     });
     return () => es.close();
-  }, [role, loadThreads, markRead]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [role, loadThreads, markRead, conn]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const send = async (body) => {
-    const t = (body ?? text).trim();
-    if (!t || !active || sending) return;
-    setSending(true); setErr("");
-    try {
-      const r = await postData(`${API}/threads/${active}/messages`, { text: t });
-      if (r?.status) {
-        setText("");
-        setConv((c) => (c && !c.messages.some((m) => m._id === r.data.message._id) ? { ...c, messages: [...c.messages, r.data.message] } : c));
-        scrollDown(true);
-        if (r.data.masked) setErr("Phone numbers, emails and outside links are hidden to keep your conversation safe on CYT.");
-        // the pre-booking question uses up the one message: refresh what's allowed next
-        fetchById(`${API}/threads/${active}`).then((x) => x?.status && setConv((c) => (c ? { ...c, state: x.data.state } : c))).catch(() => {});
-      }
-    } catch (e) {
-      const d = e?.response?.data;
-      if (d?.code === "consent") setConsent(false);
-      setErr(d?.message || "Couldn't send — check your internet");
-      if (d?.state) setConv((c) => (c ? { ...c, state: d.state } : c));
+  // the bubble shows straight away ("Sending…"); no internet → "Not sent · Tap to retry", nothing is lost
+  const send = async (body, retry) => {
+    const t = (retry ? retry.body : (body ?? text)).trim();
+    if (!t || !active) return;
+    const tid = active;
+    const tmp = retry ? retry._id : `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setErr("");
+    if (!retry) {
+      setText(""); saveDraft(tid, "");
+      const ta = typeof document !== "undefined" && document.querySelector(".lc-comp textarea"); if (ta) ta.style.height = "auto";
     }
-    setSending(false);
+    setConv((c) => (c ? { ...c, messages: retry ? c.messages.map((m) => (m._id === tmp ? { ...m, pending: true, failed: false } : m)) : [...c.messages, { _id: tmp, pending: true, fromRole: role, kind: "text", body: t, createdAt: new Date().toISOString() }] } : c));
+    scrollDown(true);
+    try {
+      const r = await postData(`${API}/threads/${tid}/messages`, { text: t });
+      if (!r?.status) { const x = new Error("refused"); x.response = { status: 400, data: { message: r?.message } }; throw x; }
+      const real = r.data.message;
+      setConv((c) => { if (!c || activeRef.current !== tid) return c; const rest = c.messages.filter((m) => m._id !== tmp); return { ...c, messages: rest.some((m) => m._id === real._id) ? rest : [...rest, real] }; });
+      if (r.data.masked) setErr("Phone numbers, emails and outside links are hidden to keep your conversation safe on CYT.");
+      // the pre-booking question uses up the one message: refresh what's allowed next
+      fetchById(`${API}/threads/${tid}`).then((x) => x?.status && activeRef.current === tid && setConv((c) => (c ? { ...c, state: x.data.state } : c))).catch(() => {});
+    } catch (e) {
+      const code = e?.response?.status, d = e?.response?.data;
+      if (code && code < 500) {
+        // refused (not allowed right now) — take the bubble back, the text returns to the box
+        setConv((c) => (c ? { ...c, messages: c.messages.filter((m) => m._id !== tmp), ...(d?.state ? { state: d.state } : {}) } : c));
+        if (!retry && activeRef.current === tid) { setText(t); saveDraft(tid, t); }
+        if (d?.code === "consent") setConsent(false);
+        setErr(d?.message || "Couldn't send");
+      } else {
+        setConv((c) => (c ? { ...c, messages: c.messages.map((m) => (m._id === tmp ? { ...m, pending: false, failed: true } : m)) } : c));
+        if (atBottom.current) scrollDown(true); // show the "Not sent" line
+      }
+    }
+  };
+  const typed = (v) => {
+    setText(v); saveDraft(active, v);
+    // "typing…" for the other side, at most every 3 seconds
+    if (v && active && Date.now() - lastTyped.current > 3000) { lastTyped.current = Date.now(); postData(`${API}/threads/${active}/typing`, {}).catch(() => {}); }
   };
 
   const loadEarlier = async () => {
@@ -360,9 +439,9 @@ export default function ChatApp({ role }) {
     try {
       const r = await fetchById(`${API}/threads/${active}`, { before: conv.messages[0].createdAt });
       if (r?.status) {
+        // stay on the same message after the older ones are added above (applied before the screen paints)
+        restore.current = { el, before, top: el ? el.scrollTop : 0 };
         setConv((c) => (c ? { ...c, more: r.data.more, messages: [...r.data.messages.filter((m) => !c.messages.some((x) => x._id === m._id)), ...c.messages] } : c));
-        // stay on the same message after the older ones are added above
-        requestAnimationFrame(() => { if (el) el.scrollTop = el.scrollHeight - before; });
       }
     } catch { /* keep what's shown */ }
     setLoadingMore(false);
@@ -431,7 +510,7 @@ export default function ChatApp({ role }) {
                   <Avatar p={t.other} size={50} />
                   <span className="lc-item-m">
                     <span className="lc-item-t"><b>{t.other.name}</b><time>{listTime(t.lastMessageAt)} <span aria-hidden="true">›</span></time></span>
-                    <span className="lc-item-p">{t.lastFrom === role ? "You: " : ""}{t.preview || "…"}</span>
+                    <span className="lc-item-p">{typingIn[t._id] > Date.now() ? <span className="lc-typing">typing…</span> : <>{t.lastFrom === role ? "You: " : ""}{t.preview || "…"}</>}</span>
                   </span>
                 </button>
                 <button type="button" className="lc-sw-bin" onClick={(e) => { e.stopPropagation(); setDelMode(true); setClearing(t._id); }} aria-label={`Delete chat with ${t.other.name}`} title="Delete chat">
@@ -455,19 +534,19 @@ export default function ChatApp({ role }) {
                   <div className="lc-conv-who">
                     <Avatar p={other} size={44} />
                     <b>{other.name} <span aria-hidden="true">›</span></b>
-                    <small>{other.online ? "Online now" : (role === "client" || isSupport) && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
+                    <small>{typingIn[active] > Date.now() ? <span className="lc-typing">typing…</span> : other.online ? "Online now" : (role === "client" || isSupport) && st?.hours ? `Replies ${st.hours}` : other.title || ""}</small>
                   </div>
                   <span className="lc-hr">
                     <button type="button" className="lc-clear" onClick={() => { setDelMode(true); setClearing(active); }} aria-label="Delete chat" title="Delete chat"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" /></svg></button>
                   </span>
                 </header>
 
-                <div className="lc-msgs" ref={scroller} onScroll={(e) => { if (e.currentTarget.scrollTop < 60 && conv.more && !loadingMore) loadEarlier(); }}>
+                <div className="lc-msgs" ref={scroller} onScroll={(e) => { const el = e.currentTarget; if (Date.now() > autoUntil.current) atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80; if (atBottom.current && newCount) setNewCount(0); if (el.scrollTop < 60 && conv.more && !loadingMore && Date.now() > autoUntil.current) loadEarlier(); }}>
                   {conv.more && <button type="button" className="lc-earlier" disabled={loadingMore} onClick={loadEarlier}>{loadingMore ? "Loading…" : "Load earlier messages"}</button>}
                   {conv.messages.length === 0 && <p className="lc-start">Say hello 👋 — {role === "client" ? "keep it short and simple." : "your reply goes to the client right away."}</p>}
                   {(() => {
                     const ms = conv.messages;
-                    const lastMine = [...ms].reverse().find((x) => x.fromRole === role && !x.deleted);
+                    const lastMine = [...ms].reverse().find((x) => x.fromRole === role && !x.deleted && !x.pending && !x.failed);
                     const gap = (a, b) => Math.abs(new Date(b.createdAt) - new Date(a.createdAt));
                     const near = (a, b) => !!(a && b && a.fromRole === b.fromRole && a.fromRole !== "system" && dayKey(a.createdAt) === dayKey(b.createdAt) && gap(a, b) < 5 * 60000);
                     return ms.map((m, i) => {
@@ -476,7 +555,7 @@ export default function ChatApp({ role }) {
                       const mine = m.fromRole === role;
                       const first = stamp || !near(prev, m);
                       const last = !near(m, next);
-                      const canDel = mine && !m.deleted && Date.now() - new Date(m.createdAt).getTime() < 10 * 60000;
+                      const canDel = mine && !m.deleted && !m.pending && !m.failed && Date.now() - new Date(m.createdAt).getTime() < 10 * 60000;
                       return (
                         <React.Fragment key={m._id}>
                           {stamp && <div className="lc-day"><b>{dayLabel(m.createdAt)}</b> {timeOf(m.createdAt)}</div>}
@@ -484,11 +563,18 @@ export default function ChatApp({ role }) {
                             <div className={`lc-sys${m.kind === "crisis-help" ? " crisis" : ""}`}><span>{m.kind === "crisis-help" ? "🆘 " : ""}{m.body}</span></div>
                           ) : (
                             <div className={`lc-row${mine ? " me" : ""}${first ? " first" : ""}${last ? " last" : ""}`}>
-                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}`} title={timeOf(m.createdAt)}>
+                              <div className={`lc-bub${m.deleted ? " del" : ""}${m.crisis && !mine ? " flag" : ""}${m.pending ? " sending" : ""}${m.failed ? " failed" : ""}`} title={timeOf(m.createdAt)}>
                                 {m.kind === "pre-question" && <em className="lc-tag">Question before booking</em>}
                                 {m.deleted ? <i>This message was deleted</i> : <p>{m.body}</p>}
                                 {canDel && <button type="button" className="lc-del" onClick={() => remove(m)} aria-label="Delete for everyone">×</button>}
                               </div>
+                            </div>
+                          )}
+                          {m.pending && <div className="lc-receipt">Sending…</div>}
+                          {m.failed && (
+                            <div className="lc-receipt fail">
+                              <button type="button" onClick={() => send(null, m)}>Not sent · Tap to retry</button>
+                              <button type="button" onClick={() => setConv((c) => ({ ...c, messages: c.messages.filter((x) => x._id !== m._id) }))} aria-label="Remove this message">✕</button>
                             </div>
                           )}
                           {lastMine && m._id === lastMine._id && <div className="lc-receipt">{m.readAt ? <><b>Read</b> {timeOf(m.readAt)}</> : "Delivered"}</div>}
@@ -496,6 +582,8 @@ export default function ChatApp({ role }) {
                       );
                     });
                   })()}
+                  {typingIn[active] > Date.now() && <div className="lc-row first last"><div className="lc-bub lc-dots" aria-label="typing"><i /><i /><i /></div></div>}
+                  {newCount > 0 && <button type="button" className="lc-newmsg" onClick={() => scrollDown(true)}>↓ {newCount} new message{newCount === 1 ? "" : "s"}</button>}
                 </div>
 
                 {st?.note && (
@@ -508,13 +596,13 @@ export default function ChatApp({ role }) {
                 {st?.canSend && (
                   <>
                     {role === "therapist" && !isSupport && st.mode === "open" && !text && (
-                      <div className="lc-quick">{QUICK.map((x) => <button type="button" key={x} onClick={() => setText(x)}>{x}</button>)}</div>
+                      <div className="lc-quick">{QUICK.map((x) => <button type="button" key={x} onClick={() => typed(x)}>{x}</button>)}</div>
                     )}
                     <form className="lc-comp" onSubmit={(e) => { e.preventDefault(); send(); }}>
                       <textarea rows={1} autoComplete="off" data-lpignore="true" data-form-type="other" enterKeyHint="send" name="cyt-chat-message" value={text} maxLength={2000} placeholder={st.mode === "pre" && role === "client" ? "Ask your one question…" : "Message"}
-                        onChange={(e) => { setText(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
+                        onChange={(e) => { typed(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(140, e.target.scrollHeight)}px`; }}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }} aria-label="Message" />
-                      <button type="submit" disabled={!text.trim() || sending} aria-label="Send">Send</button>
+                      <button type="submit" disabled={!text.trim()} aria-label="Send">Send</button>
                     </form>
                   </>
                 )}
@@ -835,6 +923,19 @@ html.lc-has-nav.lc-nav-min .lc-comp { padding-bottom: calc(24px + env(safe-area-
 
 /* keyboard up: the typing box sits right on the keyboard — no home-indicator gap (owner, 2026-11-24) */
 html.lc-kb .lc .lc-comp, html.lc-kb .lc.has-active .lc-comp, html.lc-kb.lc-has-nav.lc-nav-min .lc .lc-comp { padding-bottom: 8px !important; }
+/* Phase A (owner, 2026-11-25): sending / not sent, typing…, ↓ new messages */
+.lc-bub.sending { opacity: .62; }
+.lc-bub.failed { opacity: .8; box-shadow: 0 0 0 1.5px #ff3b30 inset; }
+.lc-receipt.fail { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+.lc-receipt.fail button { border: 0; background: none; padding: 2px 0; font: inherit; font-size: 12px; font-weight: 700; color: #ff3b30; cursor: pointer; }
+.lc-typing { color: #34c759 !important; font-weight: 600; font-style: normal; }
+.lc-bub.lc-dots { display: inline-flex; align-items: center; gap: 4px; padding: 12px 14px; }
+.lc-dots i { width: 7px; height: 7px; border-radius: 50%; background: #8e8e93; animation: lcDot 1.2s infinite ease-in-out; }
+.lc-dots i:nth-child(2) { animation-delay: .15s; } .lc-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes lcDot { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .lc-dots i { animation: none; opacity: .6; } }
+.lc-newmsg { position: sticky; bottom: 8px; align-self: center; z-index: 5; flex: none; margin-top: 8px; border: 0; border-radius: 999px; padding: 8px 16px; background: #0a84ff; color: #fff;
+  font: inherit; font-size: 13.5px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.18); cursor: pointer; }
 `;
 
 const W_CSS = AV_CSS + `

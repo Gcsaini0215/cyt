@@ -167,6 +167,14 @@ export default function ChatNotifier() {
   const pick = (q) => { setPending(q); try { sessionStorage.setItem("cyt_chat_pending", q); } catch { /* ignore */ } };
   const sentPending = () => { setPending(""); try { sessionStorage.removeItem("cyt_chat_pending"); } catch { /* ignore */ } };
   const [authTick, setAuthTick] = useState(0); // bumps after logging in inside the widget → reconnect as that user
+  const [conn, setConn] = useState(0); // bumps → reconnect after the phone was locked / the internet dropped (owner, 2026-11-25)
+  useEffect(() => {
+    let hiddenAt = 0;
+    const vis = () => { if (document.visibilityState === "hidden") { hiddenAt = Date.now(); return; } if (hiddenAt && Date.now() - hiddenAt > 3000) setConn((k) => k + 1); };
+    const online = () => setConn((k) => k + 1);
+    document.addEventListener("visibilitychange", vis); window.addEventListener("online", online);
+    return () => { document.removeEventListener("visibilitychange", vis); window.removeEventListener("online", online); };
+  }, []);
   const timer = useRef(null);
   const role = useRef(null);
   const base = () => (role.current === "therapist" ? "/therapists/messages" : "/client/messages");
@@ -185,6 +193,10 @@ export default function ChatNotifier() {
     syncPush();
     loadUnread();
     const es = new EventSource(`${apiUrl}/live-chat/stream?token=${encodeURIComponent(getToken() || "")}`);
+    // reconnected: the open widget fetches what it missed, the count is fetched again
+    let hellos = 0;
+    es.addEventListener("hello", () => { if (hellos++ > 0 || conn > 0) { loadUnread(); window.dispatchEvent(new Event("cyt-chat-resync")); } });
+    es.addEventListener("typing", (e) => { const d = JSON.parse(e.data || "{}"); if (d.threadId) window.dispatchEvent(new CustomEvent("cyt-chat-typing", { detail: d })); });
     es.addEventListener("message", (e) => {
       const { threadId, message } = JSON.parse(e.data || "{}");
       if (!message) return;
@@ -214,7 +226,7 @@ export default function ChatNotifier() {
       timer.current = setTimeout(() => setToast(null), 8000);
     });
     return () => { es.close(); clearTimeout(timer.current); };
-  }, [authTick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authTick, conn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // sit just above whatever bar is at the bottom of this page
   useEffect(() => {
@@ -526,4 +538,13 @@ const CSS = `
   background: #34c759; color: #fff; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .01em; display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 1px; }
 .lcf .lcf-own button[type="submit"]:disabled { background: #c7c7cc; color: #fff; }
 
+/* widget: sending / not sent / typing… (owner, 2026-11-25) */
+.lsm-bub.sending { opacity: .62; }
+.lsm-fail { display: flex; justify-content: flex-end; gap: 10px; margin: 2px 2px 4px; }
+.lsm-fail button { border: 0; background: none; padding: 2px 0; font: inherit; font-size: 12px; font-weight: 700; color: #ff3b30; cursor: pointer; }
+.lsm-sending { margin: 2px 4px 4px; text-align: right; font-size: 11px; color: #8e8e93; }
+.lsm-dots { display: inline-flex !important; align-items: center; gap: 4px; padding: 11px 13px !important; }
+.lsm-dots i { width: 7px; height: 7px; border-radius: 50%; background: #8e8e93; animation: lsmDot 1.2s infinite ease-in-out; }
+.lsm-dots i:nth-child(2) { animation-delay: .15s; } .lsm-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes lsmDot { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
 `;
