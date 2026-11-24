@@ -224,7 +224,7 @@ export default function ProfileChat({ therapistId, name, photo, onClose, onBook 
         <header className="pc-h">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <span className="pc-av">{av ? <img src={av} alt="" /> : (name || "?").slice(0, 1)}</span>
-          <span className="pc-who"><b>{name || "Therapist"}</b><small>{st?.hours ? `Replies ${st.hours}` : "Usually replies within a day"}</small></span>
+          <span className="pc-who"><b>{name || "Therapist"}</b><small>{st?.hours ? `Replies ${st.hours}` : "Ask a quick question before you book"}</small></span>
           <button type="button" className="pc-x" onClick={onClose} aria-label="Close">×</button>
         </header>
         {body}
