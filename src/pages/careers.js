@@ -20,8 +20,9 @@ import GroupsRounded from "@mui/icons-material/GroupsRounded";
 
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/careers`;
-const SEO_TITLE = "Careers at Choose Your Therapist – Jobs in Marketing & Psychology";
-const SEO_DESC = "Join Choose Your Therapist. Open roles in marketing, content and psychology — online and at our Noida centre. Apply in a few minutes with your resume.";
+const SEO_TITLE = "Careers at Choose Your Therapist | Jobs in Noida & Remote";
+const SEO_DESC = "Join Choose Your Therapist, India's verified psychologist network. Open jobs in digital marketing, social media and psychology — remote and at our Noida centre. Apply online with your resume.";
+const OG_IMG = `${SITE}/api/og/site.jpg?page=careers`;
 const EXPERIENCE = ["Fresher", "Less than 1 year", "1–2 years", "3–5 years", "5+ years"];
 const NOTICE = ["Can join now", "15 days", "30 days", "60 days or more"];
 const MAX_MB = 5;
@@ -90,12 +91,29 @@ export default function CareersPage({ initialJobs = [] }) {
         <meta property="og:description" content={SEO_DESC} />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:type" content="website" />
-        <meta key="og:image" property="og:image" content={`${SITE}/api/og/site.jpg?page=careers`} />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="keywords" content="Choose Your Therapist careers, psychologist jobs Noida, counselling psychologist jobs online, digital marketing jobs Noida, social media jobs, mental health jobs India" />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
+        <meta key="og:image" property="og:image" content={OG_IMG} />
+        <meta property="og:image:secure_url" content={OG_IMG} />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Careers at Choose Your Therapist" />
+        <meta property="og:image:alt" content="The Choose Your Therapist team at the Noida centre — we're hiring" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={`${SITE}/api/og/site.jpg?page=careers`} />
+        <meta name="twitter:title" content={SEO_TITLE} />
+        <meta name="twitter:description" content={SEO_DESC} />
+        <meta name="twitter:image" content={OG_IMG} />
+        <meta name="twitter:image:alt" content="The Choose Your Therapist team at the Noida centre — we're hiring" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+            { "@type": "ListItem", position: 2, name: "Careers", item: PAGE_URL },
+          ],
+        }) }} />
         {initialJobs.map((j) => (
           <script key={j._id} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobLd(j)) }} />
         ))}
@@ -264,10 +282,19 @@ function ApplyModal({ job, jobs, onClose }) {
         <button type="button" className="cr-x" onClick={onClose} aria-label="Close"><CloseRounded /></button>
         {done ? (
           <div className="cr-done">
-            <CheckCircleRounded className="cr-done-ic" aria-hidden="true" />
-            <h2 id="cr-apply-h">Application sent</h2>
-            <p>Thank you, {f.name.trim().split(" ")[0]}. We've emailed you a confirmation. If your profile fits, our team will contact you for the next step.</p>
-            <button type="button" className="cr-btn" onClick={onClose}>Done</button>
+            <span className="cr-done-ring" aria-hidden="true"><CheckCircleRounded className="cr-done-ic" /></span>
+            <h2 id="cr-apply-h">Application sent!</h2>
+            <p>Thank you, <b>{f.name.trim().split(" ")[0]}</b>. Your application for <b>{picked ? picked.title : "a role at CYT"}</b> has reached our team.</p>
+            <div className="cr-done-mail">📩 A confirmation is on its way to <b>{f.email.trim()}</b></div>
+            <ol className="cr-next">
+              <li><b>We read it</b><span>Our team goes through your resume and answers.</span></li>
+              <li><b>We get in touch</b><span>If your profile fits, we'll call or email you for a short conversation.</span></li>
+              <li><b>Next steps</b><span>An interview or a small task, depending on the role.</span></li>
+            </ol>
+            <div className="cr-done-acts">
+              <button type="button" className="cr-btn" onClick={onClose}>Back to jobs</button>
+              <a className="cr-btn line" href="/about-us">Get to know CYT</a>
+            </div>
           </div>
         ) : (
           <form onSubmit={submit} noValidate>
@@ -314,10 +341,11 @@ function ApplyModal({ job, jobs, onClose }) {
               <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={pickFile} />
             </label>
 
-            <label className="cr-consent">
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-              <span>Choose Your Therapist can keep my details and resume to contact me about jobs.</span>
-            </label>
+            {/* our own checkbox: the site's global theme CSS hides native checkboxes */}
+            <button type="button" role="checkbox" aria-checked={consent} className={`cr-consent${consent ? " on" : ""}`} onClick={() => { setConsent((v) => !v); setErr(""); }}>
+              <span className="cr-box" aria-hidden="true">{consent ? "✓" : ""}</span>
+              <span>I agree that Choose Your Therapist can keep my details and resume to contact me about jobs.</span>
+            </button>
 
             <div className="cr-submit-bar">
               {err && <p className="cr-err" role="alert">{err}</p>}
@@ -408,13 +436,25 @@ const CSS = `
 .cr-file span { min-width:0; overflow-wrap:anywhere; }
 .cr-file small { display:block; color:#5b6b62; font-size:12.5px; }
 .cr-file input { position:absolute; width:1px; height:1px; opacity:0; }
-.cr-consent { display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:#334155; margin-bottom:10px; cursor:pointer; }
-.cr-consent input { width:18px; height:18px; margin-top:2px; flex:none; accent-color:#14532d; }
+.cr-consent { display:flex; gap:10px; align-items:flex-start; width:100%; text-align:left; background:#f8faf9; border:1.5px solid #dbe3df; border-radius:12px; padding:11px 12px; font:inherit; font-size:13.5px; line-height:1.45; color:#334155; margin:0 0 10px; cursor:pointer; }
+.cr-consent.on { background:#ecf7ef; border-color:#1e7a4c; }
+.cr-consent:focus-visible { outline:3px solid #d4a24c; outline-offset:2px; }
+.cr-box { width:22px; height:22px; flex:none; border-radius:6px; border:2px solid #94a3b8; background:#fff; display:grid; place-items:center; font-size:15px; font-weight:900; line-height:1; color:#fff; margin-top:-1px; }
+.cr-consent.on .cr-box { background:#14532d; border-color:#14532d; }
 .cr-err { background:#fdf0f0; color:#b91c1c; border-radius:10px; padding:9px 12px; font-size:13.5px; margin:0 0 10px; }
-.cr-done { text-align:center; display:grid; gap:10px; justify-items:center; padding:16px 4px 6px; }
-.cr-done-ic { font-size:56px !important; color:#1e7a4c; }
-.cr-done h2 { margin:0; }
-.cr-done p { margin:0 0 6px; color:#5b6b62; font-size:15px; line-height:1.6; max-width:420px; }
+.cr-done { text-align:center; display:grid; gap:12px; justify-items:center; padding:18px 4px 6px; }
+.cr-done-ring { width:88px; height:88px; border-radius:50%; display:grid; place-items:center; background:radial-gradient(circle, #ecf7ef 55%, #d6eedf 56%); animation:crPop .45s cubic-bezier(.34,1.56,.64,1); }
+@keyframes crPop { from { transform:scale(.4); opacity:0 } to { transform:scale(1); opacity:1 } }
+.cr-done-ic { font-size:60px !important; color:#1e7a4c; }
+.cr-done h2 { margin:0; font-size:24px; }
+.cr-done p { margin:0; color:#334155; font-size:15px; line-height:1.6; max-width:440px; }
+.cr-done-mail { background:#fffaf0; border:1px solid #f1e2bf; border-radius:12px; padding:9px 14px; font-size:13.5px; color:#5b4a1e; max-width:100%; overflow-wrap:anywhere; }
+.cr-next { list-style:none; counter-reset:n; margin:4px 0 0; padding:0; display:grid; gap:8px; width:100%; max-width:440px; text-align:left; }
+.cr-next li { counter-increment:n; display:grid; grid-template-columns:30px 1fr; column-gap:10px; align-items:start; background:#f6f9f7; border-radius:12px; padding:10px 12px; }
+.cr-next li::before { content:counter(n); grid-row:span 2; width:28px; height:28px; border-radius:50%; background:#14532d; color:#fff; font-weight:800; font-size:13px; display:grid; place-items:center; }
+.cr-next b { font-size:14px; color:#10241a; } .cr-next span { font-size:13px; color:#5b6b62; line-height:1.45; }
+.cr-done-acts { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+@media (prefers-reduced-motion:reduce) { .cr-done-ring { animation:none; } }
 
 @media (max-width:1023px) {
   .cr-why-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }

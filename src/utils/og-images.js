@@ -220,6 +220,60 @@ export async function noidaCard() {
   return toJpeg(await canvas(), layers);
 }
 
+// Careers: the real CYT team at the Noida centre (the whole 16:9 photo, nobody cropped out) on a green
+// panel with a gold "We're hiring" badge; on the left the logo, the headline and the open roles as pills.
+export async function careersCard({ roles = [] } = {}) {
+  const PX = 610, PW = W - PX;
+  const photo = fs.readFileSync(path.join(process.cwd(), "public/images/centre/cyt-noida-centre-team.jpg"));
+  const layers = [];
+  layers.push({ input: rect(PW, H, GREEN), left: PX, top: 0 });
+  layers.push({ input: Buffer.from(`<svg width="${PW}" height="${H}"><defs><radialGradient id="g" cx="0.85" cy="0" r="0.9"><stop offset="0" stop-color="${GOLD}" stop-opacity=".35"/><stop offset="1" stop-color="${GOLD}" stop-opacity="0"/></radialGradient></defs><rect width="${PW}" height="${H}" fill="url(#g)"/></svg>`), left: PX, top: 0 });
+  const IW = PW - 60, IH = Math.round(IW * 9 / 16), IX = PX + 30, IY = Math.round((H - IH) / 2) + 6;
+  layers.push({ input: rect(IW + 12, IH + 12, "#ffffff", 22, 0.16), left: IX - 6, top: IY - 6 });
+  layers.push({ input: await roundedPhoto(photo, IW, IH, 18), left: IX, top: IY });
+  const badge = await text("<b>WE'RE HIRING</b>", { size: 22, color: "#1b1405", width: 400 });
+  const bw = badge.info.width + 44;
+  layers.push({ input: rect(bw, 50, GOLD, 25), left: IX, top: IY - 50 - 24 });
+  layers.push({ input: badge.data, left: IX + 22, top: IY - 50 - 24 + Math.round((50 - badge.info.height) / 2) });
+  const cap = await text("The CYT team at our Noida centre", { size: 20, color: "#d9e7de", width: IW });
+  layers.push({ input: cap.data, left: IX, top: IY + IH + 22 });
+
+  const X = 60, TW = PX - X - 50;
+  const lg = await logo(270);
+  layers.push({ input: lg.data, left: X, top: 50 });
+  layers.push({ input: rect(64, 5, GOLD, 2), left: X, top: 168 });
+  const k = await text("<b>CAREERS AT CHOOSE YOUR THERAPIST</b>", { size: 17, color: "#9a6b12", width: TW });
+  layers.push({ input: k.data, left: X, top: 184 });
+  const title = await text("<b>Join our team</b>", { size: 58, color: "#0b1712", width: TW, lines: 1 });
+  layers.push({ input: title.data, left: X, top: 216 });
+  let y = 216 + title.info.height + 10;
+  const sub = await text("Help more people find the right therapist. Marketing, content and psychologist roles.", { size: 23, color: "#475569", width: TW, lines: 2 });
+  layers.push({ input: sub.data, left: X, top: y });
+  y += sub.info.height + 22;
+
+  // open roles as pills, left-aligned, at most two rows
+  const pills = await Promise.all(roles.slice(0, 6).map((r) => text(esc(r), { size: 19, color: "#14532d", width: 520, lines: 1 })));
+  let px = X, row = 0, shown = 0;
+  const pill = (p, fill, stroke) => {
+    const w = p.info.width + 36;
+    if (w > TW) return true;
+    if (px + w > X + TW) { row += 1; px = X; if (row > 1) return false; }
+    const top = y + row * 52;
+    layers.push({ input: Buffer.from(`<svg width="${w}" height="42"><rect x="1" y="1" width="${w - 2}" height="40" rx="20" fill="${fill}" stroke="${stroke}" stroke-width="2"/></svg>`), left: px, top });
+    layers.push({ input: p.data, left: px + 18, top: top + Math.round((42 - p.info.height) / 2) });
+    px += w + 10;
+    return true;
+  };
+  for (const p of pills) { if (!pill(p, "#ecf7ef", "#bfe0cc")) break; shown += 1; }
+  if (roles.length > shown && shown > 0) {
+    const more = await text(`<b>+${roles.length - shown} more role${roles.length - shown === 1 ? "" : "s"}</b>`, { size: 19, color: "#92651a", width: 300, lines: 1 });
+    if (!pill(more, "#fdf6e7", "#f1dcae")) { row = 1; px = X; }
+  }
+  const foot = await text("<b>chooseyourtherapist.in/careers</b>", { size: 22, color: GREEN, width: TW });
+  layers.push({ input: foot.data, left: X, top: H - 50 - foot.info.height });
+  return toJpeg(await canvas("#fffaf0"), layers);
+}
+
 export const sendJpeg = (res, buf, maxAge = 86400) => {
   res.setHeader("Content-Type", "image/jpeg");
   res.setHeader("Cache-Control", `public, max-age=${maxAge}, stale-while-revalidate=604800`);
