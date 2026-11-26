@@ -218,12 +218,11 @@ function ApplyModal({ job, jobs, onClose }) {
   const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
 
   useEffect(() => {
+    // the form is locked open (only the ✕ closes it) so a stray tap never loses what they typed
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = prev; document.removeEventListener("keydown", onKey); };
-  }, [onClose]);
+    return () => { document.body.style.overflow = prev; };
+  }, []);
 
   const pickFile = (e) => {
     const x = e.target.files?.[0];
@@ -260,7 +259,7 @@ function ApplyModal({ job, jobs, onClose }) {
   };
 
   return (
-    <div className="cr-modal-bg" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="cr-modal-bg" role="presentation">
       <div className="cr-modal" role="dialog" aria-modal="true" aria-labelledby="cr-apply-h" ref={boxRef}>
         <button type="button" className="cr-x" onClick={onClose} aria-label="Close"><CloseRounded /></button>
         {done ? (
@@ -320,8 +319,10 @@ function ApplyModal({ job, jobs, onClose }) {
               <span>Choose Your Therapist can keep my details and resume to contact me about jobs.</span>
             </label>
 
-            {err && <p className="cr-err" role="alert">{err}</p>}
-            <button type="submit" className="cr-btn wide" disabled={busy}>{busy ? "Sending…" : "Send application"}</button>
+            <div className="cr-submit-bar">
+              {err && <p className="cr-err" role="alert">{err}</p>}
+              <button type="submit" className="cr-btn wide" disabled={busy}>{busy ? "Sending…" : "Submit application"}</button>
+            </div>
           </form>
         )}
       </div>
@@ -345,7 +346,9 @@ const CSS = `
 .cr-btn.ghost { background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.45); }
 .cr-btn.line { background:#fff; color:var(--forest); border:1.5px solid var(--forest); }
 .cr-btn.line:hover { color:var(--forest); background:#f0f8f3; }
-.cr-btn.wide { width:100%; margin-top:6px; }
+.cr-btn.wide { width:100%; }
+.cr-submit-bar { position:sticky; bottom:calc(-1 * var(--mpb)); z-index:2; margin:4px calc(-1 * var(--mpx)) calc(-1 * var(--mpb)); padding:12px var(--mpx) var(--mpb); background:#fff; border-top:1px solid #eef2ef; box-shadow:0 -10px 20px -14px rgba(15,61,36,.35); }
+.cr-submit-bar .cr-err { margin:0 0 8px; }
 .cr-btn:disabled { opacity:.7; cursor:default; transform:none; }
 
 .cr-why { margin-top:-30px; }
@@ -386,10 +389,10 @@ const CSS = `
 .cr-general b { font-size:17px; } .cr-general p { margin:2px 0 0; color:var(--mute); font-size:14px; }
 
 .cr-modal-bg { position:fixed; inset:0; z-index:3000; background:rgba(10,24,17,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
-.cr-modal { position:relative; width:100%; max-width:640px; max-height:calc(100dvh - 32px); overflow-y:auto; background:#fff; border-radius:20px; padding:26px 24px 22px; font-family:Inter,-apple-system,"Segoe UI",sans-serif; color:#10241a; box-shadow:0 30px 80px -30px rgba(0,0,0,.5); }
+.cr-modal { --mpx:24px; --mpb:20px; position:relative; width:100%; max-width:640px; max-height:calc(100dvh - 32px); overflow-y:auto; background:#fff; border-radius:20px; padding:26px var(--mpx) var(--mpb); font-family:Inter,-apple-system,"Segoe UI",sans-serif; color:#10241a; box-shadow:0 30px 80px -30px rgba(0,0,0,.5); }
 .cr-modal h2 { font-size:22px; font-weight:800; margin:0 34px 2px 0; color:#10241a; }
 .cr-sub { margin:0 0 14px; color:#5b6b62; font-size:13.5px; }
-.cr-x { position:absolute; top:14px; right:14px; width:36px; height:36px; border-radius:50%; border:0; background:#f1f5f3; color:#334155; display:grid; place-items:center; cursor:pointer; }
+.cr-x { position:sticky; float:right; top:0; margin:-12px -10px 0 8px; z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.08); width:36px; height:36px; border-radius:50%; border:0; background:#f1f5f3; color:#334155; display:grid; place-items:center; cursor:pointer; }
 .cr-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 12px; }
 .cr-f { display:grid; gap:5px; font-size:13px; font-weight:700; color:#334155; margin:0 0 10px; min-width:0; }
 .cr-grid .cr-f { margin:0; }
@@ -426,7 +429,7 @@ const CSS = `
   .cr-chips button { flex:none; }
   .cr-general .cr-btn { width:100%; }
   .cr-modal-bg { align-items:flex-end; padding:0; }
-  .cr-modal { max-width:none; border-radius:20px 20px 0 0; max-height:92dvh; padding:22px 16px calc(18px + env(safe-area-inset-bottom,0px)); }
+  .cr-modal { --mpx:16px; --mpb:calc(16px + env(safe-area-inset-bottom,0px)); max-width:none; border-radius:20px 20px 0 0; max-height:92dvh; padding:22px var(--mpx) var(--mpb); }
   .cr-grid { grid-template-columns:minmax(0,1fr); }
 }
 @media (max-width:480px) {
