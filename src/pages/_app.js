@@ -120,7 +120,7 @@ function MyApp({ Component, pageProps }) {
 
   }, []);
 
-  const hideWidgetsOn = ["/assessment-report", 
+  const hideWidgetsOn = ["/assessment-report", "/start", // campaign landing page: only its own form 
     "/therapist-dashboard",
     "/appointments",
     "/noida-appointment",

@@ -110,7 +110,7 @@ const ini = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map((x) => x
    - clients: the CYT Care Team chat right inside the widget (the team answers in admin → Live Chats → Care Team);
    - therapists: their latest chats;
    - new-message pop-ups come out of the button, wherever it is. */
-const HIDE_ON = /^\/(view-profile\/|login|register|therapist-app|book\/|therapist-checkout|payment|checkout|noida-reception|offline|therapists\/messages|client\/messages)/;
+const HIDE_ON = /^\/(start$|view-profile\/|login|register|therapist-app|book\/|therapist-checkout|payment|checkout|noida-reception|offline|therapists\/messages|client\/messages)/;
 const BARS = ".tn-mob-nav, .cls-mob, .mab, .ph-sticky, .mobile-bottom-nav";
 
 export default function ChatNotifier() {

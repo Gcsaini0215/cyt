@@ -123,6 +123,7 @@ export default function Footer() {
                 <p className="ft-title">Get Started</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/view-all-therapist">Find a Psychologist</Link></li>
+                  <li className="mb--12"><Link href="/start">Request a Call Back</Link></li>
                   <li className="mb--12"><Link href="/psychologist-near-me">Psychologist Near Me</Link></li>
                   <li className="mb--12"><Link href="/clinical-psychologist">Clinical Psychologist</Link></li>
                   <li className="mb--12"><Link href="/child-psychologist">Child Psychologist</Link></li>
