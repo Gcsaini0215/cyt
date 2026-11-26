@@ -220,58 +220,126 @@ export async function noidaCard() {
   return toJpeg(await canvas(), layers);
 }
 
-// Careers: the real CYT team at the Noida centre (the whole 16:9 photo, nobody cropped out) on a green
-// panel with a gold "We're hiring" badge; on the left the logo, the headline and the open roles as pills.
-export async function careersCard({ roles = [] } = {}) {
-  const PX = 610, PW = W - PX;
-  const photo = fs.readFileSync(path.join(process.cwd(), "public/images/centre/cyt-noida-centre-team.jpg"));
-  const layers = [];
-  layers.push({ input: rect(PW, H, GREEN), left: PX, top: 0 });
-  layers.push({ input: Buffer.from(`<svg width="${PW}" height="${H}"><defs><radialGradient id="g" cx="0.85" cy="0" r="0.9"><stop offset="0" stop-color="${GOLD}" stop-opacity=".35"/><stop offset="1" stop-color="${GOLD}" stop-opacity="0"/></radialGradient></defs><rect width="${PW}" height="${H}" fill="url(#g)"/></svg>`), left: PX, top: 0 });
-  const IW = PW - 60, IH = Math.round(IW * 9 / 16), IX = PX + 30, IY = Math.round((H - IH) / 2) + 6;
-  layers.push({ input: rect(IW + 12, IH + 12, "#ffffff", 22, 0.16), left: IX - 6, top: IY - 6 });
-  layers.push({ input: await roundedPhoto(photo, IW, IH, 18), left: IX, top: IY });
-  const badge = await text("<b>WE'RE HIRING</b>", { size: 22, color: "#1b1405", width: 400 });
-  const bw = badge.info.width + 44;
-  layers.push({ input: rect(bw, 50, GOLD, 25), left: IX, top: IY - 50 - 24 });
-  layers.push({ input: badge.data, left: IX + 22, top: IY - 50 - 24 + Math.round((50 - badge.info.height) / 2) });
-  const cap = await text("The CYT team at our Noida centre", { size: 20, color: "#d9e7de", width: IW });
-  layers.push({ input: cap.data, left: IX, top: IY + IH + 22 });
+// ── Careers share cards: a designed, full-bleed graphic (no photo) ──────────────────────────────
+// Deep green with a gold glow, soft rings, a dot grid and three "people" bubbles on the right,
+// the logo on a cream tab, a gold "We're hiring" badge and big white type.
+const careersBg = () => {
+  const dots = [];
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 12; c++) dots.push(`<circle cx="${760 + c * 34}" cy="${70 + r * 34}" r="2.2"/>`);
+  const person = (cx, cy, s, op) => `<g transform="translate(${cx} ${cy}) scale(${s})" opacity="${op}">
+      <circle r="58" fill="#ffffff" fill-opacity=".10" stroke="#ffffff" stroke-opacity=".35" stroke-width="2"/>
+      <circle cy="-14" r="17" fill="#fffaf0"/>
+      <path d="M-30 34 C-30 10 -16 2 0 2 C16 2 30 10 30 34 Z" fill="#fffaf0"/>
+    </g>`;
+  return Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#0a2a19"/><stop offset=".55" stop-color="#14532d"/><stop offset="1" stop-color="#1e7a4c"/>
+      </linearGradient>
+      <radialGradient id="glow" cx=".88" cy=".08" r=".7">
+        <stop offset="0" stop-color="${GOLD}" stop-opacity=".55"/><stop offset="1" stop-color="${GOLD}" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="glow2" cx=".05" cy="1" r=".6">
+        <stop offset="0" stop-color="#4fd38b" stop-opacity=".25"/><stop offset="1" stop-color="#4fd38b" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+    <g fill="#ffffff" fill-opacity=".09">${dots.join("")}</g>
+    <g fill="none" stroke="${GOLD}" stroke-opacity=".35">
+      <circle cx="975" cy="330" r="230" stroke-width="2"/>
+      <circle cx="975" cy="330" r="160" stroke-width="1.5" stroke-dasharray="4 10"/>
+    </g>
+    <line x1="975" y1="175" x2="1065" y2="455" stroke="#ffffff" stroke-opacity=".14" stroke-width="2"/>
+    <line x1="975" y1="175" x2="860" y2="440" stroke="#ffffff" stroke-opacity=".14" stroke-width="2"/>
+    ${person(975, 175, 1.05, 1)}
+    ${person(865, 445, 0.9, 0.95)}
+    ${person(1070, 455, 0.9, 0.95)}
+    <circle cx="1132" cy="236" r="7" fill="${GOLD}"/><circle cx="812" cy="292" r="5" fill="${GOLD}" fill-opacity=".8"/>
+    <circle cx="1150" cy="560" r="4" fill="#fffaf0" fill-opacity=".6"/>
+    <rect x="0" y="${H - 8}" width="${W}" height="8" fill="${GOLD}"/>
+  </svg>`);
+};
 
-  const X = 60, TW = PX - X - 50;
-  const lg = await logo(270);
-  layers.push({ input: lg.data, left: X, top: 50 });
-  layers.push({ input: rect(64, 5, GOLD, 2), left: X, top: 168 });
-  const k = await text("<b>CAREERS AT CHOOSE YOUR THERAPIST</b>", { size: 17, color: "#9a6b12", width: TW });
-  layers.push({ input: k.data, left: X, top: 184 });
-  const title = await text("<b>Join our team</b>", { size: 58, color: "#0b1712", width: TW, lines: 1 });
-  layers.push({ input: title.data, left: X, top: 216 });
-  let y = 216 + title.info.height + 10;
-  const sub = await text("Help more people find the right therapist. Marketing, content and psychologist roles.", { size: 23, color: "#475569", width: TW, lines: 2 });
-  layers.push({ input: sub.data, left: X, top: y });
-  y += sub.info.height + 22;
+// cream tab with the logo (the logo's green/blue type doesn't read on dark green)
+async function logoTab(layers, x, y) {
+  const lg = await logo(230);
+  const w = lg.info.width + 36, h = lg.info.height + 24;
+  layers.push({ input: rect(w, h, "#fffaf0", 16), left: x, top: y });
+  layers.push({ input: lg.data, left: x + 18, top: y + 12 });
+  return { w, h };
+}
 
-  // open roles as pills, left-aligned, at most two rows
-  const pills = await Promise.all(roles.slice(0, 6).map((r) => text(esc(r), { size: 19, color: "#14532d", width: 520, lines: 1 })));
-  let px = X, row = 0, shown = 0;
-  const pill = (p, fill, stroke) => {
+async function goldBadge(layers, label, right, top) {
+  const t = await text(`<b>${label}</b>`, { size: 21, color: "#1b1405", width: 400 });
+  const w = t.info.width + 40;
+  layers.push({ input: rect(w, 46, GOLD, 23), left: right - w, top });
+  layers.push({ input: t.data, left: right - w + 20, top: top + Math.round((46 - t.info.height) / 2) });
+}
+
+// soft white-glass pills, left-aligned, up to `rows` rows; returns the bottom y
+async function glassPills(layers, items, { x, y, maxW, rows = 2, size = 20 }) {
+  const pills = await Promise.all(items.map((r) => text(r, { size, color: "#ffffff", width: 560, lines: 1 })));
+  let px = x, row = 0, shown = 0;
+  const put = (p, fill, op, stroke) => {
     const w = p.info.width + 36;
-    if (w > TW) return true;
-    if (px + w > X + TW) { row += 1; px = X; if (row > 1) return false; }
-    const top = y + row * 52;
-    layers.push({ input: Buffer.from(`<svg width="${w}" height="42"><rect x="1" y="1" width="${w - 2}" height="40" rx="20" fill="${fill}" stroke="${stroke}" stroke-width="2"/></svg>`), left: px, top });
-    layers.push({ input: p.data, left: px + 18, top: top + Math.round((42 - p.info.height) / 2) });
+    if (w > maxW) return true;
+    if (px + w > x + maxW) { row += 1; px = x; if (row >= rows) return false; }
+    const top = y + row * 54;
+    layers.push({ input: Buffer.from(`<svg width="${w}" height="44"><rect x="1" y="1" width="${w - 2}" height="42" rx="21" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-opacity=".45" stroke-width="1.5"/></svg>`), left: px, top });
+    layers.push({ input: p.data, left: px + 18, top: top + Math.round((44 - p.info.height) / 2) });
     px += w + 10;
     return true;
   };
-  for (const p of pills) { if (!pill(p, "#ecf7ef", "#bfe0cc")) break; shown += 1; }
-  if (roles.length > shown && shown > 0) {
-    const more = await text(`<b>+${roles.length - shown} more role${roles.length - shown === 1 ? "" : "s"}</b>`, { size: 19, color: "#92651a", width: 300, lines: 1 });
-    if (!pill(more, "#fdf6e7", "#f1dcae")) { row = 1; px = X; }
+  for (const p of pills) { if (!put(p, "#ffffff", 0.12, "#ffffff")) break; shown += 1; }
+  if (items.length > shown && shown > 0) {
+    const more = await text(`<b>+${items.length - shown} more</b>`, { size, color: "#1b1405", width: 300, lines: 1 });
+    put(more, GOLD, 1, GOLD);
   }
-  const foot = await text("<b>chooseyourtherapist.in/careers</b>", { size: 22, color: GREEN, width: TW });
-  layers.push({ input: foot.data, left: X, top: H - 50 - foot.info.height });
-  return toJpeg(await canvas("#fffaf0"), layers);
+  return y + (row + 1) * 54;
+}
+
+// /careers
+export async function careersCard({ roles = [] } = {}) {
+  const layers = [];
+  const X = 70, TW = 660;
+  await logoTab(layers, X, 52);
+  await goldBadge(layers, "WE'RE HIRING", W - 60, 60);
+  const k = await text("<b>CAREERS AT CHOOSE YOUR THERAPIST</b>", { size: 18, color: "#f3d79a", width: TW });
+  layers.push({ input: k.data, left: X, top: 186 });
+  const title = await text("<b>Join our team</b>", { size: 80, color: "#ffffff", width: TW, lines: 1 });
+  layers.push({ input: title.data, left: X, top: 214 });
+  let y = 214 + title.info.height + 6;
+  const sub = await text("Help more people find the right therapist.", { size: 28, color: "#d9efe1", width: TW, lines: 2 });
+  layers.push({ input: sub.data, left: X, top: y });
+  y += sub.info.height + 26;
+  if (roles.length) await glassPills(layers, roles.slice(0, 6).map(esc), { x: X, y, maxW: TW, rows: 2 });
+  const foot = await text("<b>chooseyourtherapist.in/careers</b>", { size: 23, color: GOLD, width: TW });
+  layers.push({ input: foot.data, left: X, top: H - 44 - foot.info.height });
+  return toJpeg(await sharp(careersBg()).png().toBuffer(), layers);
+}
+
+// /careers/<slug> — one job
+export async function jobCard(job = {}) {
+  const layers = [];
+  const X = 70, TW = 700;
+  await logoTab(layers, X, 52);
+  await goldBadge(layers, "WE'RE HIRING", W - 60, 60);
+  const dept = await text(`<b>${esc(String(job.department || "Careers").toUpperCase())}${job.type ? `  ·  ${esc(String(job.type).toUpperCase())}` : ""}</b>`, { size: 19, color: "#f3d79a", width: TW });
+  layers.push({ input: dept.data, left: X, top: 186 });
+  const title = await text(`<b>${esc(job.title || "Open role")}</b>`, { size: 66, color: "#ffffff", width: TW, lines: 2 });
+  layers.push({ input: title.data, left: X, top: 216 });
+  let y = 216 + title.info.height + 18;
+  const facts = [job.location, job.experience && `${job.experience} experience`, job.salary && `₹ ${job.salary}`].filter(Boolean).map(esc);
+  if (facts.length) y = await glassPills(layers, facts, { x: X, y, maxW: TW, rows: 1, size: 21 }) + 8;
+  if (job.summary && y < H - 150) {
+    const sum = await text(esc(job.summary), { size: 22, color: "#d9efe1", width: 640, lines: 2 });
+    layers.push({ input: sum.data, left: X, top: y });
+  }
+  const foot = await text("<b>Apply now  →  chooseyourtherapist.in/careers</b>", { size: 23, color: GOLD, width: TW + 100 });
+  layers.push({ input: foot.data, left: X, top: H - 44 - foot.info.height });
+  return toJpeg(await sharp(careersBg()).png().toBuffer(), layers);
 }
 
 export const sendJpeg = (res, buf, maxAge = 86400) => {

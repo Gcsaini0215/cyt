@@ -14,8 +14,15 @@ import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import TrendingUpRounded from "@mui/icons-material/TrendingUpRounded";
 import GroupsRounded from "@mui/icons-material/GroupsRounded";
+import ShareRounded from "@mui/icons-material/ShareRounded";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import FacebookRounded from "@mui/icons-material/FacebookRounded";
+import LinkRounded from "@mui/icons-material/LinkRounded";
 
 /* /careers — open jobs (set up in admin → Settings → Careers) and an apply form with a resume.
+   /careers/<slug> (pages/careers/[slug].js) is the same page opened on one job, with that job's own
+   title, description and share image, so a shared job link previews the job itself.
    Applications land in admin → Settings → Careers → Applications. */
 
 const SITE = "https://www.chooseyourtherapist.in";
@@ -23,6 +30,7 @@ const PAGE_URL = `${SITE}/careers`;
 const SEO_TITLE = "Careers at Choose Your Therapist | Jobs in Noida & Remote";
 const SEO_DESC = "Join Choose Your Therapist, India's verified psychologist network. Open jobs in digital marketing, social media and psychology — remote and at our Noida centre. Apply online with your resume.";
 const OG_IMG = `${SITE}/api/og/site.jpg?page=careers`;
+export const jobUrl = (j) => `${PAGE_URL}/${j.slug}`;
 const EXPERIENCE = ["Fresher", "Less than 1 year", "1–2 years", "3–5 years", "5+ years"];
 const NOTICE = ["Can join now", "15 days", "30 days", "60 days or more"];
 const MAX_MB = 5;
@@ -57,13 +65,13 @@ const jobLd = (j) => ({
     ? { jobLocationType: "TELECOMMUTE", applicantLocationRequirements: { "@type": "Country", name: "India" } }
     : { jobLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Noida", addressRegion: "Uttar Pradesh", addressCountry: "IN" } } }),
   directApply: true,
-  url: `${PAGE_URL}#${j.slug}`,
+  url: jobUrl(j),
 });
 
-export default function CareersPage({ initialJobs = [] }) {
+export default function CareersPage({ initialJobs = [], focusSlug = "" }) {
   const [jobs, setJobs] = useState(initialJobs);
   const [dept, setDept] = useState("All");
-  const [open, setOpen] = useState(null);       // expanded job slug
+  const [open, setOpen] = useState(focusSlug || null); // expanded job slug
   const [applyFor, setApplyFor] = useState(null); // job object, or { general: true }
 
   // fresh list on the client too (a job closed a minute ago shouldn't take applications)
@@ -72,11 +80,23 @@ export default function CareersPage({ initialJobs = [] }) {
     fetch(`${apiUrl}/careers/jobs`).then((r) => r.json()).then((d) => { if (alive && Array.isArray(d?.data)) setJobs(d.data); }).catch(() => {});
     return () => { alive = false; };
   }, []);
-  // /careers#slug opens that job
+  // /careers/<slug> (or an old /careers#slug link) opens that job and scrolls to it
   useEffect(() => {
-    const h = decodeURIComponent((window.location.hash || "").slice(1));
-    if (h) setOpen(h);
-  }, []);
+    const h = focusSlug || decodeURIComponent((window.location.hash || "").slice(1));
+    if (!h) return undefined;
+    setOpen(h);
+    const t = setTimeout(() => document.getElementById(h)?.scrollIntoView({ behavior: "smooth", block: "start" }), 250);
+    return () => clearTimeout(t);
+  }, [focusSlug]);
+
+  // meta for the page, or for the one job when opened at /careers/<slug>
+  const focus = focusSlug ? initialJobs.find((j) => j.slug === focusSlug) : null;
+  const metaTitle = focus ? `${focus.title} – Job at Choose Your Therapist (${focus.location})` : SEO_TITLE;
+  const metaDesc = focus ? `${focus.summary || `Join Choose Your Therapist as ${focus.title}.`} ${focus.type} · ${focus.location}${focus.experience ? ` · ${focus.experience}` : ""}. Apply online with your resume.` : SEO_DESC;
+  const metaUrl = focus ? jobUrl(focus) : PAGE_URL;
+  const metaImg = focus ? `${SITE}/api/og/job/${focus.slug}.jpg` : OG_IMG;
+  const metaAlt = focus ? `We're hiring: ${focus.title} at Choose Your Therapist` : "Join the Choose Your Therapist team — we're hiring";
+  const ldJobs = focus ? [focus] : initialJobs;
 
   const depts = useMemo(() => ["All", ...Array.from(new Set(jobs.map((j) => j.department)))], [jobs]);
   const shown = dept === "All" ? jobs : jobs.filter((j) => j.department === dept);
@@ -84,37 +104,38 @@ export default function CareersPage({ initialJobs = [] }) {
   return (
     <>
       <Head>
-        <title>{SEO_TITLE}</title>
-        <meta name="description" content={SEO_DESC} />
-        <link rel="canonical" href={PAGE_URL} />
-        <meta property="og:title" content={SEO_TITLE} />
-        <meta property="og:description" content={SEO_DESC} />
-        <meta property="og:url" content={PAGE_URL} />
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDesc} />
+        <link rel="canonical" href={metaUrl} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDesc} />
+        <meta property="og:url" content={metaUrl} />
         <meta property="og:type" content="website" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta name="keywords" content="Choose Your Therapist careers, psychologist jobs Noida, counselling psychologist jobs online, digital marketing jobs Noida, social media jobs, mental health jobs India" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
-        <meta key="og:image" property="og:image" content={OG_IMG} />
-        <meta property="og:image:secure_url" content={OG_IMG} />
+        <meta key="og:image" property="og:image" content={metaImg} />
+        <meta property="og:image:secure_url" content={metaImg} />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="The Choose Your Therapist team at the Noida centre — we're hiring" />
+        <meta property="og:image:alt" content={metaAlt} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={SEO_TITLE} />
-        <meta name="twitter:description" content={SEO_DESC} />
-        <meta name="twitter:image" content={OG_IMG} />
-        <meta name="twitter:image:alt" content="The Choose Your Therapist team at the Noida centre — we're hiring" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDesc} />
+        <meta name="twitter:image" content={metaImg} />
+        <meta name="twitter:image:alt" content={metaAlt} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
             { "@type": "ListItem", position: 1, name: "Home", item: SITE },
             { "@type": "ListItem", position: 2, name: "Careers", item: PAGE_URL },
+            ...(focus ? [{ "@type": "ListItem", position: 3, name: focus.title, item: metaUrl }] : []),
           ],
         }) }} />
-        {initialJobs.map((j) => (
+        {ldJobs.map((j) => (
           <script key={j._id} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobLd(j)) }} />
         ))}
       </Head>
@@ -197,7 +218,10 @@ export default function CareersPage({ initialJobs = [] }) {
                       )}
                       <div className="cr-job-foot">
                         <button type="button" className="cr-link" onClick={() => setOpen(isOpen ? null : j.slug)}>{isOpen ? "Show less" : "Read more"}</button>
-                        <button type="button" className="cr-btn" onClick={() => setApplyFor(j)}>Apply now</button>
+                        <span className="cr-job-btns">
+                          <ShareButton job={j} />
+                          <button type="button" className="cr-btn" onClick={() => setApplyFor(j)}>Apply now</button>
+                        </span>
                       </div>
                     </article>
                   );
@@ -219,6 +243,45 @@ export default function CareersPage({ initialJobs = [] }) {
       {applyFor && <ApplyModal job={applyFor} jobs={jobs} onClose={() => setApplyFor(null)} />}
       <Footer />
     </>
+  );
+}
+
+/* Share one job: the phone's own share sheet where there is one, otherwise WhatsApp / LinkedIn /
+   Facebook / copy link. The link is /careers/<slug>, which previews that job's own image and title. */
+function ShareButton({ job }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const ref = useRef(null);
+  const url = jobUrl(job);
+  const msg = `We're hiring at Choose Your Therapist: ${job.title} (${job.location}). Apply here: ${url}`;
+  useEffect(() => {
+    if (!open) return undefined;
+    const off = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("pointerdown", off);
+    return () => document.removeEventListener("pointerdown", off);
+  }, [open]);
+  const share = async () => {
+    if (typeof navigator !== "undefined" && navigator.share && window.matchMedia?.("(pointer:coarse)").matches) {
+      try { await navigator.share({ title: `${job.title} – Choose Your Therapist`, text: `We're hiring: ${job.title} (${job.location}).`, url }); return; } catch (e) { if (e?.name === "AbortError") return; }
+    }
+    setOpen((v) => !v);
+  };
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(url); } catch { const t = document.createElement("textarea"); t.value = url; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch { /* ignore */ } t.remove(); }
+    setCopied(true); setTimeout(() => setCopied(false), 1800);
+  };
+  return (
+    <span className="cr-share" ref={ref}>
+      <button type="button" className="cr-btn line sm" onClick={share} aria-expanded={open} aria-label={`Share ${job.title}`}><ShareRounded aria-hidden="true" /> Share</button>
+      {open && (
+        <span className="cr-share-pop" role="menu">
+          <a role="menuitem" href={`https://wa.me/?text=${encodeURIComponent(msg)}`} target="_blank" rel="noreferrer noopener"><WhatsAppIcon aria-hidden="true" style={{ color: "#128c4a" }} /> WhatsApp</a>
+          <a role="menuitem" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noreferrer noopener"><LinkedInIcon aria-hidden="true" style={{ color: "#0a66c2" }} /> LinkedIn</a>
+          <a role="menuitem" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noreferrer noopener"><FacebookRounded aria-hidden="true" style={{ color: "#1877f2" }} /> Facebook</a>
+          <button role="menuitem" type="button" onClick={copy}><LinkRounded aria-hidden="true" /> {copied ? "Link copied!" : "Copy link"}</button>
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -411,6 +474,14 @@ const CSS = `
 .cr-job-foot { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:2px; }
 .cr-link { background:none; border:0; padding:4px 0; font:inherit; font-size:14px; font-weight:700; color:var(--green); cursor:pointer; }
 .cr-job-foot .cr-btn { height:40px; padding:0 18px; font-size:14px; }
+.cr-job-btns { display:flex; gap:8px; align-items:center; }
+.cr-btn.sm { padding:0 14px; }
+.cr-btn.sm svg { font-size:18px; }
+.cr-share { position:relative; display:inline-flex; }
+.cr-share-pop { position:absolute; right:0; bottom:calc(100% + 8px); z-index:20; min-width:190px; background:#fff; border:1px solid #e3ebe6; border-radius:14px; box-shadow:0 18px 40px -16px rgba(15,61,36,.45); padding:6px; display:grid; gap:2px; }
+.cr-share-pop a, .cr-share-pop button { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; border:0; background:none; font:inherit; font-size:14px; font-weight:600; color:#10241a; text-decoration:none; cursor:pointer; text-align:left; width:100%; }
+.cr-share-pop a:hover, .cr-share-pop button:hover { background:#f0f8f3; color:#10241a; }
+.cr-share-pop svg { font-size:20px; }
 .cr-empty { background:#fff; border:1px dashed #cfe0d5; border-radius:16px; padding:34px 20px; text-align:center; display:grid; gap:8px; justify-items:center; }
 .cr-empty b { font-size:18px; } .cr-empty p { margin:0 0 8px; color:var(--mute); }
 .cr-general { margin-top:22px; background:var(--cream); border:1px solid #f1e2bf; border-radius:16px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
