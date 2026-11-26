@@ -45,13 +45,37 @@ const AUD = {
     cta: "Get a call from our team",
   },
 };
+// share / search meta per audience (the page is rendered on the server, so ?for=therapist links preview right)
+const META = {
+  client: {
+    title: "Talk to a Verified Psychologist – Get a Call Back | Choose Your Therapist",
+    desc: "Feeling low, stressed or stuck? Leave your number and our care team will call you back and match you with a verified psychologist — online across India or at our Noida centre.",
+    ogTitle: "Feeling low, stressed or stuck? Talk to a verified psychologist",
+    img: `${SITE}/api/og/site.jpg?page=home`,
+    alt: "Verified psychologists at Choose Your Therapist",
+    url: `${SITE}/start`,
+  },
+  therapist: {
+    title: "Get Clients Without Chasing Them – Join CYT as a Psychologist | Choose Your Therapist",
+    desc: "Psychologists and counsellors: join CYT's verified network, get booked online and at our Noida centre, and keep 70% of every session. Leave your number and our team will call you.",
+    ogTitle: "Psychologist? Get clients without chasing them — join CYT",
+    img: `${SITE}/api/og/site.jpg?page=join`,
+    alt: "Grow your practice with Choose Your Therapist",
+    url: `${SITE}/start?for=therapist`,
+  },
+};
+
+export async function getServerSideProps({ query }) {
+  return { props: { initialWho: String(query?.for || "").toLowerCase().startsWith("therap") ? "therapist" : "client" } };
+}
+
 const CONCERNS = ["Anxiety", "Stress", "Low mood", "Relationship", "Sleep", "Something else"];
 const MODES = ["Online", "In person (Noida)"];
 const ROLES = ["Counselling Psychologist", "Clinical Psychologist", "Psychiatrist", "Psychotherapist / Counsellor", "Other"];
 
-export default function CampaignStart() {
+export default function CampaignStart({ initialWho = "client" }) {
   const router = useRouter();
-  const [who, setWho] = useState("client");
+  const [who, setWho] = useState(initialWho);
   const [open, setOpen] = useState(false);     // phone bottom sheet expanded?
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -67,12 +91,8 @@ export default function CampaignStart() {
   const [hp, setHp] = useState("");            // honeypot
   const drag = useRef(null);
   const a = AUD[who];
+  const m = META[initialWho] || META.client;
 
-  // ?for=therapist from the ad link
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (String(router.query.for || "").toLowerCase().startsWith("therap")) setWho("therapist");
-  }, [router.isReady, router.query.for]);
   // lock the page behind the open sheet (phones only)
   useEffect(() => {
     if (!open || window.innerWidth > 899) return undefined;
@@ -142,17 +162,31 @@ export default function CampaignStart() {
   return (
     <>
       <Head>
-        <title>Talk to a Verified Psychologist | Choose Your Therapist</title>
-        <meta name="description" content="Feeling low, stressed or stuck? Leave your number and our care team will call you back and match you with a verified psychologist — online or in Noida." />
+        <title>{m.title}</title>
+        <meta name="description" content={m.desc} />
         <meta name="robots" content="noindex, follow" />
         <link rel="canonical" href={`${SITE}/start`} />
-        <meta property="og:title" content="Talk to a verified psychologist — Choose Your Therapist" />
-        <meta property="og:description" content="Leave your number and our care team will call you back and match you with the right psychologist." />
-        <meta property="og:url" content={`${SITE}/start`} />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
         <meta property="og:type" content="website" />
-        <meta key="og:image" property="og:image" content={`${SITE}/api/og/site.jpg?page=home`} />
+        <meta property="og:title" content={m.ogTitle} />
+        <meta property="og:description" content={m.desc} />
+        <meta property="og:url" content={m.url} />
+        <meta key="og:image" property="og:image" content={m.img} />
+        <meta property="og:image:secure_url" content={m.img} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={m.alt} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={m.ogTitle} />
+        <meta name="twitter:description" content={m.desc} />
+        <meta name="twitter:image" content={m.img} />
+        <meta name="twitter:image:alt" content={m.alt} />
         <meta name="theme-color" content="#0f3d24" />
+        <meta name="format-detection" content="telephone=no" />
+        <link rel="preload" as="image" href={`${AUD[initialWho].img}-900.webp`} media="(max-width: 899px)" />
+        <link rel="preload" as="image" href={`${AUD[initialWho].img}-1920.webp`} media="(min-width: 900px)" />
       </Head>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
@@ -305,7 +339,7 @@ const CSS = `
 .st-sheet-h b { font-size:21px; font-weight:800; color:var(--forest); }
 .st-sheet-h small { font-size:13.5px; color:#5b6b62; margin-top:2px; }
 .st-body { padding:6px 20px 20px; }
-.st-peek { display:none; }
+.st .st-cta.st-peek { display:none; }
 .st-f { display:grid; gap:6px; font-size:13px; font-weight:700; color:#334155; margin:0 0 12px; min-width:0; }
 .st-f small { font-weight:500; color:#94a3b8; }
 .st-f input, .st-f select, .st .st-in { width:100%; box-sizing:border-box; height:48px; border:1.5px solid #dbe3df !important; border-radius:12px !important; padding:0 14px; font:inherit; font-size:16px !important; font-weight:500; color:#0f1f17; background:#fff; outline:none; box-shadow:none !important; }
@@ -357,7 +391,7 @@ const CSS = `
   .st-sheet-h small { font-size:12.5px; }
   .st-body { overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 18px 18px; }
   .st-sheet:not(.open) .st-body { display:none; }
-  .st-peek { display:flex; width:calc(100% - 36px); margin:4px 18px 16px; }
+  .st .st-cta.st-peek { display:flex; width:auto; margin:4px 18px 16px; }
   .st-g2 { grid-template-columns:minmax(0,1fr); gap:0; }
 }
 @keyframes stSheet { from { transform:translateY(100%) } to { transform:translateY(0) } }
