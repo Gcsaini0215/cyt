@@ -222,6 +222,7 @@ export default function Footer() {
                 <p className="ft-title">Corporate</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/about-us">About Us</Link></li>
+                  <li className="mb--12"><Link href="/careers">Careers</Link></li>
                   <li className="mb--12"><Link href="/for-business">Corporate Wellness</Link></li>
                   <li><Link href="/contact-us">Get in Touch</Link></li>
                 </ul>
