@@ -334,7 +334,10 @@ export async function jobCard(job = {}) {
   const facts = [job.location, job.experience && `${job.experience} experience`, job.salary && `₹ ${job.salary}`].filter(Boolean).map(esc);
   if (facts.length) y = await glassPills(layers, facts, { x: X, y, maxW: TW, rows: 1, size: 21 }) + 8;
   if (job.summary && y < H - 150) {
-    const sum = await text(esc(job.summary), { size: 22, color: "#d9efe1", width: 640, lines: 2 });
+    // a long summary is cut at a word (with "…") so it stays readable instead of shrinking to fit
+    const raw = String(job.summary).replace(/\s+/g, " ").trim();
+    const short = raw.length > 110 ? `${raw.slice(0, 110).replace(/\s+\S*$/, "").replace(/[,.;:–-]+$/, "")}…` : raw;
+    const sum = await text(esc(short), { size: 22, color: "#d9efe1", width: 640 });
     layers.push({ input: sum.data, left: X, top: y });
   }
   const foot = await text("<b>Apply now  →  chooseyourtherapist.in/careers</b>", { size: 23, color: GOLD, width: TW + 100 });

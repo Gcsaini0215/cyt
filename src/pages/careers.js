@@ -438,6 +438,10 @@ const CSS = `
 .cr-btn.line { background:#fff; color:var(--forest); border:1.5px solid var(--forest); }
 .cr-btn.line:hover { color:var(--forest); background:#f0f8f3; }
 .cr-btn.wide { width:100%; }
+/* the site theme strips the background off submit buttons — keep ours solid green */
+.cr-modal button.cr-btn[type="submit"] { background:#14532d !important; background-color:#14532d !important; color:#fff !important; border:0 !important; box-shadow:0 10px 24px -12px rgba(20,83,45,.8) !important; }
+.cr-modal button.cr-btn[type="submit"]:hover { background:#1e7a4c !important; background-color:#1e7a4c !important; }
+.cr-modal button.cr-btn[type="submit"]:disabled { opacity:.75; }
 .cr-submit-bar { position:sticky; bottom:calc(-1 * var(--mpb)); z-index:2; margin:4px calc(-1 * var(--mpx)) calc(-1 * var(--mpb)); padding:12px var(--mpx) var(--mpb); background:#fff; border-top:1px solid #eef2ef; box-shadow:0 -10px 20px -14px rgba(15,61,36,.35); }
 .cr-submit-bar .cr-err { margin:0 0 8px; }
 .cr-btn:disabled { opacity:.7; cursor:default; transform:none; }
@@ -487,7 +491,7 @@ const CSS = `
 .cr-general { margin-top:22px; background:var(--cream); border:1px solid #f1e2bf; border-radius:16px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
 .cr-general b { font-size:17px; } .cr-general p { margin:2px 0 0; color:var(--mute); font-size:14px; }
 
-.cr-modal-bg { position:fixed; inset:0; z-index:3000; background:rgba(10,24,17,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+.cr-modal-bg { position:fixed; inset:0; z-index:2147483000; background:rgba(10,24,17,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
 .cr-modal { --mpx:24px; --mpb:20px; position:relative; width:100%; max-width:640px; max-height:calc(100dvh - 32px); overflow-y:auto; background:#fff; border-radius:20px; padding:26px var(--mpx) var(--mpb); font-family:Inter,-apple-system,"Segoe UI",sans-serif; color:#10241a; box-shadow:0 30px 80px -30px rgba(0,0,0,.5); }
 .cr-modal h2 { font-size:22px; font-weight:800; margin:0 34px 2px 0; color:#10241a; }
 .cr-sub { margin:0 0 14px; color:#5b6b62; font-size:13.5px; }
