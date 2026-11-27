@@ -28,30 +28,33 @@ const SHEET_MEDIA = "(max-width: 767px), (max-width: 1199px) and (any-pointer: c
 // the photos behind the title fade from one to the next with a slow zoom (the cards below already slide sideways)
 // pos = crop on portrait screens, posL = crop on wide screens (iPad landscape), so the title never sits on a face
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 78%", posL: "center 76%" },
-  { src: "/assets/img/hero-team.webp", alt: "A group of smiling psychologists sitting together", pos: "center 50%", posL: "center 48%", dark: true },
+  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 78%", posL: "center 76%", kick: "Feeling lost in the crowd?" },
+  // fit: on iPad landscape he sits on the right at full height and the blue fills the rest; title bottom-left
+  { src: "/assets/img/hero-call.webp", alt: "A smiling psychologist calling out from a phone screen", pos: "center 22%", posL: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
+  // wide photo: on phones / iPad portrait it sits at the top in full and fades into its own colour, the title below
+  { src: "/assets/img/hero-man.webp", alt: "A smiling young man relaxing on a bean bag with his phone", pos: "center top", posL: "center 0%", kick: "Therapist, right from your phone.", wide: true, bgc: "#fd7201" },
 ];
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 // Phone photo slider: slides every few seconds, follows a finger swipe, and pauses when motion is reduced.
 // <picture> with a phone-only source, so desktop and tablets never download these photos.
-function PhoneSlides() {
-  const [i, setI] = useState(0);
+function PhoneSlides({ i, setI }) {
   const [still, setStill] = useState(false);
   const startX = React.useRef(null);
   useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setStill(true); }, []);
   useEffect(() => {
     if (still || PHONE_SLIDES.length < 2) return undefined;
-    const t = setInterval(() => { if (document.visibilityState === "visible") setI((x) => (x + 1) % PHONE_SLIDES.length); }, 6000);
+    const mq = window.matchMedia(SHEET_MEDIA);
+    const t = setInterval(() => { if (document.visibilityState === "visible" && mq.matches) setI((x) => (x + 1) % PHONE_SLIDES.length); }, 6000);
     return () => clearInterval(t);
-  }, [still, i]);
+  }, [still, i, setI]);
   const go = (n) => setI((n + PHONE_SLIDES.length) % PHONE_SLIDES.length);
   return (
     <div className="cyt-hph"
       onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { if (startX.current == null) return; const dx = e.changedTouches[0].clientX - startX.current; startX.current = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1)); }}>
       {PHONE_SLIDES.map((sl, k) => (
-        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL }}>
+        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--bgc": sl.bgc || "transparent" }}>
           <source media={SHEET_MEDIA} srcSet={sl.src} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
@@ -234,6 +237,11 @@ export default function Banner({ topTherapists = [], stats = null }) {
   useEffect(() => { people.slice(0, 8).forEach((t) => { new Image().src = thumb(photo(t), 640, 85); }); }, [people]);
 
   const [turn, setTurn] = useState(0);
+  const [phSlide, setPhSlideRaw] = useState(0); // phones/iPads: which photo is showing
+  const [phMoved, setPhMoved] = useState(false);
+  const setPhSlide = React.useCallback((v) => { setPhMoved(true); setPhSlideRaw(v); }, []);
+  const phCur = PHONE_SLIDES[phSlide] || {};
+  const phPos = phCur.top ? " cyt-pos-top" : phMoved ? ` cyt-pos-bot${phCur.topL ? " cyt-pos-topl" : ""}` : "";
   const [paused, setPaused] = useState(false); // the pause button, or the visitor chose a dot
   const [resting, setResting] = useState(false); // pointer or keyboard focus on the cards
   const cur = THEMES[turn % THEMES.length];
@@ -312,8 +320,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
         <b>{cur.word}</b><i>{cur.word}</i>
       </span>
       <div className="cyt-hero-inner">
-        <div className="cyt-hero-copy">
-          <PhoneSlides />
+        <div className={`cyt-hero-copy${phPos}`}>
+          <PhoneSlides i={phSlide} setI={setPhSlide} />
+          {/* phones/iPads: a line above the title that matches the photo (space always kept, so the title never jumps) */}
+          <p className="cyt-kick" aria-hidden="true"><span key={phSlide}>{PHONE_SLIDES[phSlide]?.kick || "\u00a0"}</span></p>
           <p className="cyt-eyebrow">
             <span className="cyt-live" aria-hidden="true" />
             {stats?.count
@@ -722,7 +732,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         /* ===== phones: photo on top with the title, then a white sheet (owner 2026-11-28, sample 5) ===== */
         /* home page wrapper (pages/index.js): no sideways scroll; clip (not hidden) so the phone photo can hold still while the sheet slides over it */
         .cyt-home-wrap { overflow-x: hidden; overflow-x: clip; }
-        .cyt-ps, .cyt-hph { display: none; }
+        .cyt-ps, .cyt-hph, .cyt-kick { display: none; }
         @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
           .rbt-banner-1.cyt-hero { margin-top: 0 !important; padding: 0 0 36px !important; background: #fff !important; overflow: clip !important; } /* the logo strip below is pulled up 25px */
           .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
@@ -730,17 +740,33 @@ export default function Banner({ topTherapists = [], stats = null }) {
           /* shutter: the photo holds still while the white sheet slides up over it */
           .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(360px, calc(100svh - 307px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
             background: #f7cf5e; overflow: hidden; }
-          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph) { display: none !important; }
+          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph):not(.cyt-kick) { display: none !important; }
+          .cyt-hero .cyt-hero-copy > .cyt-kick { display: block !important; order: 0; position: relative; z-index: 1; margin: 0 0 10px !important; line-height: 1; }
+          /* the line that matches the photo: a white pill, readable on any photo colour */
+          .cyt-kick span { display: inline-flex; align-items: center; gap: 8px; padding: .5em 1em; border-radius: 999px; background: #fff; color: #10301d;
+            font-weight: 800; font-size: clamp(13.5px, 3.7vw, 20px); letter-spacing: -.005em; box-shadow: 0 10px 24px -10px rgba(0,0,0,.55); }
+          .cyt-kick span::before { content: ""; width: .55em; height: .55em; border-radius: 50%; background: #ffd23f; box-shadow: 0 0 0 3px rgba(255,210,63,.35); flex: none; }
+          .cyt-kick span { animation: cytKick .9s ease both; }
+          /* a photo whose subject is in the middle: title at the top; the title fades into its new place on a change */
+          .cyt-hero .cyt-hero-copy.cyt-pos-top { justify-content: flex-start !important; padding-top: 22px !important; }
+          .cyt-pos-top > .cyt-title, .cyt-pos-top > .cyt-eyebrow, .cyt-pos-top > .cyt-kick { animation: cytPosA .8s ease both; }
+          .cyt-pos-bot > .cyt-title, .cyt-pos-bot > .cyt-eyebrow, .cyt-pos-bot > .cyt-kick { animation: cytPosB .8s ease both; }
+          @keyframes cytPosA { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+          @keyframes cytPosB { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+          @keyframes cytKick { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
           .cyt-hero .cyt-hero-copy > .cyt-hph { display: block !important; position: absolute; inset: 0; z-index: 0; overflow: hidden; touch-action: pan-y; }
           .cyt-hph-s { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; }
           .cyt-hph-s.on { opacity: 1; }
           .cyt-hph-s img { width: 100%; height: 100%; object-fit: cover; object-position: var(--op); display: block; transform: scale(1.01); transition: transform 7s ease-out; will-change: transform; }
           .cyt-hph-s.on img { transform: scale(1.07); }
+          .cyt-hph-s.wide { background: var(--bgc); }
+          .cyt-hph-s.wide img { height: auto; position: absolute; top: 0; left: 0; transform-origin: center top;
+            -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%); mask-image: linear-gradient(180deg, #000 72%, transparent 100%); }
           .cyt-hph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,28,17,0) 0%, rgba(8,28,17,0) 45%, rgba(8,28,17,.8) 100%); pointer-events: none; }
           .cyt-hph-shade2 { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; pointer-events: none;
             background: linear-gradient(180deg, rgba(8,28,17,0) 30%, rgba(8,28,17,.45) 58%, rgba(8,28,17,.82) 82%, rgba(8,28,17,.9) 100%); }
           .cyt-hph-shade2.on { opacity: 1; }
-          .cyt-hph-dots { position: absolute; right: 18px; top: 16px; display: flex; gap: 5px; }
+          .cyt-hph-dots { position: absolute; left: 18px; top: 16px; display: flex; gap: 5px; }
           .cyt-hph-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.55); transition: width .3s, background .3s; }
           .cyt-hph-dots i.on { width: 18px; background: #fff; }
           .cyt-hero .cyt-title, .cyt-hero .cyt-eyebrow { position: relative; z-index: 1; }
@@ -783,7 +809,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero .cyt-hero-copy { min-height: max(520px, calc(100svh - 345px)) !important; padding: 0 40px 70px !important; }
           .cyt-hero .cyt-title { font-size: clamp(34px, 5vw, 50px) !important; }
           .cyt-hero .cyt-eyebrow { font-size: 16px !important; margin-top: 12px !important; }
-          .cyt-hph-dots { right: 32px; top: 24px; }
+          .cyt-hph-dots { left: 40px; top: 24px; }
           .cyt-ps { margin-top: -36px; border-radius: 36px 36px 0 0; padding-top: 14px; }
           .cyt-ps-h { padding: 0 32px 14px; }
           .cyt-ps-h b { font-size: 20px; }
@@ -796,14 +822,26 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-chips { padding: 16px 32px 4px; gap: 10px; }
           .cyt-ps-chips a { font-size: 14px; padding: 8px 16px; }
         }
+        @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
+          .cyt-hero .cyt-hero-copy.cyt-pos-top { padding-top: 36px !important; }
+        }
         /* iPad landscape: wide crops so the title stays clear of faces */
         @media (min-width: 1000px) and (max-width: 1199px) and (any-pointer: coarse) {
           .cyt-hph-s img { object-position: var(--opl); }
+          /* "fit" photo: the person on the right at full height, its own blue filling the rest; title stays bottom-left */
+          .cyt-hph-s.fit { background: var(--bgc); }
+          .cyt-hph-s.fit img { position: absolute; right: 0; left: auto; width: auto; height: 100%; transform-origin: right center;
+            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%); mask-image: linear-gradient(90deg, transparent 0, #000 22%); }
+          .cyt-hero .cyt-hero-copy.cyt-pos-top { justify-content: flex-end !important; padding-top: 0 !important; }
+          .cyt-hph-s.wide img { height: 100%; object-fit: cover; -webkit-mask-image: none; mask-image: none; }
+          .cyt-hero .cyt-hero-copy.cyt-pos-topl { justify-content: flex-start !important; padding-top: 34px !important; }
+          .cyt-hero .cyt-hero-copy.cyt-pos-topl > .cyt-title { font-size: 40px !important; }
+          .cyt-hph-dots { left: auto; right: 32px; }
           .cyt-hero .cyt-title { max-width: 680px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img, .cyt-hph-s, .cyt-hph-s img, .cyt-hph-shade2 { animation: none !important; transition: none !important; }
+          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img, .cyt-hph-s, .cyt-hph-s img, .cyt-hph-shade2, .cyt-kick span, .cyt-pos-top > *, .cyt-pos-bot > * { animation: none !important; transition: none !important; }
           .cyt-hph-s.on img { transform: none !important; }
         }
       `}</style>
