@@ -177,7 +177,10 @@ function PhoneCard({ t, onBroken, eager = false }) {
       <span className="cyt-ps-t">
         <b>{name}<svg viewBox="0 0 24 24" width="14" height="14" fill="#1d9bf0" aria-hidden="true"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48z" /></svg></b>
         <small>{t.profile_type || "Mental Health Professional"}</small>
-        <small className="cyt-ps-meta">{r ? <><span className="cyt-ps-star" aria-hidden="true">★</span> {r.avg} ({r.count})</> : <span className="cyt-ps-new">New</span>}{langs ? <> · {langs}</> : null}</small>
+        <small className="cyt-ps-meta">{r
+          ? <><span className="cyt-ps-stars" aria-hidden="true">{[1, 2, 3, 4, 5].map((n) => <i key={n} className={n <= Math.round(Number(r.avg)) ? "on" : ""}>★</i>)}</span> <b>{r.avg}</b> ({r.count})<span className="cyt-sr"> out of 5 stars</span></>
+          : <span className="cyt-ps-new">New</span>}</small>
+        {langs && <small className="cyt-ps-lang">{langs}</small>}
         <span className="cyt-ps-row">
           {fee ? <em>₹{fee.toLocaleString("en-IN")}</em> : <span />}
           <span className="cyt-ps-book" role="link" tabIndex={0} aria-label={`Book a session with ${name}`} onClick={open(bookPath(t))} onKeyDown={keys(bookPath(t))}>Book</span>
@@ -205,6 +208,23 @@ export default function Banner({ topTherapists = [], stats = null }) {
   const dropPhoto = (t) => setBroken((b) => [...b, t._id]);
 
   const people = useMemo(() => ranked.filter((t) => photo(t) && !broken.includes(t._id)), [ranked, broken]);
+
+  // phones: the sheet's card row moves on one card every few seconds (the daily order); a touch pauses it for a while
+  const psRef = React.useRef(null);
+  const psTouched = React.useRef(0);
+  useEffect(() => {
+    const el = psRef.current;
+    if (!el || people.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const t = setInterval(() => {
+      if (document.visibilityState !== "visible" || el.offsetParent === null || Date.now() - psTouched.current < 7000) return;
+      const card = el.firstElementChild;
+      if (!card) return;
+      const step = card.getBoundingClientRect().width + 10;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 8;
+      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + step, behavior: "smooth" });
+    }, 3200);
+    return () => clearInterval(t);
+  }, [people.length]);
 
   // fetched ahead, so a card that slides in already has its photo
   useEffect(() => { people.slice(0, 8).forEach((t) => { new Image().src = thumb(photo(t), 640, 85); }); }, [people]);
@@ -298,7 +318,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           </p>
 
           <h1 className="title cyt-title">
-            Talk to a verified <span className="cyt-hl">psychologist</span><br /> online, anywhere in India.
+            <span className="cyt-l1">Talk to a verified <span className="cyt-hl">psychologist</span></span><br /> online, anywhere in India.
           </h1>
 
           <p className="description">
@@ -380,7 +400,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         <span className="cyt-ps-grab" aria-hidden="true" />
         <div className="cyt-ps-h"><b>Top-rated therapists</b><Link href="/view-all-therapist">See all{stats?.count ? ` ${stats.count}` : ""} →</Link></div>
         {people.length > 0 && (
-          <div className="cyt-ps-strip" aria-label="Top-rated therapists, swipe for more">
+          <div className="cyt-ps-strip" ref={psRef} aria-label="Top-rated therapists, swipe for more" onTouchStart={() => { psTouched.current = Date.now(); }} onPointerDown={() => { psTouched.current = Date.now(); }} onWheel={() => { psTouched.current = Date.now(); }}>
             {people.map((t, i) => <PhoneCard key={t._id} t={t} eager={i < 2} onBroken={() => dropPhoto(t)} />)}
           </div>
         )}
@@ -696,12 +716,15 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-ph-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 4px; }
 
         /* ===== phones: photo on top with the title, then a white sheet (owner 2026-11-28, sample 5) ===== */
+        /* home page wrapper (pages/index.js): no sideways scroll; clip (not hidden) so the phone photo can hold still while the sheet slides over it */
+        .cyt-home-wrap { overflow-x: hidden; overflow-x: clip; }
         .cyt-ps, .cyt-hph { display: none; }
         @media (max-width: 767px) {
-          .rbt-banner-1.cyt-hero { padding: 0 0 36px !important; background: #fff !important; } /* the logo strip below is pulled up 25px */
+          .rbt-banner-1.cyt-hero { padding: 0 0 36px !important; background: #fff !important; overflow: clip !important; } /* the logo strip below is pulled up 25px */
           .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
-          .cyt-hero .cyt-hero-inner { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
-          .cyt-hero .cyt-hero-copy { position: relative; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: 340px; margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
+          .cyt-hero .cyt-hero-inner { display: contents !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
+          /* shutter: the photo holds still while the white sheet slides up over it */
+          .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(360px, calc(100svh - 307px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
             background: #b9a88a; overflow: hidden; }
           .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph) { display: none !important; }
           .cyt-hero .cyt-hero-copy > .cyt-hph { display: block !important; position: absolute; inset: 0; z-index: 0; overflow: hidden; touch-action: pan-y; }
@@ -713,8 +736,12 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hph-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.55); transition: width .3s, background .3s; }
           .cyt-hph-dots i.on { width: 18px; background: #fff; }
           .cyt-hero .cyt-title, .cyt-hero .cyt-eyebrow { position: relative; z-index: 1; }
-          .cyt-hero .cyt-title { order: 1; margin: 0 !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 27px !important; line-height: 1.14 !important; letter-spacing: -.02em; text-shadow: 0 3px 14px rgba(0,0,0,.35); }
-          .cyt-hero .cyt-title .cyt-hl { color: #ffd98a !important; -webkit-text-fill-color: #ffd98a !important; }
+          .cyt-hero .cyt-title { order: 1; margin: 0 !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: clamp(19px, 6.2vw, 28px) !important; line-height: 1.16 !important; letter-spacing: -.02em; text-shadow: 0 3px 14px rgba(0,0,0,.35); }
+          .cyt-hero .cyt-title .cyt-l1 { white-space: nowrap; }
+          .cyt-hero .cyt-title .cyt-hl { position: relative; display: inline-block; padding: 0 .16em .02em; margin: 0 -.02em; border-radius: .16em;
+            color: #10301d !important; -webkit-text-fill-color: #10301d !important; background: #ffd23f !important; text-shadow: none !important;
+            box-shadow: 0 6px 18px -6px rgba(255,190,30,.7); transform: rotate(-1.5deg); }
+          .cyt-hero .cyt-title .cyt-hl::before, .cyt-hero .cyt-title .cyt-hl::after { display: none !important; }
           .cyt-hero .cyt-eyebrow { order: 2; margin: 8px 0 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; color: #fff !important; font-size: 12.5px !important; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
           .cyt-ps { display: block; position: relative; z-index: 2; margin-top: -28px; padding: 10px 0 0; background: #fff; border-radius: 28px 28px 0 0; box-shadow: 0 -16px 30px -24px rgba(0,0,0,.55); }
           .cyt-ps-grab { display: block; width: 40px; height: 5px; border-radius: 99px; background: #d7e0da; margin: 0 auto 10px; }
@@ -723,12 +750,16 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-h a { font-size: 12.5px; font-weight: 700; color: #1e7a4c; text-decoration: none; }
           .cyt-ps-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; padding: 0 16px 4px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
           .cyt-ps-strip::-webkit-scrollbar { display: none; }
-          .cyt-ps-card { flex: none; scroll-snap-align: start; width: 282px; max-width: 84vw; display: flex; gap: 12px; padding: 10px; border-radius: 20px; border: 1px solid #e3ebe5; background: #fbfdfc; cursor: pointer; box-sizing: border-box; }
-          .cyt-ps-card img { width: 84px; height: 104px; border-radius: 14px; object-fit: cover; flex: none; background: #eef3ef; }
+          .cyt-ps-card { flex: none; scroll-snap-align: start; width: 292px; max-width: 86vw; display: flex; gap: 12px; padding: 12px; border-radius: 20px; border: 1px solid #e3ebe5; background: #fbfdfc; cursor: pointer; box-sizing: border-box; }
+          .cyt-ps-card img { width: 92px; height: 120px; border-radius: 14px; object-fit: cover; flex: none; background: #eef3ef; }
           .cyt-ps-t { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; color: #0f2a1d; }
           .cyt-ps-t b { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; }
           .cyt-ps-t small { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-          .cyt-ps-star { color: #e3a83a; }
+          .cyt-ps-t small.cyt-ps-meta { display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: visible; }
+          .cyt-ps-stars { display: inline-flex; gap: 1px; flex: none; }
+          .cyt-ps-stars i { font-style: normal; color: #d7dfda; font-size: 12.5px; line-height: 1; }
+          .cyt-ps-stars i.on { color: #e3a83a; }
+          .cyt-ps-meta b { color: #0f2a1d; font-weight: 800; }
           .cyt-ps-new { font-weight: 800; color: #14532d; background: #ecc77d; border-radius: 5px; padding: 0 6px; font-size: 10.5px; }
           .cyt-ps-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; gap: 6px; }
           .cyt-ps-row em { font-style: normal; font-weight: 800; font-size: 14px; color: #0f2a1d; }

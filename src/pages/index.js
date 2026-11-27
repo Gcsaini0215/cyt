@@ -199,7 +199,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
       : "Talk to a verified psychologist online or at our Noida centre — for anxiety, stress, depression and relationships. Sessions from ₹500. Book in 2 minutes.";
 
   return (
-    <div style={{ overflowX: 'hidden', width: '100%' }}>
+    <div className="cyt-home-wrap" style={{ width: '100%' }}>
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Favicon */}
