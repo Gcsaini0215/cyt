@@ -161,8 +161,9 @@ const bandStyles = `
   /* home: a full-width navy strip (the About us page navy) right under the banner, logos in white (owner 2026-11-28) */
   .rgb-band { position: relative; z-index: 3; margin: 0; background: #0f172a; }
   .rgb { box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; gap: 14px; width: 100%; max-width: none; margin: 0;
-    padding: 16px max(24px, calc((100% - 1240px) / 2)); background: none; border: 0; border-radius: 0; box-shadow: none; }
+    padding: 16px 64px; background: none; border: 0; border-radius: 0; box-shadow: none; }
   .rgb-label, .rgb-id { display: none; }
+  .rgb-l-short { display: none; }
   .rgb-line { margin: 0; text-align: left; color: #fff; font-size: 14.5px; font-weight: 600; line-height: 1.5; letter-spacing: .005em; }
   .rgb-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .rgb-item { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
@@ -171,8 +172,8 @@ const bandStyles = `
   .rgb-item img { flex: none; box-sizing: border-box; width: 112px; height: 52px; padding: 6px 12px; object-fit: contain; background: #fff; border-radius: 12px; box-shadow: 0 6px 16px -8px rgba(0,0,0,.5); }
   .rgb-item span { min-width: 0; font-size: 13.5px; font-weight: 700; line-height: 1.3; color: #fff; }
   /* iPad and phones: logos only */
-  @media (max-width: 1199px) {
-    .rgb { padding: 12px 14px; gap: 10px; }
+  @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
+    .rgb { padding: 14px 32px; gap: 10px; }
     .rgb-line { font-size: 13px; }
     .rgb-grid { gap: 10px; }
     .rgb-item { padding: 0 8px; }
@@ -180,8 +181,10 @@ const bandStyles = `
     .rgb-item span { display: none; }
   }
   @media (max-width: 767px) {
-    .rgb { padding: 12px 12px; gap: 10px; }
-    .rgb-line { font-size: 12px; line-height: 1.45; }
+    .rgb { padding: 12px 16px; gap: 10px; }
+    .rgb-line { font-size: 12.5px; line-height: 1.45; }
+    .rgb-l-full { display: none; }
+    .rgb-l-short { display: inline; }
     .rgb-grid { gap: 8px; }
     .rgb-item { padding: 0; }
     .rgb-item img { height: 40px; padding: 4px 6px; border-radius: 10px; }
@@ -195,7 +198,7 @@ export function RegistrationsBand() {
       <style dangerouslySetInnerHTML={{ __html: bandStyles }} />
       <div className="rgb-band">
       <div className="rgb">
-        <p className="rgb-line">Choose Your Therapist LLP is registered with the Ministry of Corporate Affairs and MSME, and is a registered health facility under the Ayushman Bharat Digital Mission (ABDM), National Health Authority.</p>
+        <p className="rgb-line"><span className="rgb-l-full">Choose Your Therapist LLP is registered with the Ministry of Corporate Affairs and MSME, and is a registered health facility under the Ayushman Bharat Digital Mission (ABDM), National Health Authority.</span><span className="rgb-l-short">Registered with MCA &amp; MSME · Health facility under ABDM, National Health Authority.</span></p>
         <div className="rgb-grid">
           {REGISTRATIONS.map((r, i) => (
             <div className="rgb-item" key={r.src}>

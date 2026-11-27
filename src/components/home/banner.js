@@ -847,10 +847,6 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-t b { font-size: 17px; }
           .cyt-ps-t small { font-size: 13.5px; }
         }
-        /* iPads + desktop: no shutter — the photo scrolls with the page (the sticky photo made iPad scrolling shake) */
-        @media (min-width: 768px) {
-          .cyt-hero .cyt-hero-copy { position: relative !important; top: auto; }
-        }
         /* iPads: the same sheet design, sized up */
         @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
           .cyt-hero .cyt-hero-copy { min-height: max(560px, calc(100svh - 296px)) !important; padding: 0 40px 70px !important; }
