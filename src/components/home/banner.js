@@ -15,24 +15,24 @@ import { RegistrationsBand } from "../about/registrations";
 // not the directory with ?concern= (parameter links are crawl noise)
 const QUICK = [
   ["Anxiety", "anxiety"],
-  ["Stress", "stress"],
   ["Relationships", "relationships"],
+  ["Stress", "stress"],
+  ["Sleep", "/view-all-therapist?search=sleep"],
   ["Low mood", "depression"],
-  ["Anger", "anger"],
 ];
 
 // phones: the photos behind the title slide one to the next (owner 2026-11-28: woman, man, couple)
 // add more photos here (person on a clean, plain colour background, a different colour each) and they slide
 // phones + iPads (portrait and landscape): the sheet design. Same media query as the CSS below.
-const SHEET_MEDIA = "(max-width: 767px), (max-width: 1199px) and (any-pointer: coarse)";
+const SHEET_MEDIA = "all"; // phones, iPads and (since 2026-11-28) desktop all use the photo banner
 // the photos behind the title fade from one to the next with a slow zoom (the cards below already slide sideways)
 // pos = crop on portrait screens, posL = crop on wide screens (iPad landscape), so the title never sits on a face
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 97%", posL: "center 76%", kick: "Feeling lost in the crowd?" },
+  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 97%", posL: "center 76%", posD: "center 68%", dz: true, kick: "Feeling lost in the crowd?" },
   // fit: on iPad landscape he sits on the right at full height and the blue fills the rest; title bottom-left
-  { src: "/assets/img/hero-call.webp", alt: "A smiling psychologist calling out from a phone screen", pos: "center 22%", posL: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
+  { src: "/assets/img/hero-call.webp", alt: "A smiling psychologist calling out from a phone screen", pos: "center 22%", posL: "right center", posD: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
   // wide photo: on phones / iPad portrait it sits at the top in full and fades into its own colour, the title below
-  { src: "/assets/img/hero-man.webp", alt: "A smiling young man relaxing on a bean bag with his phone", pos: "center top", posL: "center 0%", kick: "Therapist, right from your phone.", wide: true, bgc: "#fd7201" },
+  { src: "/assets/img/hero-man.webp", alt: "A smiling young man relaxing on a bean bag with his phone", pos: "center top", posL: "center 0%", posD: "center 8%", kick: "Therapist, right from your phone.", wide: true, bgc: "#fd7201" },
 ];
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
@@ -54,7 +54,7 @@ function PhoneSlides({ i, setI }) {
       onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { if (startX.current == null) return; const dx = e.changedTouches[0].clientX - startX.current; startX.current = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1)); }}>
       {PHONE_SLIDES.map((sl, k) => (
-        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--bgc": sl.bgc || "transparent" }}>
+        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}${sl.dz ? " dz" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--opd": sl.posD || sl.pos, "--bgc": sl.bgc || "transparent" }}>
           <source media={SHEET_MEDIA} srcSet={sl.src} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
@@ -328,7 +328,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
           </h1>
 
           <p className="description">
-            For anxiety, stress, low mood or relationships — in Hindi, English and more, by video or at our Noida centre.
+            Private one-to-one sessions with verified psychologists — by video, call or in person at our Noida centre.
+            Help with anxiety, stress, relationships, sleep and low mood, in Hindi, English and more.
           </p>
 
           <form className="cyt-hsearch" action="/view-all-therapist" method="get" role="search">
@@ -346,7 +347,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
           <div className="cyt-hchips" aria-label="Popular concerns">
             {QUICK.map(([label, value]) => (
-              <Link key={value} href={`/therapy-for/${value}`}>{label}<span className="cyt-sr"> therapy</span></Link>
+              <Link key={value} href={value.startsWith("/") ? value : `/therapy-for/${value}`} rel={value.includes("?") ? "nofollow" : undefined}>{label}<span className="cyt-sr"> therapy</span></Link>
             ))}
             <Link className="cyt-help" href="/view-all-therapist?help=1" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
           </div>
@@ -722,14 +723,14 @@ export default function Banner({ topTherapists = [], stats = null }) {
         /* home page wrapper (pages/index.js): no sideways scroll; clip (not hidden) so the phone photo can hold still while the sheet slides over it */
         .cyt-home-wrap { overflow-x: hidden; overflow-x: clip; }
         .cyt-ps, .cyt-hph, .cyt-kick { display: none; }
-        @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
-          .rbt-banner-1.cyt-hero { margin-top: 0 !important; padding: 0 0 36px !important; background: #fff !important; overflow: clip !important; } /* the logo strip below is pulled up 25px */
+        @media all {
+          .rbt-banner-1.cyt-hero { margin-top: 0 !important; padding: 0 0 18px !important; background: #fff !important; overflow: clip !important; } /* the blue logo strip follows right after */
           .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
           .cyt-hero .cyt-hero-inner { display: contents !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
           /* shutter: the photo holds still while the white sheet slides up over it */
-          .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(400px, calc(100svh - 262px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
+          .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(400px, calc(100svh - 244px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
             background: #f7cf5e; overflow: hidden; }
-          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph):not(.cyt-kick) { display: none !important; }
+          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph):not(.cyt-kick):not(.cyt-hsearch):not(.cyt-hchips):not(.description) { display: none !important; }
           .cyt-hero .cyt-hero-copy > .cyt-kick { display: block !important; order: 0; position: relative; z-index: 1; margin: 0 0 10px !important; line-height: 1; }
           /* the line that matches the photo: a white pill, readable on any photo colour */
           .cyt-kick span { display: inline-flex; align-items: center; gap: 8px; padding: .5em 1em; border-radius: 999px; background: #fff; color: #10301d;
@@ -797,6 +798,46 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-card:focus-visible, .cyt-ps-book:focus-visible { outline: 3px solid #e0ab45; outline-offset: 2px; }
         }
 
+        /* phones + iPads: no search / chips / description on the photo (desktop shows them) */
+        @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
+          .cyt-hero .cyt-hero-copy > .cyt-hsearch, .cyt-hero .cyt-hero-copy > .cyt-hchips, .cyt-hero .cyt-hero-copy > .description { display: none !important; }
+        }
+        /* ===== desktop: wide photo banner + search, chips and what we offer on the left; the sheet with cards below ===== */
+        @media (min-width: 768px) and (any-pointer: fine), (min-width: 1200px) {
+          .cyt-hero .cyt-hero-copy { min-height: 0 !important; height: clamp(540px, calc(100vh - 240px), 680px); justify-content: center !important; padding: 0 64px 44px !important; }
+          .cyt-hero .cyt-hero-copy.cyt-pos-top, .cyt-hero .cyt-hero-copy.cyt-pos-topl { justify-content: center !important; padding-top: 0 !important; }
+          .cyt-hph-shade { background: linear-gradient(90deg, rgba(8,28,17,.68) 0%, rgba(8,28,17,.45) 34%, rgba(8,28,17,0) 60%), linear-gradient(180deg, rgba(8,28,17,0) 72%, rgba(8,28,17,.28) 100%); }
+          .cyt-hph-dots { left: 64px; top: 26px; }
+          .cyt-hph-dots i { width: 8px; height: 8px; } .cyt-hph-dots i.on { width: 22px; }
+          .cyt-hph-s img { object-position: var(--opd); }
+          .cyt-hph-s.dz img { position: absolute; left: 0; top: 0; width: 140%; height: 140%; max-width: none; transform-origin: left top; }
+          @media (min-width: 1700px) { .cyt-hph-s.dz img { width: 125%; height: 125%; object-position: center 63%; } }
+          .cyt-hph-s.fit { background: var(--bgc); }
+          .cyt-hph-s.fit img { position: absolute; right: 4%; left: auto; width: auto; max-width: none; height: 100%; transform-origin: right center;
+            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 20%); mask-image: linear-gradient(90deg, transparent 0, #000 20%); }
+          .cyt-hph-s.wide img { height: 100%; object-fit: cover; -webkit-mask-image: none; mask-image: none; }
+          .cyt-hero .cyt-hero-copy > .cyt-kick { margin: 0 0 14px !important; }
+          .cyt-kick span { font-size: 17px; }
+          .cyt-hero .cyt-title { font-size: clamp(40px, 3.6vw, 54px) !important; max-width: 820px; }
+          .cyt-hero .cyt-eyebrow { font-size: 16px !important; margin-top: 14px !important; }
+          .cyt-hero .cyt-hero-copy > .cyt-hsearch { order: 3; display: flex !important; position: relative; z-index: 1; width: min(640px, 50vw); margin: 24px 0 0 !important; }
+          .cyt-hero .cyt-hero-copy > .cyt-hchips { order: 4; display: flex !important; flex-wrap: wrap; align-self: flex-start; max-width: 640px; position: relative; z-index: 1; margin: 14px 0 0 !important; }
+          .cyt-hero .cyt-hchips .cyt-help { display: none !important; }
+          /* the search button stays the site green (the old banner's changing theme colours no longer apply) */
+          .cyt-hero.cyt-hero .cyt-hsearch button { background: #14532d !important; filter: none !important; }
+          .cyt-hero.cyt-hero .cyt-hsearch button:hover { background: #0f3d24 !important; }
+          .cyt-hero .cyt-hero-copy > .description { order: 5; display: block !important; position: relative; z-index: 1; max-width: 600px; margin: 16px 0 0 !important;
+            color: rgba(255,255,255,.93) !important; font-size: 16px !important; line-height: 1.6 !important; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
+          .cyt-ps { margin-top: -40px; border-radius: 40px 40px 0 0; padding-top: 16px; }
+          .cyt-ps-h { padding: 0 64px 14px; }
+          .cyt-ps-h b { font-size: 22px; }
+          .cyt-ps-h a { font-size: 15px; }
+          .cyt-ps-strip { gap: 16px; padding: 0 64px 12px; scroll-padding: 0 64px; }
+          .cyt-ps-card { width: 330px; max-width: none; padding: 12px; gap: 14px; }
+          .cyt-ps-card img { width: 104px; height: 132px; }
+          .cyt-ps-t b { font-size: 17px; }
+          .cyt-ps-t small { font-size: 13.5px; }
+        }
         /* iPads: the same sheet design, sized up */
         @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
           .cyt-hero .cyt-hero-copy { min-height: max(560px, calc(100svh - 296px)) !important; padding: 0 40px 70px !important; }

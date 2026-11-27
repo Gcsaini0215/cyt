@@ -183,12 +183,12 @@ export default function ChatNotifier() {
   const path = router.asPath.split("#")[0];
   const hidden = HIDE_ON.test(path);
 
-  // home page on phones (owner 2026-11-28): the chat button sits on the banner photo, under the slide dots, and is
+  // home page on phones and iPads (owner 2026-11-28): the chat button sits on the banner photo, under the slide dots, and is
   // there only while the banner is at the top — it fades away once the page is scrolled (unless the chat is open)
   const [homeSpot, setHomeSpot] = useState(null); // { y: px from the top of the screen, show }
   useEffect(() => {
     if (path.split("?")[0] !== "/" || typeof window === "undefined") { setHomeSpot(null); return undefined; }
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia("(max-width: 767px), (max-width: 1199px) and (any-pointer: coarse)"); // phones + iPads
     const calc = () => {
       const dots = mq.matches ? document.querySelector(".cyt-hph-dots") : null;
       if (!dots) { setHomeSpot(null); return; }

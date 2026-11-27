@@ -158,36 +158,30 @@ export function RegistrationsGrid() {
 }
 
 const bandStyles = `
-  /* home: a white card over the banner's bottom edge */
-  /* full width: see-through over the banner, white below it (the page behind is dark) */
-  .rgb-band { position: relative; z-index: 3; margin-top: -44px; background: linear-gradient(180deg, transparent 0, transparent 44px, #fff 44px); }
-  .rgb { box-sizing: border-box; display: flex; align-items: center; gap: 20px; width: calc(100% - 80px); max-width: 1240px; margin: 0 auto; padding: 14px 22px; background: #fff; border: 1px solid #ece4cf; border-radius: 18px; box-shadow: 0 16px 34px -14px rgba(20,60,35,.42); }
-  .rgb-label { flex: none; margin: 0; font-size: 13px; font-weight: 800; line-height: 1.3; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
+  /* home: a full-width navy strip (the About us page navy) right under the banner, logos in white (owner 2026-11-28) */
+  .rgb-band { position: relative; z-index: 3; margin: 0; background: #0f172a; }
+  .rgb { box-sizing: border-box; display: flex; align-items: center; width: 100%; max-width: none; margin: 0;
+    padding: 16px max(24px, calc((100% - 1240px) / 2)); background: none; border: 0; border-radius: 0; box-shadow: none; }
+  .rgb-label, .rgb-id { display: none; }
   .rgb-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .rgb-item { display: flex; align-items: center; gap: 10px; min-width: 0; padding-left: 14px; border-left: 1px solid #efe8d6; }
-  .rgb-item img { flex: none; width: 84px; height: 42px; object-fit: contain; }
-  .rgb-item span { min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.3; color: #4b5d53; }
-  .rgb-id { display: none; }
-  /* iPad and phones: logos only, to keep the band short */
+  .rgb-item { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
+
+  /* each logo in its own colours on a small white tile: clean and readable on navy */
+  .rgb-item img { flex: none; box-sizing: border-box; width: 112px; height: 52px; padding: 6px 12px; object-fit: contain; background: #fff; border-radius: 12px; box-shadow: 0 6px 16px -8px rgba(0,0,0,.5); }
+  .rgb-item span { min-width: 0; font-size: 13.5px; font-weight: 700; line-height: 1.3; color: #fff; }
+  /* iPad and phones: logos only */
   @media (max-width: 1199px) {
-    .rgb-band { margin-top: -28px; background: linear-gradient(180deg, transparent 0, transparent 28px, #fff 28px); }
-    .rgb { display: block; padding: 9px 18px; border-radius: 16px; box-shadow: 0 12px 26px -16px rgba(20,60,35,.4); }
-    .rgb-label { font-size: 12px; white-space: nowrap; }
-    .rgb-id { display: block; grid-column: 2; grid-row: 1; margin: 0; text-align: right; font-size: 12px; font-weight: 700; color: #4b5d53; white-space: nowrap; }
-    .rgb-grid { width: 100%; }
-    .rgb-item { justify-content: center; padding-left: 0; border-left: 0; }
-    .rgb-item + .rgb-item { border-left: 1px solid #efe8d6; }
-    .rgb-item img { width: 100%; height: 34px; }
+    .rgb { padding: 12px 14px; }
+    .rgb-grid { gap: 10px; }
+    .rgb-item { padding: 0 8px; }
+    .rgb-item img { width: 100%; max-width: 150px; height: 46px; padding: 5px 10px; }
     .rgb-item span { display: none; }
   }
-  /* phones: a slim white strip of logos over the banner edge */
   @media (max-width: 767px) {
-    .rgb-band { margin-top: -25px; background: linear-gradient(180deg, transparent 0, transparent 25px, #fff 25px); }
-    .rgb { width: calc(100% - 24px); gap: 5px 8px; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
-    .rgb-label, .rgb-id { padding: 0 4px; font-size: 11px; color: #3a2a0c; }
-    .rgb-grid { gap: 0; padding: 8px 4px; background: #fff; border: 1px solid #ece4cf; border-radius: 14px; box-shadow: 0 10px 22px -14px rgba(20,60,35,.4); }
-    .rgb-item { padding: 0 6px; }
-    .rgb-item img { height: 32px; }
+    .rgb { padding: 10px 10px; }
+    .rgb-grid { gap: 8px; }
+    .rgb-item { padding: 0; }
+    .rgb-item img { height: 40px; padding: 4px 6px; border-radius: 10px; }
   }
 `;
 
