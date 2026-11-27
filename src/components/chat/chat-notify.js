@@ -193,7 +193,12 @@ export default function ChatNotifier() {
       const dots = mq.matches ? document.querySelector(".cyt-hph-dots") : null;
       if (!dots) { setHomeSpot(null); return; }
       const r = dots.getBoundingClientRect();
-      setHomeSpot({ y: Math.round(r.bottom + 10), show: window.scrollY < 40 });
+      const show = window.scrollY < 40;
+      // only re-render when something visible changes (not on every scroll step once it has faded)
+      setHomeSpot((prev) => {
+        const y = show || !prev ? Math.round(r.bottom + 10) : prev.y;
+        return prev && prev.y === y && prev.show === show ? prev : { y, show };
+      });
     };
     calc();
     const t = setTimeout(calc, 900);

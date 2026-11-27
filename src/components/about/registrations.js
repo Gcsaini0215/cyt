@@ -160,9 +160,10 @@ export function RegistrationsGrid() {
 const bandStyles = `
   /* home: a full-width navy strip (the About us page navy) right under the banner, logos in white (owner 2026-11-28) */
   .rgb-band { position: relative; z-index: 3; margin: 0; background: #0f172a; }
-  .rgb { box-sizing: border-box; display: flex; align-items: center; width: 100%; max-width: none; margin: 0;
+  .rgb { box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; gap: 14px; width: 100%; max-width: none; margin: 0;
     padding: 16px max(24px, calc((100% - 1240px) / 2)); background: none; border: 0; border-radius: 0; box-shadow: none; }
   .rgb-label, .rgb-id { display: none; }
+  .rgb-line { margin: 0; text-align: center; color: #fff; font-size: 14.5px; font-weight: 600; line-height: 1.5; letter-spacing: .005em; }
   .rgb-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .rgb-item { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
 
@@ -171,14 +172,16 @@ const bandStyles = `
   .rgb-item span { min-width: 0; font-size: 13.5px; font-weight: 700; line-height: 1.3; color: #fff; }
   /* iPad and phones: logos only */
   @media (max-width: 1199px) {
-    .rgb { padding: 12px 14px; }
+    .rgb { padding: 12px 14px; gap: 10px; }
+    .rgb-line { font-size: 13px; }
     .rgb-grid { gap: 10px; }
     .rgb-item { padding: 0 8px; }
     .rgb-item img { width: 100%; max-width: 150px; height: 46px; padding: 5px 10px; }
     .rgb-item span { display: none; }
   }
   @media (max-width: 767px) {
-    .rgb { padding: 10px 10px; }
+    .rgb { padding: 12px 12px; gap: 10px; }
+    .rgb-line { font-size: 12px; line-height: 1.45; }
     .rgb-grid { gap: 8px; }
     .rgb-item { padding: 0; }
     .rgb-item img { height: 40px; padding: 4px 6px; border-radius: 10px; }
@@ -192,6 +195,7 @@ export function RegistrationsBand() {
       <style dangerouslySetInnerHTML={{ __html: bandStyles }} />
       <div className="rgb-band">
       <div className="rgb">
+        <p className="rgb-line">Choose Your Therapist LLP is registered with the Ministry of Corporate Affairs and MSME, and is a registered health facility under the Ayushman Bharat Digital Mission (ABDM), National Health Authority.</p>
         <div className="rgb-grid">
           {REGISTRATIONS.map((r, i) => (
             <div className="rgb-item" key={r.src}>

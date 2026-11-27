@@ -231,6 +231,13 @@ export default function Banner({ topTherapists = [], stats = null }) {
   const [turn, setTurn] = useState(0);
   const [phSlide, setPhSlideRaw] = useState(0); // phones/iPads: which photo is showing
   const [phMoved, setPhMoved] = useState(false);
+  const [scrolled, setScrolled] = useState(false); // phones/iPads: the photo's line fades out once the page moves
+  useEffect(() => {
+    const on = () => setScrolled((was) => { const now = window.scrollY > 12; return was === now ? was : now; });
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
   const setPhSlide = React.useCallback((v) => { setPhMoved(true); setPhSlideRaw(v); }, []);
   const phCur = PHONE_SLIDES[phSlide] || {};
   const phPos = phCur.top ? " cyt-pos-top" : phMoved ? ` cyt-pos-bot${phCur.topL ? " cyt-pos-topl" : ""}` : "";
@@ -304,7 +311,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
   return (
     <>
-    <section className="rbt-banner-area rbt-banner-1 variation-2 cyt-hero" style={{ "--ink": cur.ink }}>
+    <section className={`rbt-banner-area rbt-banner-1 variation-2 cyt-hero${scrolled ? " is-scrolled" : ""}`} style={{ "--ink": cur.ink }}>
       {THEMES.map((c) => (
         <span key={c.id} className={`cyt-bgl${c === cur ? " on" : ""}`} style={{ "--c": c.c, "--soft": c.soft, "--soft2": c.soft2 }} aria-hidden="true" />
       ))}
@@ -800,6 +807,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
         /* phones + iPads: no search / chips / description on the photo (desktop shows them) */
         @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
+          .cyt-hero .cyt-hero-copy > .cyt-kick { transition: opacity .25s ease; }
+          .cyt-hero.is-scrolled .cyt-hero-copy > .cyt-kick { opacity: 0; }
           .cyt-hero .cyt-hero-copy > .cyt-hsearch, .cyt-hero .cyt-hero-copy > .cyt-hchips, .cyt-hero .cyt-hero-copy > .description { display: none !important; }
         }
         /* ===== desktop: wide photo banner + search, chips and what we offer on the left; the sheet with cards below ===== */
@@ -837,6 +846,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-card img { width: 104px; height: 132px; }
           .cyt-ps-t b { font-size: 17px; }
           .cyt-ps-t small { font-size: 13.5px; }
+        }
+        /* iPads + desktop: no shutter — the photo scrolls with the page (the sticky photo made iPad scrolling shake) */
+        @media (min-width: 768px) {
+          .cyt-hero .cyt-hero-copy { position: relative !important; top: auto; }
         }
         /* iPads: the same sheet design, sized up */
         @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
