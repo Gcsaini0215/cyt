@@ -16,6 +16,8 @@ function applyConsent(c) {
     const m = c.marketing ? "granted" : "denied";
     gtag("consent", "update", { analytics_storage: a, ad_storage: m, ad_user_data: m, ad_personalization: m });
     window.dataLayer.push({ event: "cyt_consent_update", consent_analytics: a, consent_marketing: m });
+    // Clarity (components/global/clarity.js) follows the same analytics choice
+    window.dispatchEvent(new CustomEvent("cyt:consent", { detail: { analytics: !!c.analytics, marketing: !!c.marketing } }));
   } catch { /* analytics never blocks the page */ }
 }
 

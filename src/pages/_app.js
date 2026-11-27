@@ -8,6 +8,7 @@ const ActiveBookingBanner = dynamic(() => import("@/components/global/active-boo
 // live chat: chime + top banner for new messages anywhere in the portals (components/chat/chat-notify.js)
 const ChatNotifier = dynamic(() => import("@/components/chat/chat-notify"), { ssr: false });
 import CookieConsent from "@/components/global/cookie-consent";
+import Clarity from "@/components/global/clarity";
 import SessionNotice from "@/components/global/session-notice";
 import SiteMotion from "@/components/global/site-motion";
 // react-datepicker.css removed (2026-11-16): no page uses the date picker any more — it was 24 KB on every page
@@ -340,6 +341,7 @@ function MyApp({ Component, pageProps }) {
         </>
       )}
       <CookieConsent />
+      <Clarity />
       <SessionNotice />
       <ChatNotifier />
       <SiteMotion />
