@@ -21,6 +21,14 @@ const QUICK = [
   ["Anger", "anger"],
 ];
 
+// phones: the chips under the therapist cards (owner 2026-11-28). No Sleep page yet, so Sleep searches the directory.
+const PHONE_CHIPS = [
+  ["Anxiety", "/therapy-for/anxiety"],
+  ["Relationships", "/therapy-for/relationships"],
+  ["Stress", "/therapy-for/stress"],
+  ["Sleep", "/view-all-therapist?search=sleep"],
+];
+
 // the banner turns through these: a colour and one encouraging word. They say nothing about the therapist shown.
 // c: panel; soft, soft2: the arcs around it; ink: words and buttons on the sage base (kept dark enough to read)
 // a touch deeper than before, so the hero doesn't look washed out on the sage background
@@ -112,6 +120,34 @@ function TherapistCard({ t, onBroken, copy = false, spot = false }) {
 }
 
 // stats: { count, minFee } of the whole directory, worked out on the server
+// Phones: a wide card in the sheet under the photo (photo left, details right). The same therapists as the
+// banner's top picks. No <a> here: the cards in the swipe strip above already carry the links for crawlers,
+// so these open the profile / booking page by tap or keyboard instead.
+function PhoneCard({ t, onBroken, eager = false }) {
+  const router = useRouter();
+  const r = rating(t);
+  const name = t.user?.name || "Therapist";
+  const langs = langList(t.language_spoken).slice(0, 2).join(", ");
+  const fee = getMinFee(t.fees);
+  const open = (href) => (e) => { e.stopPropagation(); router.push(href); };
+  const keys = (href) => (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); router.push(href); } };
+  return (
+    <div className="cyt-ps-card" role="link" tabIndex={0} aria-label={`View profile of ${name}`} onClick={open(profilePath(t))} onKeyDown={keys(profilePath(t))}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={thumb(photo(t), 240, 80)} alt="" width="84" height="104" loading={eager ? "eager" : "lazy"} decoding="async" onError={onBroken} />
+      <span className="cyt-ps-t">
+        <b>{name}<svg viewBox="0 0 24 24" width="14" height="14" fill="#1d9bf0" aria-hidden="true"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48z" /></svg></b>
+        <small>{t.profile_type || "Mental Health Professional"}</small>
+        <small className="cyt-ps-meta">{r ? <><span className="cyt-ps-star" aria-hidden="true">★</span> {r.avg} ({r.count})</> : <span className="cyt-ps-new">New</span>}{langs ? <> · {langs}</> : null}</small>
+        <span className="cyt-ps-row">
+          {fee ? <em>₹{fee.toLocaleString("en-IN")}</em> : <span />}
+          <span className="cyt-ps-book" role="link" tabIndex={0} aria-label={`Book a session with ${name}`} onClick={open(bookPath(t))} onKeyDown={keys(bookPath(t))}>Book</span>
+        </span>
+      </span>
+    </div>
+  );
+}
+
 export default function Banner({ topTherapists = [], stats = null }) {
   const ps = usePublicStats();
   // Server order first (so server and browser HTML match), re-ordered after mount —
@@ -296,6 +332,20 @@ export default function Banner({ topTherapists = [], stats = null }) {
           ) : (
             <div className="cyt-cover-skeleton" />
           )}
+        </div>
+      </div>
+
+      {/* phones: white sheet that rises over the photo — top-rated therapists to swipe + quick concerns */}
+      <div className="cyt-ps">
+        <span className="cyt-ps-grab" aria-hidden="true" />
+        <div className="cyt-ps-h"><b>Top-rated therapists</b><Link href="/view-all-therapist">See all{stats?.count ? ` ${stats.count}` : ""} →</Link></div>
+        {people.length > 0 && (
+          <div className="cyt-ps-strip" aria-label="Top-rated therapists, swipe for more">
+            {people.map((t, i) => <PhoneCard key={t._id} t={t} eager={i < 2} onBroken={() => dropPhoto(t)} />)}
+          </div>
+        )}
+        <div className="cyt-ps-chips" aria-label="Popular concerns">
+          {PHONE_CHIPS.map(([label, href]) => <Link key={label} href={href} rel={href.includes("?") ? "nofollow" : undefined}>{label}</Link>)}
         </div>
       </div>
 
@@ -604,6 +654,40 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-ph-meta .cyt-ph-avg { color: #fff; font-weight: 800; }
         .cyt-ph-new { font-weight: 800; color: #14532d; background: #ecc77d; border-radius: 5px; padding: 1px 6px; font-size: 10.5px; }
         .cyt-ph-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 4px; }
+
+        /* ===== phones: photo on top with the title, then a white sheet (owner 2026-11-28, sample 5) ===== */
+        .cyt-ps { display: none; }
+        @media (max-width: 767px) {
+          .rbt-banner-1.cyt-hero { padding: 0 0 36px !important; background: #fff !important; } /* the logo strip below is pulled up 25px */
+          .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
+          .cyt-hero .cyt-hero-inner { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
+          .cyt-hero .cyt-hero-copy { position: relative; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: 340px; margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
+            background: linear-gradient(180deg, rgba(8,28,17,.12) 0%, rgba(8,28,17,.04) 34%, rgba(8,28,17,.74) 100%), url(/assets/img/hero-phone.webp) center 16% / cover no-repeat #c9b46a; }
+          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow) { display: none !important; }
+          .cyt-hero .cyt-title { order: 1; margin: 0 !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 27px !important; line-height: 1.14 !important; letter-spacing: -.02em; text-shadow: 0 3px 14px rgba(0,0,0,.35); }
+          .cyt-hero .cyt-title .cyt-hl { color: #ffd98a !important; -webkit-text-fill-color: #ffd98a !important; }
+          .cyt-hero .cyt-eyebrow { order: 2; margin: 8px 0 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; color: #fff !important; font-size: 12.5px !important; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
+          .cyt-ps { display: block; position: relative; z-index: 2; margin-top: -28px; padding: 10px 0 0; background: #fff; border-radius: 28px 28px 0 0; box-shadow: 0 -16px 30px -24px rgba(0,0,0,.55); }
+          .cyt-ps-grab { display: block; width: 40px; height: 5px; border-radius: 99px; background: #d7e0da; margin: 0 auto 10px; }
+          .cyt-ps-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 16px 10px; }
+          .cyt-ps-h b { font-size: 16px; font-weight: 800; color: #0f2a1d; }
+          .cyt-ps-h a { font-size: 12.5px; font-weight: 700; color: #1e7a4c; text-decoration: none; }
+          .cyt-ps-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 16px 4px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+          .cyt-ps-strip::-webkit-scrollbar { display: none; }
+          .cyt-ps-card { flex: none; scroll-snap-align: center; width: 282px; max-width: 84vw; display: flex; gap: 12px; padding: 10px; border-radius: 20px; border: 1px solid #e3ebe5; background: #fbfdfc; cursor: pointer; box-sizing: border-box; }
+          .cyt-ps-card img { width: 84px; height: 104px; border-radius: 14px; object-fit: cover; flex: none; background: #eef3ef; }
+          .cyt-ps-t { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; color: #0f2a1d; }
+          .cyt-ps-t b { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; }
+          .cyt-ps-t small { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .cyt-ps-star { color: #e3a83a; }
+          .cyt-ps-new { font-weight: 800; color: #14532d; background: #ecc77d; border-radius: 5px; padding: 0 6px; font-size: 10.5px; }
+          .cyt-ps-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; gap: 6px; }
+          .cyt-ps-row em { font-style: normal; font-weight: 800; font-size: 14px; color: #0f2a1d; }
+          .cyt-ps-book { height: 32px; padding: 0 14px; border-radius: 10px; background: #14532d; color: #fff; font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; }
+          .cyt-ps-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px 2px; }
+          .cyt-ps-chips a { font-size: 12.5px; font-weight: 700; color: #14532d; background: #eef6f1; border: 1px solid #d6e9dd; border-radius: 999px; padding: 6px 12px; text-decoration: none; }
+          .cyt-ps-card:focus-visible, .cyt-ps-book:focus-visible, .cyt-ps-chips a:focus-visible { outline: 3px solid #e0ab45; outline-offset: 2px; }
+        }
 
         @media (prefers-reduced-motion: reduce) {
           .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img { animation: none !important; transition: none !important; }
