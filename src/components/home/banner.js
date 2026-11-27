@@ -28,7 +28,7 @@ const SHEET_MEDIA = "(max-width: 767px), (max-width: 1199px) and (any-pointer: c
 // the photos behind the title fade from one to the next with a slow zoom (the cards below already slide sideways)
 // pos = crop on portrait screens, posL = crop on wide screens (iPad landscape), so the title never sits on a face
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 78%", posL: "center 76%", kick: "Feeling lost in the crowd?" },
+  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 97%", posL: "center 76%", kick: "Feeling lost in the crowd?" },
   // fit: on iPad landscape he sits on the right at full height and the blue fills the rest; title bottom-left
   { src: "/assets/img/hero-call.webp", alt: "A smiling psychologist calling out from a phone screen", pos: "center 22%", posL: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
   // wide photo: on phones / iPad portrait it sits at the top in full and fades into its own colour, the title below
@@ -66,14 +66,6 @@ function PhoneSlides({ i, setI }) {
     </div>
   );
 }
-
-// phones: the chips under the therapist cards (owner 2026-11-28). No Sleep page yet, so Sleep searches the directory.
-const PHONE_CHIPS = [
-  ["Anxiety", "/therapy-for/anxiety"],
-  ["Relationships", "/therapy-for/relationships"],
-  ["Stress", "/therapy-for/stress"],
-  ["Sleep", "/view-all-therapist?search=sleep"],
-];
 
 // the banner turns through these: a colour and one encouraging word. They say nothing about the therapist shown.
 // c: panel; soft, soft2: the arcs around it; ink: words and buttons on the sage base (kept dark enough to read)
@@ -418,9 +410,6 @@ export default function Banner({ topTherapists = [], stats = null }) {
             {people.map((t, i) => <PhoneCard key={t._id} t={t} eager={i < 2} onBroken={() => dropPhoto(t)} />)}
           </div>
         )}
-        <div className="cyt-ps-chips" aria-label="Popular concerns">
-          {PHONE_CHIPS.map(([label, href]) => <Link key={label} href={href} rel={href.includes("?") ? "nofollow" : undefined}>{label}</Link>)}
-        </div>
       </div>
 
       <style jsx global>{`
@@ -738,7 +727,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
           .cyt-hero .cyt-hero-inner { display: contents !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
           /* shutter: the photo holds still while the white sheet slides up over it */
-          .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(360px, calc(100svh - 307px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
+          .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(400px, calc(100svh - 262px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
             background: #f7cf5e; overflow: hidden; }
           .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph):not(.cyt-kick) { display: none !important; }
           .cyt-hero .cyt-hero-copy > .cyt-kick { display: block !important; order: 0; position: relative; z-index: 1; margin: 0 0 10px !important; line-height: 1; }
@@ -783,9 +772,15 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 16px 10px; }
           .cyt-ps-h b { font-size: 16px; font-weight: 800; color: #0f2a1d; }
           .cyt-ps-h a { font-size: 12.5px; font-weight: 700; color: #1e7a4c; text-decoration: none; }
-          .cyt-ps-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; padding: 0 16px 4px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+          .cyt-ps-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; padding: 0 16px 10px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
           .cyt-ps-strip::-webkit-scrollbar { display: none; }
           .cyt-ps-card { flex: none; scroll-snap-align: start; width: 292px; max-width: 86vw; display: flex; gap: 12px; padding: 12px; border-radius: 20px; border: 1px solid #e3ebe5; background: #fbfdfc; cursor: pointer; box-sizing: border-box; }
+          .cyt-ps-card:nth-child(6n+1) { background: #e8f6ed; border-color: #cfe9d8; }
+          .cyt-ps-card:nth-child(6n+2) { background: #e7f2fc; border-color: #cde2f6; }
+          .cyt-ps-card:nth-child(6n+3) { background: #fff0e2; border-color: #f7dcc2; }
+          .cyt-ps-card:nth-child(6n+4) { background: #fdecf2; border-color: #f4d3df; }
+          .cyt-ps-card:nth-child(6n+5) { background: #fff7d9; border-color: #f2e6b0; }
+          .cyt-ps-card:nth-child(6n+6) { background: #f0ecfb; border-color: #ddd5f4; }
           .cyt-ps-card img { width: 92px; height: 120px; border-radius: 14px; object-fit: cover; flex: none; background: #eef3ef; }
           .cyt-ps-t { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; color: #0f2a1d; }
           .cyt-ps-t b { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; }
@@ -799,14 +794,12 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; gap: 6px; }
           .cyt-ps-row em { font-style: normal; font-weight: 800; font-size: 14px; color: #0f2a1d; }
           .cyt-ps-book { height: 32px; padding: 0 14px; border-radius: 10px; background: #14532d; color: #fff; font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; }
-          .cyt-ps-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px 2px; }
-          .cyt-ps-chips a { font-size: 12.5px; font-weight: 700; color: #14532d; background: #eef6f1; border: 1px solid #d6e9dd; border-radius: 999px; padding: 6px 12px; text-decoration: none; }
-          .cyt-ps-card:focus-visible, .cyt-ps-book:focus-visible, .cyt-ps-chips a:focus-visible { outline: 3px solid #e0ab45; outline-offset: 2px; }
+          .cyt-ps-card:focus-visible, .cyt-ps-book:focus-visible { outline: 3px solid #e0ab45; outline-offset: 2px; }
         }
 
         /* iPads: the same sheet design, sized up */
         @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
-          .cyt-hero .cyt-hero-copy { min-height: max(520px, calc(100svh - 345px)) !important; padding: 0 40px 70px !important; }
+          .cyt-hero .cyt-hero-copy { min-height: max(560px, calc(100svh - 296px)) !important; padding: 0 40px 70px !important; }
           .cyt-hero .cyt-title { font-size: clamp(34px, 5vw, 50px) !important; }
           .cyt-hero .cyt-eyebrow { font-size: 16px !important; margin-top: 12px !important; }
           .cyt-hph-dots { left: 40px; top: 24px; }
@@ -819,8 +812,6 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-card img { width: 104px; height: 132px; }
           .cyt-ps-t b { font-size: 17px; }
           .cyt-ps-t small { font-size: 13.5px; }
-          .cyt-ps-chips { padding: 16px 32px 4px; gap: 10px; }
-          .cyt-ps-chips a { font-size: 14px; padding: 8px 16px; }
         }
         @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
           .cyt-hero .cyt-hero-copy.cyt-pos-top { padding-top: 36px !important; }

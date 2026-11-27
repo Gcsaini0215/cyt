@@ -183,6 +183,25 @@ export default function ChatNotifier() {
   const path = router.asPath.split("#")[0];
   const hidden = HIDE_ON.test(path);
 
+  // home page on phones (owner 2026-11-28): the chat button sits on the banner photo, under the slide dots, and is
+  // there only while the banner is at the top — it fades away once the page is scrolled (unless the chat is open)
+  const [homeSpot, setHomeSpot] = useState(null); // { y: px from the top of the screen, show }
+  useEffect(() => {
+    if (path.split("?")[0] !== "/" || typeof window === "undefined") { setHomeSpot(null); return undefined; }
+    const mq = window.matchMedia("(max-width: 767px)");
+    const calc = () => {
+      const dots = mq.matches ? document.querySelector(".cyt-hph-dots") : null;
+      if (!dots) { setHomeSpot(null); return; }
+      const r = dots.getBoundingClientRect();
+      setHomeSpot({ y: Math.round(r.bottom + 10), show: window.scrollY < 40 });
+    };
+    calc();
+    const t = setTimeout(calc, 900);
+    window.addEventListener("scroll", calc, { passive: true });
+    window.addEventListener("resize", calc);
+    return () => { clearTimeout(t); window.removeEventListener("scroll", calc); window.removeEventListener("resize", calc); };
+  }, [path]);
+
   // the client top bar's Messages icon shows the same count
   useEffect(() => { window.__cytUnread = unread; window.dispatchEvent(new CustomEvent("cyt-chat-unread", { detail: unread })); }, [unread]);
   const loadUnread = () => fetchById(`${apiUrl}/live-chat/unread`).then((r) => r?.status && setUnread(r.data.count || 0)).catch(() => {});
@@ -332,14 +351,17 @@ export default function ChatNotifier() {
   ];
 
   if (typeof document === "undefined" || !who) return null;
-  const fabY = pos ? clampY(pos.y) : null;
+  const spot = homeSpot && !drag ? { side: "left", y: homeSpot.y } : null; // home banner spot (phones)
+  const place = spot || pos;
+  const fabY = place ? (spot ? spot.y : clampY(place.y)) : null;
   const btnStyle = drag ? { left: drag.x, top: drag.y, right: "auto", bottom: "auto", transition: "none" }
-    : pos ? { top: fabY, bottom: "auto", ...(pos.side === "left" ? { left: 24, right: "auto" } : { right: 24, left: "auto" }) } : undefined;
+    : place ? { top: fabY, bottom: "auto", ...(place.side === "left" ? { left: spot ? 14 : 24, right: "auto" } : { right: 24, left: "auto" }) } : undefined;
   const anchor = (() => {
-    if (!pos || drag) return undefined;
+    if (!place || drag) return undefined;
     const low = fabY > window.innerHeight / 2;
-    return { ...(pos.side === "left" ? { left: 12, right: "auto" } : { right: 12, left: "auto" }), ...(low ? { bottom: window.innerHeight - fabY + 10, top: "auto" } : { top: fabY + 66, bottom: "auto" }) };
+    return { ...(place.side === "left" ? { left: 12, right: "auto" } : { right: 12, left: "auto" }), ...(low ? { bottom: window.innerHeight - fabY + 10, top: "auto" } : { top: fabY + 66, bottom: "auto" }) };
   })();
+  const spotHidden = !!(homeSpot && !homeSpot.show && !open);
   const showFab = !hidden;
   if (!showFab && !toast) return null;
   return createPortal((
@@ -409,7 +431,7 @@ export default function ChatNotifier() {
         </div>
       )}
       {showFab && !sheet && (
-        <button type="button" ref={btnRef} className={`lcf-btn${open ? " on" : ""}${drag ? " dragging" : ""}`} style={btnStyle} onClick={toggle}
+        <button type="button" ref={btnRef} className={`lcf-btn${open ? " on" : ""}${drag ? " dragging" : ""}${spot ? " home-spot" : ""}${spotHidden ? " home-hide" : ""}`} aria-hidden={spotHidden || undefined} tabIndex={spotHidden ? -1 : undefined} style={btnStyle} onClick={toggle}
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { dragRef.current = null; setDrag(null); }} title="Drag to move" aria-label={unread ? `Chat, ${unread} unread` : "Chat with us"} aria-expanded={open}>
           {open ? <span className="lcf-x" aria-hidden="true">×</span> : <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.9 2 11.6c0 2.6 1.4 4.9 3.6 6.5-.2 1.1-.7 2.5-1.8 3.6 0 0 2.9-.2 5-1.6 1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3Z" /></svg>}
           {!open && unread > 0 && <em>{unread > 9 ? "9+" : unread}</em>}
@@ -422,6 +444,8 @@ export default function ChatNotifier() {
 
 const CSS = `
 .lcf { position: static; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif; }
+.lcf-btn.home-spot { transition: opacity .3s ease, transform .3s ease; }
+.lcf-btn.home-hide { opacity: 0; transform: scale(.6); pointer-events: none; }
 .lcf-btn { position: fixed; z-index: 9997; right: 18px; bottom: var(--lcf-b); width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
   display: grid; place-items: center; background: linear-gradient(160deg, #3bd16a, #1f9a4f); box-shadow: 0 14px 30px -10px rgba(16,110,55,.7), 0 0 0 1px rgba(255,255,255,.6) inset;
   transition: transform .18s ease; }
