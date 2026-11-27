@@ -163,7 +163,7 @@ const bandStyles = `
   .rgb { box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; gap: 14px; width: 100%; max-width: none; margin: 0;
     padding: 16px max(24px, calc((100% - 1240px) / 2)); background: none; border: 0; border-radius: 0; box-shadow: none; }
   .rgb-label, .rgb-id { display: none; }
-  .rgb-line { margin: 0; text-align: center; color: #fff; font-size: 14.5px; font-weight: 600; line-height: 1.5; letter-spacing: .005em; }
+  .rgb-line { margin: 0; text-align: left; color: #fff; font-size: 14.5px; font-weight: 600; line-height: 1.5; letter-spacing: .005em; }
   .rgb-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .rgb-item { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
 
