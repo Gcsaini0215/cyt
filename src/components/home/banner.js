@@ -23,8 +23,13 @@ const QUICK = [
 
 // phones: the photos behind the title slide one to the next (owner 2026-11-28: woman, man, couple)
 // add more photos here (person on a clean, plain colour background, a different colour each) and they slide
+// phones + iPads (portrait and landscape): the sheet design. Same media query as the CSS below.
+const SHEET_MEDIA = "(max-width: 767px), (max-width: 1199px) and (any-pointer: coarse)";
+// the photos behind the title fade from one to the next with a slow zoom (the cards below already slide sideways)
+// pos = crop on portrait screens, posL = crop on wide screens (iPad landscape), so the title never sits on a face
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd" },
+  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 78%", posL: "center 76%" },
+  { src: "/assets/img/hero-team.webp", alt: "A group of smiling psychologists sitting together", pos: "center 50%", posL: "center 48%", dark: true },
 ];
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
@@ -37,7 +42,7 @@ function PhoneSlides() {
   useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setStill(true); }, []);
   useEffect(() => {
     if (still || PHONE_SLIDES.length < 2) return undefined;
-    const t = setInterval(() => { if (document.visibilityState === "visible") setI((x) => (x + 1) % PHONE_SLIDES.length); }, 4500);
+    const t = setInterval(() => { if (document.visibilityState === "visible") setI((x) => (x + 1) % PHONE_SLIDES.length); }, 6000);
     return () => clearInterval(t);
   }, [still, i]);
   const go = (n) => setI((n + PHONE_SLIDES.length) % PHONE_SLIDES.length);
@@ -45,16 +50,15 @@ function PhoneSlides() {
     <div className="cyt-hph"
       onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { if (startX.current == null) return; const dx = e.changedTouches[0].clientX - startX.current; startX.current = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1)); }}>
-      <div className="cyt-hph-track" style={{ transform: `translate3d(${-i * 100}%, 0, 0)` }}>
-        {PHONE_SLIDES.map((sl, k) => (
-          <picture key={sl.src}>
-            <source media="(max-width: 767px)" srcSet={sl.src} />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
-          </picture>
-        ))}
-      </div>
+      {PHONE_SLIDES.map((sl, k) => (
+        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL }}>
+          <source media={SHEET_MEDIA} srcSet={sl.src} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
+        </picture>
+      ))}
       <span className="cyt-hph-shade" aria-hidden="true" />
+      <span className={`cyt-hph-shade2${PHONE_SLIDES[i]?.dark ? " on" : ""}`} aria-hidden="true" />
       {PHONE_SLIDES.length > 1 && <span className="cyt-hph-dots" aria-hidden="true">{PHONE_SLIDES.map((sl, k) => <i key={sl.src} className={k === i ? "on" : ""} />)}</span>}
     </div>
   );
@@ -719,8 +723,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         /* home page wrapper (pages/index.js): no sideways scroll; clip (not hidden) so the phone photo can hold still while the sheet slides over it */
         .cyt-home-wrap { overflow-x: hidden; overflow-x: clip; }
         .cyt-ps, .cyt-hph { display: none; }
-        @media (max-width: 767px) {
-          .rbt-banner-1.cyt-hero { padding: 0 0 36px !important; background: #fff !important; overflow: clip !important; } /* the logo strip below is pulled up 25px */
+        @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
+          .rbt-banner-1.cyt-hero { margin-top: 0 !important; padding: 0 0 36px !important; background: #fff !important; overflow: clip !important; } /* the logo strip below is pulled up 25px */
           .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
           .cyt-hero .cyt-hero-inner { display: contents !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
           /* shutter: the photo holds still while the white sheet slides up over it */
@@ -728,10 +732,14 @@ export default function Banner({ topTherapists = [], stats = null }) {
             background: #f7cf5e; overflow: hidden; }
           .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph) { display: none !important; }
           .cyt-hero .cyt-hero-copy > .cyt-hph { display: block !important; position: absolute; inset: 0; z-index: 0; overflow: hidden; touch-action: pan-y; }
-          .cyt-hph-track { display: flex; height: 100%; transition: transform .9s cubic-bezier(.65, 0, .35, 1); will-change: transform; }
-          .cyt-hph-track picture { flex: 0 0 100%; height: 100%; }
-          .cyt-hph-track img { width: 100%; height: 100%; object-fit: cover; object-position: center 78%; display: block; }
+          .cyt-hph-s { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; }
+          .cyt-hph-s.on { opacity: 1; }
+          .cyt-hph-s img { width: 100%; height: 100%; object-fit: cover; object-position: var(--op); display: block; transform: scale(1.01); transition: transform 7s ease-out; will-change: transform; }
+          .cyt-hph-s.on img { transform: scale(1.07); }
           .cyt-hph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,28,17,0) 0%, rgba(8,28,17,0) 45%, rgba(8,28,17,.8) 100%); pointer-events: none; }
+          .cyt-hph-shade2 { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; pointer-events: none;
+            background: linear-gradient(180deg, rgba(8,28,17,0) 30%, rgba(8,28,17,.45) 58%, rgba(8,28,17,.82) 82%, rgba(8,28,17,.9) 100%); }
+          .cyt-hph-shade2.on { opacity: 1; }
           .cyt-hph-dots { position: absolute; right: 18px; top: 16px; display: flex; gap: 5px; }
           .cyt-hph-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.55); transition: width .3s, background .3s; }
           .cyt-hph-dots i.on { width: 18px; background: #fff; }
@@ -770,8 +778,33 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-card:focus-visible, .cyt-ps-book:focus-visible, .cyt-ps-chips a:focus-visible { outline: 3px solid #e0ab45; outline-offset: 2px; }
         }
 
+        /* iPads: the same sheet design, sized up */
+        @media (min-width: 768px) and (max-width: 1199px) and (any-pointer: coarse) {
+          .cyt-hero .cyt-hero-copy { min-height: max(520px, calc(100svh - 345px)) !important; padding: 0 40px 70px !important; }
+          .cyt-hero .cyt-title { font-size: clamp(34px, 5vw, 50px) !important; }
+          .cyt-hero .cyt-eyebrow { font-size: 16px !important; margin-top: 12px !important; }
+          .cyt-hph-dots { right: 32px; top: 24px; }
+          .cyt-ps { margin-top: -36px; border-radius: 36px 36px 0 0; padding-top: 14px; }
+          .cyt-ps-h { padding: 0 32px 14px; }
+          .cyt-ps-h b { font-size: 20px; }
+          .cyt-ps-h a { font-size: 14px; }
+          .cyt-ps-strip { gap: 14px; padding: 0 32px 6px; scroll-padding: 0 32px; }
+          .cyt-ps-card { width: 340px; max-width: none; padding: 12px; gap: 14px; }
+          .cyt-ps-card img { width: 104px; height: 132px; }
+          .cyt-ps-t b { font-size: 17px; }
+          .cyt-ps-t small { font-size: 13.5px; }
+          .cyt-ps-chips { padding: 16px 32px 4px; gap: 10px; }
+          .cyt-ps-chips a { font-size: 14px; padding: 8px 16px; }
+        }
+        /* iPad landscape: wide crops so the title stays clear of faces */
+        @media (min-width: 1000px) and (max-width: 1199px) and (any-pointer: coarse) {
+          .cyt-hph-s img { object-position: var(--opl); }
+          .cyt-hero .cyt-title { max-width: 680px; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img, .cyt-hph-track { animation: none !important; transition: none !important; }
+          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img, .cyt-hph-s, .cyt-hph-s img, .cyt-hph-shade2 { animation: none !important; transition: none !important; }
+          .cyt-hph-s.on img { transform: none !important; }
         }
       `}</style>
     </section>
