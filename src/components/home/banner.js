@@ -28,7 +28,7 @@ const SHEET_MEDIA = "all"; // phones, iPads and (since 2026-11-28) desktop all u
 // the photos behind the title fade from one to the next with a slow zoom (the cards below already slide sideways)
 // pos = crop on portrait screens, posL = crop on wide screens (iPad landscape), so the title never sits on a face
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 97%", posL: "center 76%", posD: "center 68%", dz: true, kick: "Feeling lost in the crowd?" },
+  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 100%", posL: "center 76%", posD: "center 68%", dz: true, zp: true, kick: "Feeling lost in the crowd?" },
   // fit: on iPad landscape he sits on the right at full height and the blue fills the rest; title bottom-left
   { src: "/assets/img/hero-call.webp", alt: "A smiling psychologist calling out from a phone screen", pos: "center 22%", posL: "right center", posD: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
   // wide photo: on phones / iPad portrait it sits at the top in full and fades into its own colour, the title below
@@ -54,7 +54,7 @@ function PhoneSlides({ i, setI }) {
       onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { if (startX.current == null) return; const dx = e.changedTouches[0].clientX - startX.current; startX.current = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1)); }}>
       {PHONE_SLIDES.map((sl, k) => (
-        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}${sl.dz ? " dz" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--opd": sl.posD || sl.pos, "--bgc": sl.bgc || "transparent" }}>
+        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}${sl.dz ? " dz" : ""}${sl.zp ? " zp" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--opd": sl.posD || sl.pos, "--bgc": sl.bgc || "transparent" }}>
           <source media={SHEET_MEDIA} srcSet={sl.src} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
@@ -763,7 +763,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hph-shade2 { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; pointer-events: none;
             background: linear-gradient(180deg, rgba(8,28,17,0) 30%, rgba(8,28,17,.45) 58%, rgba(8,28,17,.82) 82%, rgba(8,28,17,.9) 100%); }
           .cyt-hph-shade2.on { opacity: 1; }
-          .cyt-hph-dots { position: absolute; left: 18px; top: 16px; display: flex; gap: 5px; }
+          .cyt-hph-dots { position: absolute; left: 18px; top: 16px; display: flex; gap: 5px; visibility: hidden; }
           .cyt-hph-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.55); transition: width .3s, background .3s; }
           .cyt-hph-dots i.on { width: 18px; background: #fff; }
           .cyt-hero .cyt-title, .cyt-hero .cyt-eyebrow { position: relative; z-index: 1; }
@@ -805,10 +805,14 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-card:focus-visible, .cyt-ps-book:focus-visible { outline: 3px solid #e0ab45; outline-offset: 2px; }
         }
 
+        /* phones: the girl's photo zoomed from the bottom, so her face sits higher above the title */
+        @media (max-width: 767px) {
+          .cyt-hph-s.zp img { position: absolute; left: -9%; right: auto; top: auto; bottom: 0; width: 118%; height: 118%; max-width: none; transform-origin: center bottom; }
+        }
         /* phones + iPads: no search / chips / description on the photo (desktop shows them) */
         @media (max-width: 767px), (max-width: 1199px) and (any-pointer: coarse) {
           .cyt-hero .cyt-hero-copy > .cyt-kick { transition: opacity .25s ease; }
-          .cyt-hero.is-scrolled .cyt-hero-copy > .cyt-kick { opacity: 0; }
+          .cyt-hero.is-scrolled .cyt-hero-copy > .cyt-kick { opacity: 0; animation: none !important; }
           .cyt-hero .cyt-hero-copy > .cyt-hsearch, .cyt-hero .cyt-hero-copy > .cyt-hchips, .cyt-hero .cyt-hero-copy > .description { display: none !important; }
         }
         /* ===== desktop: wide photo banner + search, chips and what we offer on the left; the sheet with cards below ===== */
