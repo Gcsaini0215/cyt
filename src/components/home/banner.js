@@ -21,6 +21,45 @@ const QUICK = [
   ["Anger", "anger"],
 ];
 
+// phones: the photos behind the title slide one to the next (owner 2026-11-28: woman, man, couple)
+// add more photos here (person on a clean, plain colour background, a different colour each) and they slide
+const PHONE_SLIDES = [
+  { src: "/assets/img/hero-phone.webp", alt: "A smiling young woman" },
+];
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+// Phone photo slider: slides every few seconds, follows a finger swipe, and pauses when motion is reduced.
+// <picture> with a phone-only source, so desktop and tablets never download these photos.
+function PhoneSlides() {
+  const [i, setI] = useState(0);
+  const [still, setStill] = useState(false);
+  const startX = React.useRef(null);
+  useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setStill(true); }, []);
+  useEffect(() => {
+    if (still || PHONE_SLIDES.length < 2) return undefined;
+    const t = setInterval(() => { if (document.visibilityState === "visible") setI((x) => (x + 1) % PHONE_SLIDES.length); }, 4500);
+    return () => clearInterval(t);
+  }, [still, i]);
+  const go = (n) => setI((n + PHONE_SLIDES.length) % PHONE_SLIDES.length);
+  return (
+    <div className="cyt-hph"
+      onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => { if (startX.current == null) return; const dx = e.changedTouches[0].clientX - startX.current; startX.current = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1)); }}>
+      <div className="cyt-hph-track" style={{ transform: `translate3d(${-i * 100}%, 0, 0)` }}>
+        {PHONE_SLIDES.map((sl, k) => (
+          <picture key={sl.src}>
+            <source media="(max-width: 767px)" srcSet={sl.src} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
+          </picture>
+        ))}
+      </div>
+      <span className="cyt-hph-shade" aria-hidden="true" />
+      {PHONE_SLIDES.length > 1 && <span className="cyt-hph-dots" aria-hidden="true">{PHONE_SLIDES.map((sl, k) => <i key={sl.src} className={k === i ? "on" : ""} />)}</span>}
+    </div>
+  );
+}
+
 // phones: the chips under the therapist cards (owner 2026-11-28). No Sleep page yet, so Sleep searches the directory.
 const PHONE_CHIPS = [
   ["Anxiety", "/therapy-for/anxiety"],
@@ -250,6 +289,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
       </span>
       <div className="cyt-hero-inner">
         <div className="cyt-hero-copy">
+          <PhoneSlides />
           <p className="cyt-eyebrow">
             <span className="cyt-live" aria-hidden="true" />
             {stats?.count
@@ -656,14 +696,23 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-ph-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 4px; }
 
         /* ===== phones: photo on top with the title, then a white sheet (owner 2026-11-28, sample 5) ===== */
-        .cyt-ps { display: none; }
+        .cyt-ps, .cyt-hph { display: none; }
         @media (max-width: 767px) {
           .rbt-banner-1.cyt-hero { padding: 0 0 36px !important; background: #fff !important; } /* the logo strip below is pulled up 25px */
           .cyt-hero .cyt-bgl, .cyt-hero .cyt-word, .cyt-hero .cyt-hero-visual { display: none !important; }
           .cyt-hero .cyt-hero-inner { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
           .cyt-hero .cyt-hero-copy { position: relative; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: 340px; margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
-            background: linear-gradient(180deg, rgba(8,28,17,.12) 0%, rgba(8,28,17,.04) 34%, rgba(8,28,17,.74) 100%), url(/assets/img/hero-phone.webp) center 16% / cover no-repeat #c9b46a; }
-          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow) { display: none !important; }
+            background: #b9a88a; overflow: hidden; }
+          .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph) { display: none !important; }
+          .cyt-hero .cyt-hero-copy > .cyt-hph { display: block !important; position: absolute; inset: 0; z-index: 0; overflow: hidden; touch-action: pan-y; }
+          .cyt-hph-track { display: flex; height: 100%; transition: transform .9s cubic-bezier(.65, 0, .35, 1); will-change: transform; }
+          .cyt-hph-track picture { flex: 0 0 100%; height: 100%; }
+          .cyt-hph-track img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
+          .cyt-hph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,28,17,.1) 0%, rgba(8,28,17,.02) 32%, rgba(8,28,17,.78) 100%); pointer-events: none; }
+          .cyt-hph-dots { position: absolute; right: 18px; top: 16px; display: flex; gap: 5px; }
+          .cyt-hph-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.55); transition: width .3s, background .3s; }
+          .cyt-hph-dots i.on { width: 18px; background: #fff; }
+          .cyt-hero .cyt-title, .cyt-hero .cyt-eyebrow { position: relative; z-index: 1; }
           .cyt-hero .cyt-title { order: 1; margin: 0 !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 27px !important; line-height: 1.14 !important; letter-spacing: -.02em; text-shadow: 0 3px 14px rgba(0,0,0,.35); }
           .cyt-hero .cyt-title .cyt-hl { color: #ffd98a !important; -webkit-text-fill-color: #ffd98a !important; }
           .cyt-hero .cyt-eyebrow { order: 2; margin: 8px 0 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; color: #fff !important; font-size: 12.5px !important; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
@@ -672,9 +721,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-ps-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 16px 10px; }
           .cyt-ps-h b { font-size: 16px; font-weight: 800; color: #0f2a1d; }
           .cyt-ps-h a { font-size: 12.5px; font-weight: 700; color: #1e7a4c; text-decoration: none; }
-          .cyt-ps-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 16px 4px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+          .cyt-ps-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; padding: 0 16px 4px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
           .cyt-ps-strip::-webkit-scrollbar { display: none; }
-          .cyt-ps-card { flex: none; scroll-snap-align: center; width: 282px; max-width: 84vw; display: flex; gap: 12px; padding: 10px; border-radius: 20px; border: 1px solid #e3ebe5; background: #fbfdfc; cursor: pointer; box-sizing: border-box; }
+          .cyt-ps-card { flex: none; scroll-snap-align: start; width: 282px; max-width: 84vw; display: flex; gap: 12px; padding: 10px; border-radius: 20px; border: 1px solid #e3ebe5; background: #fbfdfc; cursor: pointer; box-sizing: border-box; }
           .cyt-ps-card img { width: 84px; height: 104px; border-radius: 14px; object-fit: cover; flex: none; background: #eef3ef; }
           .cyt-ps-t { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; color: #0f2a1d; }
           .cyt-ps-t b { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; }
@@ -690,7 +739,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img { animation: none !important; transition: none !important; }
+          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img, .cyt-hph-track { animation: none !important; transition: none !important; }
         }
       `}</style>
     </section>

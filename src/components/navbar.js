@@ -185,10 +185,8 @@ export default function App() {
               <div className="header-left rbt-header-content">
                 <div className="header-info">
                   <div className="logo d-flex align-items-center">
-                    <Link href="/" style={{ cursor: "pointer" }} className={path === "/" ? "logo-home" : undefined}>
+                    <Link href="/" style={{ cursor: "pointer" }}>
                       <ImageTag alt="Choose Your Therapist logo" height={"55"} width={"165"} src="/assets/img/logo-nav.webp" />
-                      {/* home page on phones: the favicon emblem + name (owner 2026-11-28) */}
-                      {path === "/" && <span className="logo-emb"><ImageTag alt="" height={"36"} width={"35"} src="/assets/img/emblem-112.webp" /><b>Choose Your Therapist</b></span>}
                     </Link>
                   </div>
                 </div>
@@ -622,13 +620,6 @@ export default function App() {
           background: #1e7a4c; color: #fff !important; font-size: 13.5px; font-weight: 800; text-decoration: none !important;
         }
         .header-right { display: flex; align-items: center; }
-        .logo-emb { display: none; }
-        @media (max-width: 767px) {
-          .rbt-header .logo-home > img { display: none !important; }
-          .rbt-header .logo-home .logo-emb { display: inline-flex; align-items: center; gap: 8px; }
-          .rbt-header .logo-home .logo-emb img { width: 34px !important; height: 35px !important; }
-          .rbt-header .logo-home .logo-emb b { font-size: 15.5px; font-weight: 800; color: #14532d; letter-spacing: -.01em; white-space: nowrap; }
-        }
 
         /* ── Tablet landscape (iPad 1024–1194px): same desktop menu, compacted ── */
         @media (min-width: 992px) and (max-width: 1199.98px) {
