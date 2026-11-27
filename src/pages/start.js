@@ -230,6 +230,7 @@ export default function CampaignStart({ initialWho = "client" }) {
         </main>
         {/* app-style signature at the very bottom */}
         <footer className="st-sign" aria-label="Choose Your Therapist">
+          <em className="st-line">{who === "therapist" ? "Every story you hold helps someone feel less alone." : "Some days feel heavy. You don’t have to carry them alone."}</em>
           <b>#CYT</b>
           <span>Crafted with <i aria-label="love">♥</i> in Noida, India</span>
         </footer>
@@ -239,8 +240,9 @@ export default function CampaignStart({ initialWho = "client" }) {
 }
 
 const CSS = `
-.st { --forest:#0f3d24; --green:#1e7a4c; --gold:#e0ab45; font-family:Inter,-apple-system,"Segoe UI",sans-serif; color:#0f1f17; background:#f4f8f5; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+.st { --forest:#0f3d24; --green:#1e7a4c; --gold:#e0ab45; font-family:Inter,-apple-system,"Segoe UI",sans-serif; color:#0f1f17; background:#f4f8f5; position:fixed; inset:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:none; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; }
 .st-sign { margin-top:auto; max-width:520px; width:100%; box-sizing:border-box; margin-left:auto; margin-right:auto; padding:22px 20px 26px; display:flex; flex-direction:column; gap:6px; }
+.st-line { font-style:normal; font-size:15px; font-weight:600; line-height:1.4; color:#5f7a6a; margin-bottom:8px; }
 .st-sign b { font-size:60px; font-weight:900; line-height:.95; letter-spacing:-.03em; color:#cfdcd4; }
 .st-sign span { font-size:13px; font-weight:600; color:#9aaaa1; }
 .st-sign i { font-style:normal; color:#e0566b; }
@@ -294,7 +296,6 @@ const CSS = `
 @keyframes stPop { from { transform:scale(.4); opacity:0 } to { transform:scale(1); opacity:1 } }
 /* phones: logo + hook + the whole form on one screen, no scrolling */
 @media (max-width:600px) {
-  .st { display:flex; flex-direction:column; min-height:100dvh; }
   .st-top { padding:8px 14px; }
   .st-logo img { width:132px; }
   .st-main { margin-top:14px; padding:0 12px 10px; width:100%; box-sizing:border-box; }
@@ -312,12 +313,14 @@ const CSS = `
   .st-points, .st-trust { display:none; }
   .st-sign { padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px)); }
   .st-sign b { font-size:48px; }
+  .st-line { font-size:13.5px; margin-bottom:6px; }
 }
 /* short phones: a smaller signature, and none at all on the smallest, so nothing needs scrolling */
 @media (max-width:600px) and (max-height:680px) {
   .st-sign { padding-top:8px; padding-bottom:10px; gap:2px; }
   .st-sign b { font-size:36px; }
   .st-sign span { font-size:11.5px; }
+  .st-line { font-size:12.5px; margin-bottom:4px; }
 }
 @media (max-width:600px) and (max-height:600px) { .st-sign { display:none; } }
 @media (max-width:600px) and (max-height:700px) {
