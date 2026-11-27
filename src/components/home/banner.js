@@ -24,7 +24,7 @@ const QUICK = [
 // phones: the photos behind the title slide one to the next (owner 2026-11-28: woman, man, couple)
 // add more photos here (person on a clean, plain colour background, a different colour each) and they slide
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone.webp", alt: "A smiling young woman" },
+  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd" },
 ];
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
@@ -725,13 +725,13 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero .cyt-hero-inner { display: contents !important; padding: 0 !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
           /* shutter: the photo holds still while the white sheet slides up over it */
           .cyt-hero .cyt-hero-copy { position: sticky; top: 0; z-index: 0; display: flex !important; flex-direction: column; justify-content: flex-end; min-height: max(360px, calc(100svh - 307px)); margin: 0 !important; padding: 0 20px 48px !important; max-width: none !important; width: 100% !important; box-sizing: border-box; text-align: left !important;
-            background: #b9a88a; overflow: hidden; }
+            background: #f7cf5e; overflow: hidden; }
           .cyt-hero .cyt-hero-copy > :not(.cyt-title):not(.cyt-eyebrow):not(.cyt-hph) { display: none !important; }
           .cyt-hero .cyt-hero-copy > .cyt-hph { display: block !important; position: absolute; inset: 0; z-index: 0; overflow: hidden; touch-action: pan-y; }
           .cyt-hph-track { display: flex; height: 100%; transition: transform .9s cubic-bezier(.65, 0, .35, 1); will-change: transform; }
           .cyt-hph-track picture { flex: 0 0 100%; height: 100%; }
-          .cyt-hph-track img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
-          .cyt-hph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,28,17,.1) 0%, rgba(8,28,17,.02) 32%, rgba(8,28,17,.78) 100%); pointer-events: none; }
+          .cyt-hph-track img { width: 100%; height: 100%; object-fit: cover; object-position: center 78%; display: block; }
+          .cyt-hph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,28,17,0) 0%, rgba(8,28,17,0) 45%, rgba(8,28,17,.8) 100%); pointer-events: none; }
           .cyt-hph-dots { position: absolute; right: 18px; top: 16px; display: flex; gap: 5px; }
           .cyt-hph-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.55); transition: width .3s, background .3s; }
           .cyt-hph-dots i.on { width: 18px; background: #fff; }
@@ -742,6 +742,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
             color: #10301d !important; -webkit-text-fill-color: #10301d !important; background: #ffd23f !important; text-shadow: none !important;
             box-shadow: 0 6px 18px -6px rgba(255,190,30,.7); transform: rotate(-1.5deg); }
           .cyt-hero .cyt-title .cyt-hl::before, .cyt-hero .cyt-title .cyt-hl::after { display: none !important; }
+          .cyt-hero .cyt-title .cyt-hl::first-letter { text-transform: uppercase; }
           .cyt-hero .cyt-eyebrow { order: 2; margin: 8px 0 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; color: #fff !important; font-size: 12.5px !important; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
           .cyt-ps { display: block; position: relative; z-index: 2; margin-top: -28px; padding: 10px 0 0; background: #fff; border-radius: 28px 28px 0 0; box-shadow: 0 -16px 30px -24px rgba(0,0,0,.55); }
           .cyt-ps-grab { display: block; width: 40px; height: 5px; border-radius: 99px; background: #d7e0da; margin: 0 auto 10px; }
