@@ -173,7 +173,7 @@ export default function WorksheetPage() {
               if (isPack(w.tool)) return <PackForm tool={w.tool} value={data} onChange={onChange} finish={finish} />;
               if (w.tool === "whatif") return <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />;
               return w.tool === "activity"
-                ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
+                ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} history={w.history || []} />
                 : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} therapistName={th?.name} finish={finish}
                     canAdd={!th || !!w.ongoing}
                     lockCta={th?.live ? <Link href={bookPath(th)} className="ab-btn ws-lockbtn">Book a session with {th.name}</Link> : <Link href="/client/find" className="ab-btn ws-lockbtn">Find a therapist</Link>} />;

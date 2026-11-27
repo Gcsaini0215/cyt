@@ -69,7 +69,89 @@ function Slide({ label, color, hint, value, onChange, disabled }) {
   );
 }
 
-export function ActivityForm({ value, step, onChange, onStep, readOnly = false, finish }) {
+// every filled day the person has: older weeks come from the progress history (latest snapshot of each week),
+// the current week from the form itself
+const daysMap = (v, history) => {
+  const byStart = {};
+  for (const h of history || []) { const d = h?.data; if (d?.start && Array.isArray(d.days)) byStart[d.start] = d; }
+  byStart[v.start] = v;
+  const map = {};
+  for (const w of Object.values(byStart)) {
+    (w.days || []).forEach((day, i) => {
+      const cells = Object.fromEntries(Object.entries(day || {}).filter(([, c]) => filledCell(c)));
+      if (Object.keys(cells).length) map[addDays(w.start, i)] = { cells, start: w.start };
+    });
+  }
+  return map;
+};
+const monthTitle = (ym) => new Date(`${ym}-01T00:00:00Z`).toLocaleDateString("en-IN", { month: "long", year: "numeric", timeZone: "UTC" });
+const shiftMonth = (ym, n) => { const [y, m] = ym.split("-").map(Number); const d = new Date(Date.UTC(y, m - 1 + n, 1)); return d.toISOString().slice(0, 7); };
+
+// whole-month calendar: dots on filled days, the current week opens for editing, older days show read-only
+function MonthView({ v, history, selected, onPickCurrent }) {
+  const [ym, setYm] = useState(selected.slice(0, 7));
+  const [picked, setPicked] = useState(null);
+  const map = useMemo(() => daysMap(v, history), [v, history]);
+  const today = todayIST();
+  const [y, m] = ym.split("-").map(Number);
+  const firstDow = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7; // Monday first
+  const nDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const dates = Array.from({ length: nDays }, (_, i) => `${ym}-${String(i + 1).padStart(2, "0")}`);
+  const curIndex = (d) => { const i = Math.round((Date.parse(`${d}T00:00:00Z`) - Date.parse(`${v.start}T00:00:00Z`)) / 864e5); return i >= 0 && i < 7 ? i : -1; };
+  const filledHere = dates.filter((d) => map[d]).length;
+  const pastHere = dates.filter((d) => d <= today).length;
+  const p = picked && map[picked];
+  const pWeek = p ? weekOf({ start: p.start, first: v.first }) : 0;
+  return (
+    <div className="ad-month">
+      <div className="ad-month-h">
+        <button type="button" onClick={() => { setYm(shiftMonth(ym, -1)); setPicked(null); }} aria-label="Previous month">‹</button>
+        <b>{monthTitle(ym)}</b>
+        <button type="button" disabled={ym >= today.slice(0, 7)} onClick={() => { setYm(shiftMonth(ym, 1)); setPicked(null); }} aria-label="Next month">›</button>
+      </div>
+      <div className="ad-month-g">
+        {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((w) => <small key={w}>{w}</small>)}
+        {Array.from({ length: firstDow }, (_, i) => <span key={`b${i}`} />)}
+        {dates.map((d) => {
+          const ci = curIndex(d);
+          const has = !!map[d];
+          const fut = d > today;
+          const can = !fut && (ci >= 0 || has);
+          return (
+            <button key={d} type="button" disabled={!can}
+              className={`${has ? "has" : ""}${ci >= 0 ? " cur" : ""}${d === today ? " today" : ""}${d === picked ? " sel" : ""}${fut ? " fut" : ""}`}
+              onClick={() => (ci >= 0 ? onPickCurrent(ci) : setPicked(d))}
+              aria-label={`${d}${has ? `, ${Object.keys(map[d].cells).length} blocks` : ""}`}>
+              <b>{Number(d.slice(8))}</b><i />
+            </button>
+          );
+        })}
+      </div>
+      <p className="ad-month-n">🟡 {filledHere} of {pastHere} days filled in {monthTitle(ym).split(" ")[0]} · <span className="ad-month-k">This week</span> opens to edit, older days are saved in your history.</p>
+      {p && (
+        <div className="ad-month-day">
+          <div className="ad-month-dh"><b>{dayName(picked)}</b><small>Week {pWeek} · saved · read-only</small><button type="button" onClick={() => setPicked(null)} aria-label="Close">✕</button></div>
+          <ul>
+            {SLOTS.filter(([s]) => p.cells[s]).map(([s, label]) => {
+              const c = p.cells[s];
+              return (
+                <li key={s}>
+                  <span className="ad-time">{label}</span>
+                  <span className="ad-emo" aria-hidden="true">{c.mood ? MOOD_EMOJI[c.mood] || "🙂" : "•"}</span>
+                  <span className="ad-sum"><b>{c.did || c.mood || "—"}</b>
+                    <span className="ad-tags">{c.mood && <small>{c.mood}{c.mp != null ? ` ${c.mp}%` : ""}</small>}{ACE.map(([k, , color]) => <i key={k} style={{ "--c": color }}>{k.toUpperCase()} {c[k] ?? "–"}</i>)}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ActivityForm({ value, step, onChange, onStep, readOnly = false, finish, history = [] }) {
   const v = withActivity(value);
   const [day, setDay] = useState(() => {
     const i = Math.round((Date.parse(`${todayIST()}T00:00:00Z`) - Date.parse(`${v.start}T00:00:00Z`)) / 864e5);
@@ -78,6 +160,7 @@ export function ActivityForm({ value, step, onChange, onStep, readOnly = false, 
   const [open, setOpen] = useState(null);
   const [toast, setToast] = useState("");
   const [hideRolled, setHideRolled] = useState(false);
+  const [month, setMonth] = useState(false);
   const toastT = useRef(null);
   useEffect(() => () => clearTimeout(toastT.current), []);
   const setCell = (s, patch) => {
@@ -119,7 +202,7 @@ export function ActivityForm({ value, step, onChange, onStep, readOnly = false, 
               <small>{week > 1 ? `Week ${week} · ` : ""}Day {day + 1} · {dayName(date)}</small>
               <h3>{greet}</h3>
               <p>“{line}”</p>
-              <div className="ad-pills"><span>✨ {dayFilled}/9 blocks</span><span>📅 {daysUsed}/7 days</span></div>
+              <div className="ad-pills"><span>✨ {dayFilled}/9 blocks</span><span>📅 {daysUsed}/7 days</span><button type="button" className={`ad-mbtn${month ? " on" : ""}`} onClick={() => { setMonth(!month); setOpen(null); }} aria-expanded={month}>🗓 {month ? "Close month" : "Month view"}</button></div>
             </div>
             <Ring value={dayScore(v.days[day])} />
           </div>
@@ -130,6 +213,7 @@ export function ActivityForm({ value, step, onChange, onStep, readOnly = false, 
               <button type="button" onClick={() => setHideRolled(true)} aria-label="Close">✕</button>
             </div>
           )}
+          {month ? <MonthView v={v} history={history} selected={date} onPickCurrent={(i) => { setDay(i); setMonth(false); setOpen(null); }} /> : (<>
           <div className="ad-days" role="tablist" aria-label="Day">
             {v.days.map((d, i) => {
               const dt = addDays(v.start, i);
@@ -200,6 +284,7 @@ export function ActivityForm({ value, step, onChange, onStep, readOnly = false, 
             {day < 6 ? <button type="button" className="ad-btn" onClick={() => { setDay(day + 1); setOpen(null); }}>Day {day + 2} →</button> : <button type="button" className="ad-btn" onClick={() => onStep(1)}>See patterns →</button>}
           </div>
           {day === 6 && !readOnly && <p className="ad-roll">🔁 A fresh week starts by itself on {dayName(addDays(v.start, 7))}. This week stays saved in your progress history.</p>}
+          </>)}
           {toast && <div className="ad-toast" role="status">{toast}<span className="ad-burst" aria-hidden="true"><i>✨</i><i>🌟</i><i>✨</i><i>💚</i><i>✨</i></span></div>}
         </section>
       ) : (
@@ -348,6 +433,34 @@ export const AD_CSS = `
 .ad-grid td b { display: block; font-size: 12px; }
 .ad-grid td small { font-size: 11px; color: #64748b; }
 /* day card (same sizes as the other toolkit cards) */
+.ad-pills .ad-mbtn { font: inherit; font-size: 12px; font-weight: 800; color: #8a5a00; background: #fff7e2; border: 1px solid #f0d9a4; border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+.ad-pills .ad-mbtn.on { background: #14532d; border-color: #14532d; color: #fff; }
+.ad-month { border: 1px solid #e3ede6; border-radius: 16px; padding: 12px; background: #fff; }
+.ad-month-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.ad-month-h b { font-size: 15px; font-weight: 800; color: #0f2a1d; }
+.ad .ad-month-h button { width: 34px; height: 34px; border-radius: 10px; border: 1.5px solid #e3e9e5; background: #fff; font: inherit; font-size: 18px; font-weight: 800; color: #14532d; cursor: pointer; padding: 0; }
+.ad .ad-month-h button:disabled { opacity: .35; cursor: default; }
+.ad-month-g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.ad-month-g > small { text-align: center; font-size: 11px; font-weight: 800; color: #94a3b8; padding-bottom: 2px; }
+.ad .ad-month-g button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 44px; border-radius: 11px; border: 1.5px solid #eef3f0; background: #fbfdfc; font: inherit; color: #334155; cursor: pointer; padding: 0; }
+.ad-month-g button b { font-size: 13.5px; font-weight: 800; }
+.ad-month-g button i { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+.ad-month-g button.has i { background: #e0ab45; }
+.ad .ad-month-g button.cur { background: #eef8f1; border-color: #cfe6d7; }
+.ad-month-g button.today b { color: #b07a14; }
+.ad .ad-month-g button.sel { background: #14532d; border-color: #14532d; color: #fff; }
+.ad .ad-month-g button.sel.has i { background: #ffd977; }
+.ad .ad-month-g button:disabled { opacity: .4; cursor: default; background: #fff; }
+.ad-month-n { margin: 10px 0 0; font-size: 12.5px; color: #64748b; }
+.ad-month-k { background: #eef8f1; border: 1px solid #cfe6d7; border-radius: 6px; padding: 0 6px; color: #14532d; font-weight: 700; }
+.ad-month-day { margin-top: 12px; border-top: 1px solid #eef3f0; padding-top: 10px; }
+.ad-month-dh { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.ad-month-dh b { font-size: 14.5px; }
+.ad-month-dh small { flex: 1; font-size: 12px; color: #94a3b8; font-weight: 700; }
+.ad .ad-month-dh button { border: 0; background: none; font-size: 14px; color: #64748b; cursor: pointer; }
+.ad-month-day ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ad-month-day li { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid #e8eee9; border-radius: 12px; background: #fbfdfc; }
+
 .ad-new { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: #fdf6e7; border: 1px solid #f3e2bb; font-size: 13.5px; color: #5b4310; }
 .ad-new span { flex: 1; }
 .ad-new button { border: 0; background: none; padding: 0 2px; font-size: 14px; color: #8a6d2b; cursor: pointer; }

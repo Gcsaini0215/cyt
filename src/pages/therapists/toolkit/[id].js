@@ -83,7 +83,7 @@ function Mine({ id }) {
       <WhyCard tool={tool} open={false} />
       <HistoryCard tool={tool} history={hist} current={data} />
       {isPack(tool) ? <PackForm tool={tool} value={data} onChange={onChange} finish={finish} /> : tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} /> : tool === "activity"
-        ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
+        ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} history={hist} />
         : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />}
     </>
   );
