@@ -351,6 +351,10 @@ const CSS = `
 @media (max-width: 1023px) {
   .tt-box { grid-template-columns: minmax(0, 1fr); }
 }
+/* iPad landscape (incl. iPad Pro): only 2 cards on the right */
+@media (min-width: 1024px) and (max-width: 1199px), (min-width: 1024px) and (max-width: 1400px) and (pointer: coarse) {
+  .tt-li:nth-of-type(n+3) { display: none; }
+}
 /* iPad portrait + phone: tabs on one line, languages on their own line below — nothing slides sideways */
 @media (max-width: 1199px) {
   .tt-controls { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 0; border-bottom: 0; }
