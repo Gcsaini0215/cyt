@@ -5,8 +5,8 @@ import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
 import { split, getMinFee, sessionModes, nextAvailable } from "../../utils/therapist-directory";
 
-// Home "Meet our psychologists": a swipeable row of therapist cards with real ratings, fees
-// and availability, in tabs that differ from the banner wall — Top rated, Available today,
+// Home "Meet our psychologists": spotlight + list (2026-11-28) — one therapist large on a pastel card, the next
+// few beside it, with real ratings, fees, View profile and Book; tabs that differ from the banner wall — Top rated, Available today,
 // Near you (once the visitor's state is known) and In-person, plus a language filter.
 // `people` is the whole directory in a slim shape (pages/index.js), rendered on the server.
 
@@ -29,42 +29,69 @@ const sameState = (therapistState, visitorState) => {
   return a.includes(key) || (key === "delhi" && /ncr|new delhi/.test(a));
 };
 
-function Card({ t, now, hidden }) {
+const TICK = "m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48z";
+const STAR = "M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
+const Tick = ({ s = 17 }) => <svg viewBox="0 0 24 24" width={s} height={s} fill="#1d9bf0" style={{ flexShrink: 0 }} aria-hidden="true"><path d={TICK} /></svg>;
+const Stars = ({ n }) => <span className="tt-stars" aria-hidden="true">{[1, 2, 3, 4, 5].map((i) => <svg key={i} viewBox="0 0 24 24" width="14" height="14" fill={i <= Math.round(n) ? "#e3a83a" : "#d9e0dc"}><path d={STAR} /></svg>)}</span>;
+// soft colours for the spotlight, a different one for each therapist
+const PASTELS = [["#e3f4e9", "#bfe3cc"], ["#e4effb", "#c3d9f2"], ["#fdebdc", "#f4ceaa"], ["#fbe6ee", "#f1c6d6"], ["#fff4cc", "#f1dd8c"], ["#ece7fb", "#d2c7f3"]];
+
+function useView(t) {
   const r = ratingOf(t);
   const name = t.user?.name || "Therapist";
-  const fee = getMinFee(t.fees);
   const photo = t.user?.profile ? `${imagePath}/${t.user.profile}` : "";
-  const [broken, setBroken] = useState(false);
-  const href = profilePath(t);
-  const tab = hidden ? -1 : undefined;
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-  const exp = expLabel(t.year_of_exp);
-  const langs = split(t.language_spoken).slice(0, 2).join(", ");
+  return { r, name, photo, initials, fee: getMinFee(t.fees), exp: expLabel(t.year_of_exp), langs: split(t.language_spoken).slice(0, 2).join(", "), href: profilePath(t), book: bookPath(t) };
+}
+
+function Photo({ v, w, h, cls }) {
+  const [broken, setBroken] = useState(false);
+  return v.photo && !broken
+    // eslint-disable-next-line @next/next/no-img-element
+    ? <img className={cls} src={thumb(v.photo, w > 300 ? 640 : 256, 80)} srcSet={`${thumb(v.photo, w > 300 ? 640 : 256, 80)} 1x, ${thumb(v.photo, w > 300 ? 828 : 384, 80)} 2x`} alt={v.name} loading="lazy" decoding="async" width={w} height={h} onError={() => setBroken(true)} />
+    : <span className={`${cls} tt-init`} aria-hidden="true"><span>{v.initials || "C"}</span></span>;
+}
+
+// the big card: one therapist at a time, on a soft colour
+function Spotlight({ t, color }) {
+  const v = useView(t);
   return (
-    <article className="tt-card">
-      {/* same as the home banner's therapist card on phones: white card, photo on top, details + Book now below */}
-      <div className="tt-photo">
-        {photo && !broken
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={thumb(photo, 384, 80)} srcSet={`${thumb(photo, 384, 80)} 1x, ${thumb(photo, 640, 80)} 2x`} alt={name} loading="lazy" decoding="async" width="246" height="190" onError={() => setBroken(true)} />
-          : <span className="tt-init" aria-hidden="true"><span>{initials || "C"}</span></span>}
-      </div>
-      <div className="tt-info">
-        <Link href={href} className="tt-name tt-stretch" tabIndex={tab}>
-          <span>{name}</span><span className="tt-sr">, {t.profile_type || "Psychologist"}</span><svg viewBox="0 0 24 24" width="17" height="17" fill="#1d9bf0" style={{ flexShrink: 0 }} aria-hidden="true"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z" /></svg>
-        </Link>
-        <div className="tt-role">{t.profile_type || "Mental Health Professional"}</div>
-        <div className="tt-meta">
-          <span className="tt-rate">{r ? <><svg className="cyt-star" viewBox="0 0 24 24" width="15" height="15" fill="#e3a83a" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg><span className="tt-num">{r.avg.toFixed(1)}</span> ({r.count})</> : <span className="tt-num">New</span>}</span>
-          {exp && <span>{exp}</span>}
-          {langs && <span>{langs}</span>}
-        </div>
-        <div className="tt-row">
-          {fee ? <span className="tt-fee"><small>Session from</small><span className="tt-num">₹{fee.toLocaleString("en-IN")}</span></span> : <span />}
-          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book now<span className="tt-sr"> with {name}</span></Link>
+    <article className="tt-spot" style={{ "--p": color[0], "--pd": color[1] }} key={t._id}>
+      <div className="tt-spot-frame"><Photo v={v} w={260} h={310} cls="tt-spot-img" /></div>
+      <div className="tt-spot-t">
+        <span className="tt-tag">{v.r ? <><svg viewBox="0 0 24 24" width="13" height="13" fill="#e3a83a" aria-hidden="true"><path d={STAR} /></svg> {v.r.avg.toFixed(1)} from {v.r.count} review{v.r.count > 1 ? "s" : ""}</> : "Verified psychologist"}</span>
+        <Link href={v.href} className="tt-spot-name"><span>{v.name}</span><Tick s={20} /></Link>
+        <p className="tt-spot-role">{t.profile_type || "Mental Health Professional"}{v.exp ? ` · ${v.exp}` : ""}</p>
+        {v.langs && <p className="tt-spot-lang">Speaks {v.langs}</p>}
+        {v.r && <p className="tt-spot-rate"><Stars n={v.r.avg} /> <b>{v.r.avg.toFixed(1)}</b> ({v.r.count})</p>}
+        {v.fee ? <p className="tt-spot-fee">Session from <b>₹{v.fee.toLocaleString("en-IN")}</b></p> : null}
+        <div className="tt-btns">
+          <Link href={v.book} className="tt-btn tt-btn-book">Book now<span className="tt-sr"> with {v.name}</span></Link>
+          <Link href={v.href} className="tt-btn tt-btn-line">View profile<span className="tt-sr"> of {v.name}</span></Link>
         </div>
       </div>
     </article>
+  );
+}
+
+// a row in the list beside it
+function Row({ t, onPick, active }) {
+  const v = useView(t);
+  return (
+    <div className={`tt-li${active ? " on" : ""}`}>
+      <button type="button" className="tt-li-pick" onClick={onPick} aria-label={`Show ${v.name} above`}>
+        <Photo v={v} w={72} h={72} cls="tt-li-img" />
+      </button>
+      <div className="tt-li-t">
+        <Link href={v.href} className="tt-li-name"><span>{v.name}</span><Tick s={14} /></Link>
+        <small>{t.profile_type || "Psychologist"}{v.langs ? ` · ${v.langs}` : ""}</small>
+        <small className="tt-li-rate">{v.r ? <><Stars n={v.r.avg} /> <b>{v.r.avg.toFixed(1)}</b> ({v.r.count})</> : <b className="tt-new">New</b>}{v.fee ? <> · from <b>₹{v.fee.toLocaleString("en-IN")}</b></> : null}</small>
+      </div>
+      <div className="tt-li-btns">
+        <Link href={v.href} className="tt-btn tt-btn-line sm">View profile<span className="tt-sr"> of {v.name}</span></Link>
+        <Link href={v.book} className="tt-btn tt-btn-book sm">Book<span className="tt-sr"> with {v.name}</span></Link>
+      </div>
+    </div>
   );
 }
 
@@ -80,14 +107,6 @@ export default function TopTherapists({ people = [], visitorState = null, total 
     setOrder(new Map(ids.map((id, i) => [id, i])));
   }, [people]);
   const [lang, setLang] = useState("");
-  const rowRef = useRef(null);
-  const [prog, setProg] = useState({ at: 0, size: 1 });
-  const onRowScroll = () => {
-    const el = rowRef.current;
-    if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    setProg({ at: max > 0 ? el.scrollLeft / max : 0, size: Math.min(1, el.clientWidth / Math.max(1, el.scrollWidth)) });
-  };
 
   const languages = useMemo(() => {
     const m = {};
@@ -119,39 +138,39 @@ export default function TopTherapists({ people = [], visitorState = null, total 
   ].filter((x) => !x.hide);
   const shown = lists[tab] || [];
 
-  // new tab / language -> back to the start of the row
-  useEffect(() => { rowRef.current?.scrollTo({ left: 0 }); onRowScroll(); }, [tab, lang]); // eslint-disable-line react-hooks/exhaustive-deps
-  // the row moves on by itself, one card every few seconds — paused while someone hovers, touches or tabs into it,
-  // when it's off screen or the tab is hidden, and never for people who prefer reduced motion
-  const pauseUntil = useRef(0);
-  const hold = (ms = 8000) => { pauseUntil.current = Date.now() + ms; };
+  // spotlight: one therapist at a time; the list shows the next few. A thin timer bar under the spotlight fills over
+  // 6 s and moves it on when it ends — so the bar and the change always match. The bar pauses while the visitor
+  // hovers/touches/focuses the box, when it's off screen or the tab is hidden; with reduced motion there's no bar
+  // and no auto-change (arrows, list photos, swipe and ← → still work).
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [tab, lang]);
+  const boxRef = useRef(null);
+  const hasAny = shown.length > 0;
+  const [hover, setHover] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [still, setStill] = useState(false);
+  useEffect(() => { setStill(!!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches); }, []);
   useEffect(() => {
-    const el = rowRef.current;
-    if (!el || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
-    let visible = false;
-    const io = "IntersectionObserver" in window ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.3 }) : null;
-    io?.observe(el);
-    const timer = setInterval(() => {
-      if (!visible || document.hidden || Date.now() < pauseUntil.current) return;
-      const card = el.querySelector(".tt-card");
-      const step = (card?.getBoundingClientRect().width || 250) + 18;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 8) el.scrollTo({ left: 0, behavior: "smooth" });
-      else el.scrollBy({ left: step, behavior: "smooth" });
-    }, 3800);
-    return () => { clearInterval(timer); io?.disconnect(); };
-  }, [tab, lang]);
-  const slide = (dir) => {
-    hold(10000);
-    const el = rowRef.current;
-    if (!el) return;
-    const card = el.querySelector(".tt-card");
-    el.scrollBy({ left: dir * ((card?.getBoundingClientRect().width || 250) + 18) * 2, behavior: "smooth" });
-  };
+    const el = boxRef.current;
+    if (!el || !("IntersectionObserver" in window)) { setInView(true); return undefined; }
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.3 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasAny]);
+  const go = (n) => setIdx((n + shown.length) % Math.max(1, shown.length));
+  const at = shown.length ? idx % shown.length : 0;
+  const paused = hover || !inView;
+  const touchX = useRef(null);
+  const onKey = (e) => { if (e.key === "ArrowRight") { e.preventDefault(); go(at + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); go(at - 1); } };
+  const color = PASTELS[at % PASTELS.length];
+  const next = shown.length ? [1, 2, 3, 4].map((k) => shown[(at + k) % shown.length]).filter((t, k, a) => t && t !== shown[at] && a.indexOf(t) === k) : [];
 
   if (!people.length) return null;
   return (
     <section className="tt-sec" aria-labelledby="tt-h">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      {/* a soft glow that takes the spotlight's colour */}
+      <span className="tt-glow" style={{ background: color[1] }} aria-hidden="true" />
       <div className="container">
         <div className="tt-head">
           <div>
@@ -166,7 +185,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
           <div className="tt-tabs" role="tablist" aria-label="Show psychologists">
             {TABS.map((x) => (
               <button key={x.key} type="button" role="tab" aria-selected={tab === x.key} className={tab === x.key ? "on" : ""} onClick={() => setTab(x.key)}>
-                {x.key === "today" && <i className="tt-dot" aria-hidden="true" />}{x.label}<small>{x.n}</small>
+                {x.label}<small>{x.n}</small>
               </button>
             ))}
           </div>
@@ -178,144 +197,172 @@ export default function TopTherapists({ people = [], visitorState = null, total 
           )}
         </div>
 
-        <div className="tt-frame">
-          {shown.length > 0 ? (
-            <>
-              <button type="button" className="tt-arrow prev" onClick={() => slide(-1)} aria-label="Previous psychologists"><i className="feather-chevron-left" /></button>
-              <div className="tt-row-scroll" ref={rowRef} role="tabpanel" onScroll={onRowScroll}
-                onMouseEnter={() => hold(600000)} onMouseLeave={() => hold(1500)} onTouchStart={() => hold(10000)} onFocus={() => hold(15000)}>
-                {shown.map((t) => <Card key={t._id} t={t} now={now} />)}
-                <div className="tt-card tt-more">
-                  <span className="tt-more-ic" aria-hidden="true"><i className="feather-users" /></span>
-                  <Link href="/view-all-therapist" className="tt-stretch tt-more-a">See all {total || ""} psychologists</Link>
-                  <span>Filter by concern, language, fees and more</span>
+        {shown.length > 0 ? (
+          <div className="tt-box" ref={boxRef} role="tabpanel" tabIndex={-1} onKeyDown={onKey}
+            onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+            onFocus={() => setHover(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setHover(false); }}>
+            <div className="tt-spot-wrap"
+              onTouchStart={(e) => { touchX.current = e.touches[0].clientX; setHover(true); }}
+              onTouchEnd={(e) => {
+                const dx = touchX.current == null ? 0 : e.changedTouches[0].clientX - touchX.current;
+                touchX.current = null; setHover(false);
+                if (Math.abs(dx) > 45) go(at + (dx < 0 ? 1 : -1));
+              }}>
+              <Spotlight t={shown[at]} color={color} />
+              {shown.length > 1 && (
+                <div className="tt-nav">
+                  <button type="button" onClick={() => go(at - 1)} aria-label="Previous psychologist"><i className="feather-chevron-left" aria-hidden="true" /></button>
+                  <span className="tt-count">{at + 1} / {shown.length}</span>
+                  {!still && (
+                    <span className="tt-prog" aria-hidden="true">
+                      <i key={`${tab}-${lang}-${at}`} style={{ animationPlayState: paused ? "paused" : "running" }} onAnimationEnd={() => go(at + 1)} />
+                    </span>
+                  )}
+                  <button type="button" onClick={() => go(at + 1)} aria-label="Next psychologist"><i className="feather-chevron-right" aria-hidden="true" /></button>
                 </div>
-              </div>
-              <button type="button" className="tt-arrow next" onClick={() => slide(1)} aria-label="More psychologists"><i className="feather-chevron-right" /></button>
-              <div className="tt-track" aria-hidden="true">
-                <span style={{ width: `${Math.max(12, prog.size * 100)}%`, left: `${prog.at * (100 - Math.max(12, prog.size * 100))}%` }} />
-              </div>
-            </>
-          ) : (
-            <div className="tt-empty">
-              <p>No one matches this right now.</p>
-              <button type="button" onClick={() => { setLang(""); setTab("top"); }}>Show top rated</button>
+              )}
             </div>
-          )}
-        </div>
+            <div className="tt-list" key={`${tab}-${lang}-${at}`}>
+              {next.map((t, k) => <Row key={t._id} t={t} onPick={() => go(at + k + 1)} />)}
+            </div>
+          </div>
+        ) : (
+          <div className="tt-empty">
+            <p>No one matches this right now.</p>
+            <button type="button" onClick={() => { setLang(""); setTab("top"); }}>Show top rated</button>
+          </div>
+        )}
 
         <Link href="/view-all-therapist" className="tt-all tt-all-m">Browse all {total || ""} psychologists <i className="feather-arrow-right" aria-hidden="true" /></Link>
-
       </div>
     </section>
   );
 }
 
 const CSS = `
-.tt-sec { position: relative; overflow: hidden; padding: 72px 0 52px;
-  background: radial-gradient(circle at 88% 0%, rgba(30,122,76,.38) 0, transparent 42%), radial-gradient(circle at 0% 100%, rgba(212,162,76,.16) 0, transparent 40%), linear-gradient(180deg, #0b2418 0%, #0d2b1d 100%); }
-.tt-sec::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
-  background-image: radial-gradient(rgba(236,199,125,.18) 1px, transparent 1px); background-size: 26px 26px;
-  -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); mask-image: linear-gradient(180deg, #000, transparent 70%); }
-.tt-sec .container { position: relative; z-index: 1; }
-.tt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; margin-bottom: 26px; }
-.tt-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #ecc77d; }
+/* light "spotlight + list" (owner 2026-11-28): soft sage-to-cream, one therapist large on a pastel card, the next few beside it */
+.tt-sec { position: relative; padding: 72px 0 60px; background: linear-gradient(180deg, #f1f7f3 0%, #fbf7ef 100%); overflow: hidden; isolation: isolate; }
+.tt-sec > .container { position: relative; z-index: 1; }
+.tt-glow { position: absolute; z-index: 0; left: -120px; top: 30%; width: 560px; height: 560px; border-radius: 50%; opacity: .45; filter: blur(90px); transition: background-color 1.2s ease; pointer-events: none; animation: ttFloat 14s ease-in-out infinite alternate; }
+@keyframes ttFloat { from { transform: translate(0, 0) scale(1); } to { transform: translate(60px, -40px) scale(1.08); } }
+.tt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; margin-bottom: 22px; }
+.tt-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #8a5a0b; }
 .tt-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
-.tt-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #fff; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
-.tt-title span { color: #ecc77d; }
-.tt-sub { font-size: 16px; line-height: 1.6; color: #c9dbd0; margin: 0; padding: 0; max-width: 60ch; }
-.tt-all { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 999px; background: linear-gradient(135deg, #22895a, #1e7a4c 60%, #14532d); color: #fff !important; font-weight: 800; font-size: 14.5px; text-decoration: none !important; white-space: nowrap; box-shadow: 0 14px 28px -14px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.12); transition: transform .2s ease; }
-.tt-all:hover { transform: translateY(-2px); }
+.tt-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
+.tt-title span { color: #1e7a4c; }
+.tt-sub { font-size: 16px; line-height: 1.6; color: #4b5d53; margin: 0; padding: 0; max-width: 60ch; }
+.tt-all { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 999px; background: #14532d; color: #fff !important; font-size: 15px; font-weight: 800; text-decoration: none !important; white-space: nowrap; transition: transform .2s ease, background .2s ease; }
+.tt-all:hover { transform: translateY(-2px); background: #0f3d24; }
 .tt-all-m { display: none; }
-.tt-all i { transition: transform .2s ease; } .tt-all:hover i { transform: translateX(3px); }
 
-/* filters: plain text tabs (gold underline when on) — no pill boxes, so the section stays short */
-.tt-controls { display: flex; align-items: center; gap: 4px 18px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.12); }
+/* filters: text tabs with a green underline */
+.tt-controls { display: flex; align-items: center; gap: 4px 18px; flex-wrap: wrap; margin-bottom: 22px; border-bottom: 1px solid #dfe8e2; }
 .tt-tabs, .tt-langs { display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none; }
 .tt-tabs::-webkit-scrollbar, .tt-langs::-webkit-scrollbar { display: none; }
-.tt-langs { margin-left: auto; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.14); }
-.tt-tabs button, .tt-langs button { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; border: 0; border-radius: 0; background: none;
-  color: #b9cdc1; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: color .2s ease; }
+.tt-langs { margin-left: auto; padding-left: 14px; border-left: 1px solid #dfe8e2; }
+.tt-tabs button, .tt-langs button { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border: 0; background: none; color: #55665c; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .tt-langs button { font-size: 13px; padding: 0 10px; }
-.tt-tabs button::after, .tt-langs button::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px; background: #ecc77d; transform: scaleX(0); transition: transform .25s ease; }
-.tt-tabs button:hover, .tt-langs button:hover { color: #fff; }
-.tt-tabs button.on, .tt-langs button.on { color: #fff; }
+.tt-tabs button::after, .tt-langs button::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px; background: #1e7a4c; transform: scaleX(0); transition: transform .25s ease; }
+.tt-tabs button.on, .tt-langs button.on { color: #0b1712; }
 .tt-tabs button.on::after, .tt-langs button.on::after { transform: scaleX(1); }
-.tt-langs button.on { color: #ecc77d; }
-.tt-tabs button small { font-size: 12px; font-weight: 700; color: #8fae9c; }
-.tt-tabs button.on small { color: #ecc77d; }
-.tt-dot { width: 7px; height: 7px; border-radius: 50%; background: #34d27b; box-shadow: 0 0 0 3px rgba(52,210,123,.25); }
+.tt-tabs button small { font-size: 12px; font-weight: 700; color: #8a9b91; }
+.tt-tabs button.on small { color: #1e7a4c; }
 
-.tt-frame { position: relative; }
-.tt-row-scroll { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 2px 18px; scrollbar-width: none; scroll-padding-left: 2px;
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); }
-.tt-row-scroll::-webkit-scrollbar { display: none; }
-.tt-arrow { position: absolute; top: 38%; z-index: 3; width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(11,36,24,.75); color: #fff; backdrop-filter: blur(6px); box-shadow: 0 12px 26px -10px rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: background .2s ease, color .2s ease, transform .2s ease; }
-.tt-arrow.prev { left: -26px; } .tt-arrow.next { right: -26px; }
-.tt-arrow:hover { background: #ecc77d; color: #14532d; transform: scale(1.06); }
-.tt-track { position: relative; height: 4px; border-radius: 99px; background: rgba(255,255,255,.1); margin: 4px auto 0; max-width: 320px; overflow: hidden; }
-.tt-track span { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #22895a, #ecc77d); transition: left .15s linear, width .2s ease; }
+.tt-box { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.tt-spot-wrap { display: flex; flex-direction: column; gap: 12px; }
+.tt-spot { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 22px; align-items: center; padding: 18px; border-radius: 30px; background: var(--p); border: 1px solid var(--pd); animation: ttIn .55s cubic-bezier(.2,.7,.2,1) both; box-shadow: 0 18px 40px -28px rgba(20,83,45,.45); }
+@keyframes ttIn { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes ttZoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+@keyframes ttUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.tt-spot .tt-spot-img { animation: ttZoom 1.1s cubic-bezier(.2,.7,.2,1) both; }
+.tt-spot-frame { overflow: hidden; border-radius: 22px; min-width: 0; }
+.tt-spot-t > * { animation: ttUp .5s cubic-bezier(.2,.7,.2,1) both; }
+.tt-spot-t > :nth-child(2) { animation-delay: .06s; } .tt-spot-t > :nth-child(3) { animation-delay: .12s; }
+.tt-spot-t > :nth-child(4) { animation-delay: .18s; } .tt-spot-t > :nth-child(5) { animation-delay: .24s; }
+.tt-spot-t > :nth-child(n+6) { animation-delay: .3s; }
+.tt-spot-img { width: 260px; height: 310px; border-radius: 22px; object-fit: cover; object-position: center 22%; display: block; background: #fff; }
+.tt-spot-t { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.tt-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 800; color: #14532d; background: #fff; border-radius: 999px; padding: 5px 11px; }
+.tt-spot-name { display: flex; align-items: center; gap: 6px; font-size: 26px; font-weight: 800; line-height: 1.15; color: #0b1712 !important; text-decoration: none !important; letter-spacing: -.01em; }
+.tt-spot-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-spot-name:hover { color: #1e7a4c !important; }
+.tt-spot-t p { margin: 0; padding: 0; font-size: 15px; color: #4b5d53; line-height: 1.45; }
+.tt-spot-rate { display: flex; align-items: center; gap: 6px; } .tt-spot-rate b { color: #0b1712; }
+.tt-spot-fee b { color: #0b1712; font-size: 20px; }
+.tt-stars { display: inline-flex; gap: 1px; }
+.tt-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.tt-btn { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 18px; border-radius: 12px; font-size: 14.5px; font-weight: 800; text-decoration: none !important; white-space: nowrap; transition: background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease; }
+.tt-btn:active { transform: scale(.96); }
+.tt-btn-book::after { content: "→"; display: inline-block; margin-left: 8px; transition: transform .2s ease; }
+.tt-btn-book.sm::after { margin-left: 5px; }
+.tt-btn-book:hover::after { transform: translateX(4px); }
+.tt-btn-book:hover { box-shadow: 0 10px 20px -10px rgba(20,83,45,.6); }
+.tt-btn.sm { height: 36px; padding: 0 12px; font-size: 13px; border-radius: 10px; }
+.tt-btn-book { background: #14532d; color: #fff !important; } .tt-btn-book:hover { background: #0f3d24; }
+.tt-btn-line { background: #fff; color: #14532d !important; border: 1.5px solid #14532d; } .tt-btn-line:hover { background: #eef6f1; }
+.tt-nav { display: flex; align-items: center; justify-content: center; gap: 14px; color: #55665c; font-size: 13.5px; font-weight: 700; }
+.tt-nav button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #d6e2da; background: #fff; color: #14532d; font-size: 18px; cursor: pointer; display: grid; place-items: center; }
+.tt-nav button:hover { background: #14532d; color: #fff; border-color: #14532d; }
+.tt-nav button { transition: background .2s ease, color .2s ease, transform .15s ease; } .tt-nav button:active { transform: scale(.9); }
+.tt-count { min-width: 46px; text-align: center; font-variant-numeric: tabular-nums; }
+.tt-prog { width: 120px; height: 4px; border-radius: 4px; background: #dde8e1; overflow: hidden; }
+.tt-prog i { display: block; height: 100%; width: 100%; background: #1e7a4c; border-radius: 4px; transform-origin: left; animation: ttBar 6s linear both; }
+@keyframes ttBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-.tt-card { position: relative; flex: 0 0 262px; scroll-snap-align: start; display: flex; flex-direction: column; padding: 8px; background: #fff; border-radius: 22px;
-  box-shadow: 0 22px 40px -24px rgba(0,0,0,.8); transition: transform .3s ease, box-shadow .3s ease; }
-.tt-card:hover { transform: translateY(-6px); box-shadow: 0 30px 52px -26px rgba(0,0,0,.85); }
-.tt-photo { position: relative; height: 190px; border-radius: 16px; overflow: hidden; background: #e6efe9; flex: none; }
-.tt-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; transition: transform .6s ease; }
-.tt-card:hover .tt-photo img { transform: scale(1.04); }
-.tt-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 25%, #2a8a58 0, #14532d 60%, #0b2418 100%); }
-.tt-init span { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: #14532d; background: linear-gradient(135deg, #fbf1dc, #ecc77d); }
-.tt-info { flex: 1; display: flex; flex-direction: column; padding: 12px 8px 6px; }
-.tt-name { display: flex; align-items: center; gap: 5px; color: #0b1712 !important; font-size: 16px; font-weight: 800; line-height: 1.25; text-decoration: none !important; }
-.tt-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tt-name:hover { color: #1e7a4c !important; }
-.tt-role { margin-top: 1px; color: #55665c; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tt-meta { display: flex; align-items: center; flex-wrap: nowrap; margin-top: 8px; color: #55665c; font-size: 13px; white-space: nowrap; overflow: hidden; }
-.tt-meta > span + span::before { content: "·"; margin: 0 6px; color: #9fb3a6; }
-.tt-rate { display: inline-flex; align-items: center; gap: 3px; }
-.tt-rate .tt-num { color: #0b1712; font-weight: 800; }
-.tt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2ee; }
-.tt-meta { margin-bottom: 10px; }
-.tt-fee small { display: block; color: #66756d; font-size: 11.5px; line-height: 1.2; }
-.tt-fee .tt-num { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
-.tt-book { position: relative; z-index: 2; flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: #1e7a4c; color: #fff !important;
-  font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .2s ease; }
-.tt-book:hover { background: #14532d; }
+.tt-list { display: flex; flex-direction: column; gap: 10px; }
+.tt-li { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 12px; border-radius: 20px; background: #fff; border: 1px solid #e4ebe6; position: relative; overflow: hidden; animation: ttUp .45s cubic-bezier(.2,.7,.2,1) both; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.tt-li:nth-of-type(2) { animation-delay: .07s; } .tt-li:nth-of-type(3) { animation-delay: .14s; } .tt-li:nth-of-type(4) { animation-delay: .21s; }
+.tt-li::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #1e7a4c; transform: scaleY(0); transition: transform .25s ease; }
+@media (hover: hover) { .tt-li:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -18px rgba(20,83,45,.5); border-color: #cfe0d5; } .tt-li:hover::before { transform: scaleY(1); } }
+.tt-li-pick img { transition: transform .3s ease; } .tt-li-pick:hover img { transform: scale(1.06); }
+.tt-li-pick { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 16px; }
+.tt-li-img { width: 72px; height: 72px; border-radius: 16px; object-fit: cover; object-position: center 22%; display: block; background: #eef3ef; }
+.tt-li-t { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tt-li-name { display: flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 800; color: #0b1712 !important; text-decoration: none !important; }
+.tt-li-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-li-name:hover { color: #1e7a4c !important; }
+.tt-li-t small { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt-li-rate { display: flex; align-items: center; gap: 4px; } .tt-li-rate b { color: #0b1712; }
+.tt-new { font-size: 11px; color: #14532d !important; background: #ecc77d; border-radius: 5px; padding: 0 6px; }
+.tt-li-btns { display: flex; gap: 8px; }
+.tt-li-all { display: flex; align-items: center; justify-content: space-between; gap: 10px; grid-template-columns: none; color: #14532d !important; font-weight: 800; font-size: 14px; text-decoration: none !important; background: #eef6f1; border-color: #d6e9dd; padding: 14px 16px; }
 
-.tt-more { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 26px; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 1.5px dashed rgba(236,199,125,.45); box-shadow: none; text-decoration: none !important; }
-.tt-more:hover { background: rgba(255,255,255,.1); box-shadow: none; }
-.tt-more-ic { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f3d48f, #e3a83a); color: #14532d; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-.tt-more .tt-more-a { color: #fff !important; font-size: 17px; font-weight: 800; text-decoration: none !important; }
-.tt-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.tt-init { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2a8a58, #14532d); color: #fff; font-weight: 800; font-size: 28px; }
 .tt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.tt-more span:last-child { color: #c9dbd0; font-size: 13.5px; }
+.tt-empty { padding: 40px 16px; text-align: center; color: #4b5d53; border: 1px dashed #cfdcd4; border-radius: 18px; }
+.tt-empty p { margin: 0 0 10px; padding: 0; }
+.tt-empty button { height: 40px; padding: 0 18px; border-radius: 10px; border: none; background: #14532d; color: #fff; font-weight: 800; cursor: pointer; }
 
-.tt-empty { padding: 40px 16px; text-align: center; color: #d6e5dc; border: 1px dashed rgba(255,255,255,.25); border-radius: 18px; }
-.tt-empty p { margin: 0 0 10px; padding: 0; color: inherit; }
-.tt-empty button { height: 40px; padding: 0 18px; border-radius: 10px; border: none; background: #fff; color: #14532d; font-weight: 800; cursor: pointer; }
-
-
-@media (max-width: 1240px) { .tt-arrow.prev { left: -8px; } .tt-arrow.next { right: -8px; } }
-@media (max-width: 991px) { .tt-arrow { display: none; } }
+/* iPad: spotlight on top, the list below */
+@media (max-width: 1199px) {
+  .tt-box { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 767px) {
   .tt-sec { padding: 48px 0 44px; }
   .tt-all { display: none; }
-  .tt-all.tt-all-m { display: flex; justify-content: center; width: 100%; margin: 14px 0 0; }
-  /* heading: like every other home section on phones — left-aligned, full width */
-  .tt-head { margin-bottom: 20px; }
-  .tt-head > div { width: 100%; }
+  .tt-all.tt-all-m { display: flex; justify-content: center; width: 100%; margin: 16px 0 0; }
+  .tt-head { margin-bottom: 18px; } .tt-head > div { width: 100%; }
   .tt-title { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
-  .tt-sub { font-size: 15px; line-height: 1.6; max-width: none; }
-  /* phones: tabs and languages share one sideways-scrolling line */
-  .tt-controls { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 14px; padding: 0 16px; gap: 0 12px; }
+  .tt-sub { font-size: 15px; max-width: none; }
+  .tt-controls { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 16px; padding: 0 16px; gap: 0 12px; }
   .tt-controls::-webkit-scrollbar { display: none; }
   .tt-tabs, .tt-langs { flex: none; overflow: visible; }
   .tt-langs { margin-left: 0; padding-left: 10px; }
   .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 9px; }
   .tt-langs button { height: 36px; padding: 0 8px; }
-  .tt-row-scroll { margin: 0 -16px; padding: 6px 16px 16px; scroll-padding-left: 16px; gap: 14px; -webkit-mask-image: none; mask-image: none; }
-  .tt-card { flex-basis: 72%; max-width: 262px; }
-  .tt-card:hover { transform: none; }
-  .tt-card:hover .tt-photo img { transform: none; }
+  .tt-spot { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 12px; border-radius: 24px; }
+  .tt-spot-img { width: 100%; height: 260px; }
+  .tt-spot-name { font-size: 21px; }
+  .tt-spot-t p { font-size: 14px; }
+  .tt-btns .tt-btn { flex: 1; }
+  .tt-li { grid-template-columns: 60px minmax(0, 1fr); gap: 12px; }
+  .tt-li-img { width: 60px; height: 60px; border-radius: 14px; }
+  .tt-li-btns { grid-column: 1 / -1; }
+  .tt-li-btns .tt-btn { flex: 1; }
+  .tt-li:nth-of-type(4) { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .tt-photo img, .tt-card, .tt-arrow, .tt-track span { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .tt-spot, .tt-spot .tt-spot-img, .tt-spot-t > *, .tt-li, .tt-glow { animation: none; }
+  .tt-all, .tt-btn, .tt-li, .tt-li::before, .tt-glow, .tt-li-pick img { transition: none; }
+}
 `;
