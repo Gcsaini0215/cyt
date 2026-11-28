@@ -350,11 +350,18 @@ const CSS = `
   .tt-langs { margin-left: 0; padding-left: 10px; }
   .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 9px; }
   .tt-langs button { height: 36px; padding: 0 8px; }
-  .tt-spot { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 12px; border-radius: 24px; }
-  .tt-spot-img { width: 100%; height: 260px; }
-  .tt-spot-name { font-size: 21px; }
-  .tt-spot-t p { font-size: 14px; }
-  .tt-btns .tt-btn { flex: 1; }
+  /* phone: compact card — photo on the left, details beside it, buttons across the bottom */
+  .tt-spot { grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: repeat(5, auto) 1fr auto; gap: 0 14px; padding: 12px; border-radius: 22px; align-items: start; }
+  .tt-spot-frame { grid-column: 1; grid-row: 1 / 7; border-radius: 16px; }
+  .tt-spot-img { width: 112px; height: 136px; border-radius: 16px; }
+  .tt-spot-t { display: contents; }
+  .tt-spot .tt-tag { display: none; }
+  .tt-spot-t > :not(.tt-btns) { grid-column: 2; margin-bottom: 3px !important; }
+  .tt-spot-name { font-size: 18px; margin-top: 2px; }
+  .tt-spot-t p { font-size: 13px; line-height: 1.35; }
+  .tt-spot-fee b { font-size: 16px; }
+  .tt-btns { grid-column: 1 / -1; grid-row: 7; margin-top: 12px; }
+  .tt-btns .tt-btn { flex: 1; height: 42px; }
   .tt-li { grid-template-columns: 60px minmax(0, 1fr); gap: 12px; }
   .tt-li-img { width: 60px; height: 60px; border-radius: 14px; }
   .tt-li-btns { grid-column: 1 / -1; }
