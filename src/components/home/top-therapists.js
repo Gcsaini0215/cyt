@@ -61,8 +61,8 @@ function Spotlight({ t, color }) {
       <div className="tt-spot-t">
         <span className="tt-tag">{v.r ? <><svg viewBox="0 0 24 24" width="13" height="13" fill="#e3a83a" aria-hidden="true"><path d={STAR} /></svg> {v.r.avg.toFixed(1)} from {v.r.count} review{v.r.count > 1 ? "s" : ""}</> : "Verified psychologist"}</span>
         <Link href={v.href} className="tt-spot-name"><span>{v.name}</span><Tick s={20} /></Link>
-        <p className="tt-spot-role">{t.profile_type || "Mental Health Professional"}{v.exp ? ` · ${v.exp}` : ""}</p>
-        {v.langs && <p className="tt-spot-lang">Speaks {v.langs}</p>}
+        <p className="tt-spot-role">{t.profile_type || "Mental Health Professional"}</p>
+        {(v.langs || v.exp) && <p className="tt-spot-lang">{v.langs ? `Speaks ${v.langs}` : ""}{v.exp ? <span className="tt-exp">{v.langs ? " " : ""}({v.exp} exp)</span> : null}</p>}
         {v.r && <p className="tt-spot-rate"><Stars n={v.r.avg} /> <b>{v.r.avg.toFixed(1)}</b> ({v.r.count})</p>}
         {v.fee ? <p className="tt-spot-fee">Session from <b>₹{v.fee.toLocaleString("en-IN")}</b></p> : null}
         <div className="tt-btns">
@@ -84,7 +84,7 @@ function Row({ t, onPick, active }) {
       </button>
       <div className="tt-li-t">
         <Link href={v.href} className="tt-li-name"><span>{v.name}</span><Tick s={14} /></Link>
-        <small>{t.profile_type || "Psychologist"}{v.langs ? ` · ${v.langs}` : ""}</small>
+        <small><span className="tt-role">{t.profile_type || "Psychologist"}</span>{v.langs ? ` · ${v.langs}` : ""}{v.exp ? <span className="tt-exp"> ({v.exp})</span> : null}</small>
         <small className="tt-li-rate">{v.r ? <><Stars n={v.r.avg} /> <b>{v.r.avg.toFixed(1)}</b> ({v.r.count})</> : <b className="tt-new">New</b>}{v.fee ? <> · from <b>₹{v.fee.toLocaleString("en-IN")}</b></> : null}</small>
       </div>
       <div className="tt-li-btns">
@@ -133,7 +133,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
     { key: "top", label: "Top rated", n: lists.top.length },
     // "Available today" is off: therapists don't keep their weekly availability current
     { key: "today", label: "Available today", n: lists.today.length, hide: true },
-    { key: "near", label: `Near you · ${nearLabel}`, n: lists.near.length, hide: lists.near.length < 2 && tab !== "near" },
+    { key: "near", label: <>Near you<span className="tt-near-at"> · {nearLabel}</span></>, n: lists.near.length, hide: lists.near.length < 2 && tab !== "near" },
     { key: "inPerson", label: "In-person", n: lists.inPerson.length },
   ].filter((x) => !x.hide);
   const shown = lists[tab] || [];
@@ -321,6 +321,8 @@ const CSS = `
 .tt-li-name { display: flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 800; color: #0b1712 !important; text-decoration: none !important; }
 .tt-li-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tt-li-name:hover { color: #1e7a4c !important; }
+.tt-spot-t p.tt-spot-role, .tt-role { color: #1e7a4c; font-weight: 700; }
+.tt-exp { color: #64748b; white-space: nowrap; }
 .tt-li-t small { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tt-li-rate { display: flex; align-items: center; gap: 4px; } .tt-li-rate b { color: #0b1712; }
 .tt-new { font-size: 11px; color: #14532d !important; background: #ecc77d; border-radius: 5px; padding: 0 6px; }
@@ -334,8 +336,29 @@ const CSS = `
 .tt-empty button { height: 40px; padding: 0 18px; border-radius: 10px; border: none; background: #14532d; color: #fff; font-weight: 800; cursor: pointer; }
 
 /* iPad: spotlight on top, the list below */
-@media (max-width: 1199px) {
+/* iPad landscape / small laptops: keep the desktop left-right layout, just a smaller photo */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .tt-box { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+  .tt-spot { grid-template-columns: 190px minmax(0, 1fr); gap: 16px; padding: 14px; }
+  .tt-spot-img { width: 190px; height: 240px; }
+  .tt-spot-name { font-size: 22px; }
+  .tt-spot-t p { font-size: 14px; }
+  .tt-btn { padding: 0 14px; }
+  .tt-li { grid-template-columns: 60px minmax(0, 1fr); gap: 4px 12px; }
+  .tt-li-img { width: 60px; height: 60px; border-radius: 14px; }
+  .tt-li-btns { grid-column: 2; }
+}
+@media (max-width: 1023px) {
   .tt-box { grid-template-columns: minmax(0, 1fr); }
+}
+/* iPad portrait + phone: tabs on one line, languages on their own line below — nothing slides sideways */
+@media (max-width: 1199px) {
+  .tt-controls { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 0; border-bottom: 0; }
+  .tt-tabs { border-bottom: 1px solid #dfe8e2; overflow: visible; flex-wrap: wrap; }
+  .tt-langs { margin: 10px 0 0; padding: 0; border-left: 0; flex-wrap: wrap; overflow: visible; gap: 8px; }
+  .tt-langs button { height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid #d6e2da; background: #fff; }
+  .tt-langs button::after { display: none; }
+  .tt-langs button.on { background: #14532d; border-color: #14532d; color: #fff; }
 }
 @media (max-width: 767px) {
   .tt-sec { padding: 48px 0 44px; }
@@ -344,12 +367,13 @@ const CSS = `
   .tt-head { margin-bottom: 18px; } .tt-head > div { width: 100%; }
   .tt-title { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
   .tt-sub { font-size: 15px; max-width: none; }
-  .tt-controls { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 16px; padding: 0 16px; gap: 0 12px; }
-  .tt-controls::-webkit-scrollbar { display: none; }
-  .tt-tabs, .tt-langs { flex: none; overflow: visible; }
-  .tt-langs { margin-left: 0; padding-left: 10px; }
-  .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 9px; }
-  .tt-langs button { height: 36px; padding: 0 8px; }
+  .tt-controls { margin-bottom: 16px; }
+  .tt-tabs { gap: 0; }
+  .tt-tabs button { height: 36px; font-size: 13px; padding: 0 8px; gap: 4px; }
+  .tt-tabs button::after { left: 6px; right: 6px; }
+  .tt-langs { gap: 6px; }
+  .tt-near-at { display: none; }
+  .tt-langs button { height: 30px; padding: 0 11px; font-size: 12.5px; }
   /* phone: compact card — photo on the left, details beside it, buttons across the bottom */
   .tt-spot { grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: repeat(5, auto) 1fr auto; gap: 0 14px; padding: 12px; border-radius: 22px; align-items: start; }
   .tt-spot-frame { grid-column: 1; grid-row: 1 / 7; border-radius: 16px; }
