@@ -146,19 +146,19 @@ const CSS = `
 .sp-cta i { transition: transform .2s; }
 .sp-card:hover .sp-cta i { transform: translateX(3px); }
 
-.sp-helpcard { contain: size; isolation: isolate; background: #a9dcbd; border: 1px solid #8ccaa5; padding: 16px 16px 15px; justify-content: flex-start; gap: 8px; color: #0b3f26; box-shadow: 0 18px 36px -22px rgba(20,83,45,.45); }
-.sp-helpcard:hover { border-color: #1e7a4c; box-shadow: 0 22px 40px -18px rgba(20,83,45,.5); }
+.sp-helpcard { contain: size; isolation: isolate; background: #f8d97f; border: 1px solid #ecc35c; padding: 16px 16px 15px; justify-content: flex-start; gap: 8px; color: #0b3f26; box-shadow: 0 18px 36px -22px rgba(161,112,16,.5); }
+.sp-helpcard:hover { border-color: #c98f1c; box-shadow: 0 22px 40px -18px rgba(20,83,45,.5); }
 .sp-hc-glow { position: absolute; z-index: -1; width: 220px; height: 220px; right: -90px; top: -100px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.55), rgba(255,255,255,0) 65%); pointer-events: none; }
 .sp-hc-rings { position: absolute; z-index: -1; right: -46px; bottom: -46px; width: 150px; height: 150px; pointer-events: none; }
-.sp-hc-rings i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(20,83,45,.14); animation: sp-breathe 6s ease-in-out infinite; }
-.sp-hc-rings i:nth-child(2) { inset: 22px; animation-delay: -2s; border-color: rgba(20,83,45,.18); }
+.sp-hc-rings i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(161,112,16,.22); animation: sp-breathe 6s ease-in-out infinite; }
+.sp-hc-rings i:nth-child(2) { inset: 22px; animation-delay: -2s; border-color: rgba(161,112,16,.26); }
 .sp-hc-rings i:nth-child(3) { inset: 44px; animation-delay: -4s; background: rgba(255,255,255,.25); }
 @keyframes sp-breathe { 0%, 100% { transform: scale(.94); opacity: .7; } 50% { transform: scale(1.04); opacity: 1; } }
 .sp-hc-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.7); border: 1px solid rgba(20,83,45,.18); color: #14532d; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .sp-helpcard h3 { font-size: 18px; line-height: 1.2; font-weight: 800; color: #0b3f26; margin: 2px 0 0; letter-spacing: -.01em; }
-.sp-helpcard h3 em { font-style: normal; color: #1e7a4c; }
+.sp-helpcard h3 em { font-style: normal; color: #14532d; text-decoration: underline; text-decoration-color: rgba(20,83,45,.35); text-underline-offset: 4px; }
 .sp-card.sp-helpcard:hover .sp-body h3, .sp-card.sp-helpcard:hover h3 { color: #0b3f26; }
-.sp-helpcard p { font-size: 13px; color: #24543a; line-height: 1.5; margin: 0; padding: 0; }
+.sp-helpcard p { font-size: 13px; color: #4a3a12; line-height: 1.5; margin: 0; padding: 0; }
 .sp-hc-feel { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
 .sp-hc-feel a { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,.75); border: 1px solid rgba(20,83,45,.16); color: #14532d !important; font-size: 12.5px; font-weight: 700; text-decoration: none !important; transition: background .2s ease, border-color .2s ease, color .2s ease; }
 .sp-hc-feel a:hover { background: #14532d; color: #fff !important; border-color: #14532d; }
