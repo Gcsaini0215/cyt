@@ -28,11 +28,11 @@ const SHEET_MEDIA = "all"; // phones, iPads and (since 2026-11-28) desktop all u
 // the photos behind the title fade from one to the next with a slow zoom (the cards below already slide sideways)
 // pos = crop on portrait screens, posL = crop on wide screens (iPad landscape), so the title never sits on a face
 const PHONE_SLIDES = [
-  { src: "/assets/img/hero-phone-2.webp", alt: "A young woman on a call, calm and smiling, standing out from a crowd", pos: "center 100%", posL: "center 76%", posD: "center 68%", dz: true, zp: true, kick: "Feeling lost in the crowd?" },
+  { src: "/assets/img/hero-phone-2.webp", alt: "Young woman smiling on a phone call with a psychologist, standing out from a crowd — online therapy in India", pos: "center 100%", posL: "center 76%", posD: "center 68%", dz: true, zp: true, kick: "Feeling lost in the crowd?" },
   // fit: on iPad landscape he sits on the right at full height and the blue fills the rest; title bottom-left
-  { src: "/assets/img/hero-call.webp", alt: "A smiling psychologist calling out from a phone screen", pos: "center 22%", posL: "right center", posD: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
+  { src: "/assets/img/hero-call.webp", alt: "Psychologist calling out from a phone screen — talk to a verified psychologist on call or video", pos: "center 22%", posL: "right center", posD: "right center", kick: "Your psychologist is just a call away.", fit: true, bgc: "#5cb7ee" },
   // wide photo: on phones / iPad portrait it sits at the top in full and fades into its own colour, the title below
-  { src: "/assets/img/hero-man.webp", alt: "A smiling young man relaxing on a bean bag with his phone", pos: "center top", posL: "center 0%", posD: "center 8%", kick: "Therapist, right from your phone.", wide: true, bgc: "#fd7201" },
+  { src: "/assets/img/hero-man.webp", alt: "Relaxed young man on a bean bag booking an online therapy session on his phone", pos: "center top", posL: "center 0%", posD: "center 8%", wtop: "11%", kick: "Therapist, right from your phone.", wide: true, bgc: "#fd7201" },
 ];
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
@@ -54,7 +54,7 @@ function PhoneSlides({ i, setI }) {
       onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { if (startX.current == null) return; const dx = e.changedTouches[0].clientX - startX.current; startX.current = null; if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1)); }}>
       {PHONE_SLIDES.map((sl, k) => (
-        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}${sl.dz ? " dz" : ""}${sl.zp ? " zp" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--opd": sl.posD || sl.pos, "--bgc": sl.bgc || "transparent" }}>
+        <picture key={sl.src} className={`cyt-hph-s${k === i ? " on" : ""}${sl.fit ? " fit" : ""}${sl.wide ? " wide" : ""}${sl.dz ? " dz" : ""}${sl.zp ? " zp" : ""}`} style={{ "--op": sl.pos, "--opl": sl.posL, "--opd": sl.posD || sl.pos, "--wt": sl.wtop || "0px", "--bgc": sl.bgc || "transparent" }}>
           <source media={SHEET_MEDIA} srcSet={sl.src} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={BLANK} alt={k === i ? sl.alt : ""} aria-hidden={k !== i} decoding="async" fetchpriority={k === 0 ? "high" : undefined} />
@@ -757,7 +757,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hph-s img { width: 100%; height: 100%; object-fit: cover; object-position: var(--op); display: block; transform: scale(1.01); transition: transform 7s ease-out; will-change: transform; }
           .cyt-hph-s.on img { transform: scale(1.07); }
           .cyt-hph-s.wide { background: var(--bgc); }
-          .cyt-hph-s.wide img { height: auto; position: absolute; top: 0; left: 0; transform-origin: center top;
+          .cyt-hph-s.wide img { height: auto; position: absolute; top: var(--wt, 0px); left: 0; transform-origin: center top;
             -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%); mask-image: linear-gradient(180deg, #000 72%, transparent 100%); }
           .cyt-hph-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,28,17,0) 0%, rgba(8,28,17,0) 45%, rgba(8,28,17,.8) 100%); pointer-events: none; }
           .cyt-hph-shade2 { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; pointer-events: none;
@@ -828,7 +828,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hph-s.fit { background: var(--bgc); }
           .cyt-hph-s.fit img { position: absolute; right: 4%; left: auto; width: auto; max-width: none; height: 100%; transform-origin: right center;
             -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 20%); mask-image: linear-gradient(90deg, transparent 0, #000 20%); }
-          .cyt-hph-s.wide img { height: 100%; object-fit: cover; -webkit-mask-image: none; mask-image: none; }
+          .cyt-hph-s.wide img { top: 0; height: 100%; object-fit: cover; -webkit-mask-image: none; mask-image: none; }
           .cyt-hero .cyt-hero-copy > .cyt-kick { margin: 0 0 14px !important; }
           .cyt-kick span { font-size: 17px; }
           .cyt-hero .cyt-title { font-size: clamp(40px, 3.6vw, 54px) !important; max-width: 820px; }
@@ -878,7 +878,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hph-s.fit img { position: absolute; right: 0; left: auto; width: auto; height: 100%; transform-origin: right center;
             -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%); mask-image: linear-gradient(90deg, transparent 0, #000 22%); }
           .cyt-hero .cyt-hero-copy.cyt-pos-top { justify-content: flex-end !important; padding-top: 0 !important; }
-          .cyt-hph-s.wide img { height: 100%; object-fit: cover; -webkit-mask-image: none; mask-image: none; }
+          .cyt-hph-s.wide img { top: 0; height: 100%; object-fit: cover; -webkit-mask-image: none; mask-image: none; }
           .cyt-hero .cyt-hero-copy.cyt-pos-topl { justify-content: flex-start !important; padding-top: 34px !important; }
           .cyt-hero .cyt-hero-copy.cyt-pos-topl > .cyt-title { font-size: 40px !important; }
           .cyt-hph-dots { left: auto; right: 32px; }

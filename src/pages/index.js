@@ -224,9 +224,10 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
-        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home&v=2" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Talk to a verified psychologist online, anywhere in India — Choose Your Therapist" />
         <meta property="og:url" content={canonicalUrl} />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
@@ -235,7 +236,8 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home&v=2" />
+        <meta name="twitter:image:alt" content="Talk to a verified psychologist online, anywhere in India — Choose Your Therapist" />
         <meta name="twitter:site" content="@CYT_India" />
 
         {/* Local SEO Meta Tags - Fixed defaulting to Noida, India for Google sync */}
@@ -298,7 +300,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
                 "height": 512
               },
               "image": [
-                "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home",
+                "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home&v=2",
                 "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-sector-51.jpg",
                 "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-team.jpg"
               ],

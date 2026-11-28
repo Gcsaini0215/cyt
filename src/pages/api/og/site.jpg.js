@@ -1,6 +1,6 @@
 // Share / search card for site pages, built from real therapist photos (and the real Noida centre):
 //   /api/og/site.jpg?page=home | directory | city&city=Delhi | concern&concern=Anxiety | join | noida | careers
-import { siteCard, noidaCard, careersCard, sendJpeg } from "../../../utils/og-images";
+import { siteCard, noidaCard, careersCard, homeCard, sendJpeg } from "../../../utils/og-images";
 import { apiUrl } from "../../../utils/url";
 
 // open job titles for the careers card (the card still renders if the API is slow or down)
@@ -20,7 +20,8 @@ async function openRoles() {
 export default async function handler(req, res) {
   const { page = "home", city = "", concern = "" } = req.query;
   try {
-    const jpg = page === "noida" ? await noidaCard()
+    const jpg = page === "home" ? await homeCard()
+      : page === "noida" ? await noidaCard()
       : page === "careers" ? await careersCard({ roles: await openRoles() })
       : await siteCard({ page: String(page), city: String(city).slice(0, 40), concern: String(concern).slice(0, 40) });
     return sendJpeg(res, jpg, page === "careers" ? 3600 : 86400);

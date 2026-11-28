@@ -207,6 +207,46 @@ export async function siteCard({ page = "home", city = "", concern = "" } = {}) 
   return toJpeg(await canvas(), layers);
 }
 
+// Home share card (owner 2026-11-28): the home banner's photo (the girl on the phone, golden background) on the right,
+// a dark shade on the left with the logo tab, the title with the yellow "Psychologist" highlight, the live count.
+export async function homeCard() {
+  const { list } = await getSlugMaps();
+  const photo = fs.readFileSync(path.join(process.cwd(), "public/assets/img/hero-phone-2.webp"));
+  // zoomed so she sits right of centre with her face in the upper half (same idea as the desktop banner)
+  const big = await sharp(photo).resize({ width: 1500 }).png().toBuffer();
+  const meta = await sharp(big).metadata();
+  const top = Math.max(0, Math.min(meta.height - H, Math.round(meta.height * 0.6) - 360));
+  const bg = await sharp(big).extract({ left: 0, top, width: W, height: H }).png().toBuffer();
+  const layers = [];
+  layers.push({ input: bg, left: 0, top: 0 });
+  layers.push({ input: Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="l" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#08200f" stop-opacity=".86"/><stop offset=".42" stop-color="#08200f" stop-opacity=".6"/><stop offset=".66" stop-color="#08200f" stop-opacity="0"/></linearGradient>
+      <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset=".7" stop-color="#08200f" stop-opacity="0"/><stop offset="1" stop-color="#08200f" stop-opacity=".45"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#l)"/><rect width="${W}" height="${H}" fill="url(#b)"/>
+    <rect x="0" y="${H - 8}" width="${W}" height="8" fill="${GOLD}"/>
+  </svg>`), left: 0, top: 0 });
+  await logoTab(layers, 56, 48);
+  const X = 60, TW = 620;
+  const kick = await text("<b>Feeling lost in the crowd?</b>", { size: 22, color: "#10301d", width: 520, lines: 1 });
+  const kw = kick.info.width + 44;
+  layers.push({ input: rect(kw, 44, "#ffffff", 22), left: X, top: 196 });
+  layers.push({ input: Buffer.from(`<svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#ffd23f"/></svg>`), left: X + 16, top: 211 });
+  layers.push({ input: kick.data, left: X + 36, top: 196 + Math.round((44 - kick.info.height) / 2) });
+  const t1 = await text(`<b>Talk to a verified</b>`, { size: 52, color: "#ffffff", width: TW, lines: 1 });
+  layers.push({ input: t1.data, left: X, top: 262 });
+  const hl = await text(`<b>Psychologist</b>`, { size: 52, color: "#10301d", width: TW, lines: 1 });
+  layers.push({ input: rect(hl.info.width + 28, hl.info.height + 10, "#ffd23f", 10), left: X - 4, top: 262 + t1.info.height + 6 });
+  layers.push({ input: hl.data, left: X + 10, top: 262 + t1.info.height + 11 });
+  const y3 = 262 + t1.info.height + hl.info.height + 24;
+  const t3 = await text(`<b>online, anywhere in India.</b>`, { size: 44, color: "#ffffff", width: TW, lines: 1 });
+  layers.push({ input: t3.data, left: X, top: y3 });
+  const sub = await text(`${list.length} verified psychologists  ·  <span foreground="${GOLD}">★</span> <b>5.0 on Google</b>  ·  chooseyourtherapist.in`, { size: 21, color: "#e7efe9", width: TW + 120, lines: 1 });
+  layers.push({ input: sub.data, left: X, top: H - 64 - sub.info.height });
+  return toJpeg(await canvas("#f6cc56"), layers);
+}
+
 // Noida: the real centre photo (Google Business Profile) with the address on it
 export async function noidaCard() {
   const photo = fs.readFileSync(path.join(process.cwd(), "public/images/centre/cyt-noida-centre-sector-51.jpg"));
